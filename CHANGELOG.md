@@ -17,7 +17,8 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Added HealthKit, Keychain, OpenAI, and privacy consent service boundaries.
 - Added deterministic calorie burn estimator, nutrition parser, HealthKit mapping, and summary service.
 - Added SwiftPM core test target and Xcode unit-test target.
+- Initialized local git repository on `main` and created initial commit `8b03fc0`.
 
 ### Blocked
-- `swift test`, `xcodebuild`, and `/usr/bin/git` are blocked until the Apple SDK license is accepted locally.
+- `swift test` and `xcodebuild` are blocked until the Apple SDK license is accepted locally.
 - GitHub repository creation and push are blocked until `gh auth login -h github.com` refreshes the invalid GitHub token.

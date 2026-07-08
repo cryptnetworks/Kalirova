@@ -18,6 +18,7 @@ Demo Notes:
 
 Environment Notes:
 - `xcodebuild` requires full Xcode selection before command-line app builds can run.
-- `swift test`, `xcodebuild`, and `/usr/bin/git` currently exit with the Apple SDK license error.
+- `swift test` and `xcodebuild` currently exit with the Apple SDK license error.
+- Local git initialization and initial commit succeeded after escalation.
 - `sudo xcodebuild -license accept` was approved but could not run because `sudo` requires an interactive password.
 - `gh auth status` reports an invalid token for `cryptnetworks`; GitHub publish is pending re-authentication.
