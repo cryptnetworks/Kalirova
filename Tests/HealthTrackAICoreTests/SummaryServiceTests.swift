@@ -2,7 +2,7 @@ import XCTest
 @testable import HealthTrackAICore
 
 final class SummaryServiceTests: XCTestCase {
-    func testWeeklySummaryCalculatesAveragesAndDisclaimer() {
+    func testWeeklySummaryCalculatesAveragesAndDisclaimer() throws {
         let service = SummaryService()
         let baseDate = Date(timeIntervalSince1970: 0)
         let days = (0..<7).map { offset in
@@ -32,9 +32,9 @@ final class SummaryServiceTests: XCTestCase {
         XCTAssertEqual(summary.averageCaloriesIn, 2_000)
         XCTAssertEqual(summary.averageProtein, 130)
         XCTAssertEqual(summary.workoutMinutes, 245)
-        XCTAssertEqual(summary.weightTrendKg, -0.6, accuracy: 0.01)
+        let weightTrendKg = try XCTUnwrap(summary.weightTrendKg)
+        XCTAssertEqual(weightTrendKg, -0.6, accuracy: 0.01)
         XCTAssertGreaterThan(summary.adherenceScore, 0.9)
         XCTAssertEqual(summary.disclaimer, SummaryService.wellnessDisclaimer)
     }
 }
-

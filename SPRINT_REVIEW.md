@@ -13,12 +13,10 @@ Completed:
 - Deterministic core services and unit tests for calorie estimates, meal parsing, HealthKit mapping, and summary generation.
 
 Demo Notes:
-- Open `HealthTrackAI.xcodeproj` after accepting the Apple SDK license and selecting full Xcode.
-- Core package tests are available through `swift test` once the license gate is resolved.
+- Open `HealthTrackAI.xcodeproj` in Xcode.
+- Core package tests pass through `swift test`.
+- The app target builds for a generic iOS Simulator destination.
 
 Environment Notes:
-- `xcodebuild` requires full Xcode selection before command-line app builds can run.
-- `swift test` and `xcodebuild` currently exit with the Apple SDK license error.
 - Local git initialization and initial commit succeeded after escalation.
-- `sudo xcodebuild -license accept` was approved but could not run because `sudo` requires an interactive password.
 - `gh auth status` reports an invalid token for `cryptnetworks`; GitHub publish is pending re-authentication.

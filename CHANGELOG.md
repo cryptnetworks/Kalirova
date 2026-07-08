@@ -19,6 +19,10 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Added SwiftPM core test target and Xcode unit-test target.
 - Initialized local git repository on `main` and created initial commit `8b03fc0`.
 
+### Fixed
+- Corrected weekly summary test optional unwrapping.
+- Added Swift 6 concurrency annotation for the Keychain service singleton.
+- Corrected OpenAI payload preview error propagation.
+
 ### Blocked
-- `swift test` and `xcodebuild` are blocked until the Apple SDK license is accepted locally.
 - GitHub repository creation and push are blocked until `gh auth login -h github.com` refreshes the invalid GitHub token.

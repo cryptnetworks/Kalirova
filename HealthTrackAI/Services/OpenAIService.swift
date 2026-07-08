@@ -62,7 +62,7 @@ final class OpenAIService {
             endpoint: endpoint.absoluteString,
             model: model,
             purpose: "Estimate nutrition from one user-provided meal description.",
-            payload: payload.prettyPrintedJSONString()
+            payload: try payload.prettyPrintedJSONString()
         )
     }
 
@@ -224,4 +224,3 @@ private extension Dictionary where Key == String, Value == Any {
         return String(data: data, encoding: .utf8) ?? "{}"
     }
 }
-

@@ -13,7 +13,7 @@ enum KeychainServiceError: LocalizedError {
     }
 }
 
-final class KeychainService {
+final class KeychainService: @unchecked Sendable {
     static let shared = KeychainService()
 
     private let service = "com.healthtrackai.app"
@@ -86,4 +86,3 @@ final class KeychainService {
         }
     }
 }
-
