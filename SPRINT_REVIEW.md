@@ -19,4 +19,4 @@ Demo Notes:
 
 Environment Notes:
 - Local git initialization and initial commit succeeded after escalation.
-- `gh auth status` reports an invalid token for `cryptnetworks`; GitHub publish is pending re-authentication.
+- GitHub repository creation and `main` branch push succeeded.

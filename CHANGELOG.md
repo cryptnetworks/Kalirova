@@ -18,11 +18,9 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Added deterministic calorie burn estimator, nutrition parser, HealthKit mapping, and summary service.
 - Added SwiftPM core test target and Xcode unit-test target.
 - Initialized local git repository on `main` and created initial commit `8b03fc0`.
+- Created private GitHub repository `cryptnetworks/HealthTrackAI` and pushed `main`.
 
 ### Fixed
 - Corrected weekly summary test optional unwrapping.
 - Added Swift 6 concurrency annotation for the Keychain service singleton.
 - Corrected OpenAI payload preview error propagation.
-
-### Blocked
-- GitHub repository creation and push are blocked until `gh auth login -h github.com` refreshes the invalid GitHub token.

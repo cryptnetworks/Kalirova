@@ -17,7 +17,7 @@ Goal: Create the repository, SCRUM documentation, SwiftUI app scaffold, local-fi
 | S0-T5 | S0.2 | Add isolated HealthKit, OpenAI, privacy consent, and Keychain services. | Done |
 | S0-T6 | S0.3 | Add deterministic core services and SwiftPM test target. | Done |
 | S0-T7 | S0.3 | Run available tests/build checks and document any environment blockers. | Done |
-| S0-T8 | S0.1 | Initialize git, commit foundation changes, create GitHub repo, and push `main`. | Partially done: local repo initialized on `main` and local commits created; GitHub creation/push blocked by invalid GitHub CLI token. |
+| S0-T8 | S0.1 | Initialize git, commit foundation changes, create GitHub repo, and push `main`. | Done |
 
 ## Verification Log
 
@@ -30,7 +30,7 @@ Goal: Create the repository, SCRUM documentation, SwiftUI app scaffold, local-fi
 - `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build`: passed.
 - `git init -b main`: passed after escalation.
 - `git commit -m "feat: scaffold HealthTrack AI app"`: passed with commit `8b03fc0`.
-- `gh auth status`: blocked because the saved GitHub token for `cryptnetworks` is invalid.
+- `gh repo create HealthTrackAI --private --source=. --remote=origin --push`: passed; `main` tracks `origin/main`.
 
 ## Working Agreement
 
