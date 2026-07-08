@@ -1,0 +1,69 @@
+# HealthTrack AI
+
+HealthTrack AI is a native SwiftUI iPhone app for private, on-device health tracking. It keeps health data local by default, imports Apple Health data through HealthKit, estimates exercise calories independently from device-reported values, and offers optional per-interaction ChatGPT assistance only after showing the exact data that will be sent.
+
+> Wellness disclaimer: this app is for wellness tracking only and is not medical advice.
+
+## Current Sprint
+
+Sprint 0 establishes the repository, SCRUM workflow, privacy architecture, SwiftUI app scaffold, core calorie and summary logic, and test coverage for the first deterministic services.
+
+## Repository Rules
+
+- Primary branch: `main`.
+- Use conventional commits.
+- Keep commits small and traceable to `PRODUCT_BACKLOG.md` and `SPRINT_BACKLOG.md`.
+- Never commit API keys, tokens, HealthKit data, personal health data, generated user data, exports, local databases, or local config.
+- Update backlog, changelog, and affected docs with each meaningful change.
+- Run relevant checks before committing whenever possible.
+
+## Local Setup
+
+1. Open `HealthTrackAI.xcodeproj` in Xcode.
+2. Select a development team for signing.
+3. Enable the HealthKit capability on the app target.
+4. Run on a physical iPhone for HealthKit functionality. Simulator previews use mock data.
+5. Optional OpenAI features require an API key stored in Keychain from Settings. Do not place API keys in source files, plist files, or commits.
+
+## Build And Test
+
+The app target requires full Xcode with iOS SDK support. Core deterministic logic is also exposed as a Swift package so it can be tested from the command line:
+
+```sh
+swift test
+```
+
+If `xcodebuild` reports that Command Line Tools are selected, switch to full Xcode:
+
+```sh
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+```
+
+## Architecture
+
+- UI: SwiftUI with MVVM view models.
+- Local persistence: SwiftData models.
+- Apple Health integration: HealthKit service isolated behind async APIs.
+- Exercise calories: app-estimated calories are stored separately from device-reported calories.
+- AI: OpenAI integration is optional, isolated, and opt-in per request.
+- Analytics/cloud database: none.
+
+See `ARCHITECTURE.md` and `PRIVACY.md` for details.
+
+## HealthKit Entitlements
+
+HealthKit requires:
+
+- App target HealthKit capability.
+- `com.apple.developer.healthkit` entitlement.
+- Clear HealthKit purpose strings in the generated Info.plist.
+- Permission requests scoped to the data types needed by the selected feature.
+
+## SCRUM Artifacts
+
+- `PRODUCT_BACKLOG.md`
+- `SPRINT_BACKLOG.md`
+- `SPRINT_REVIEW.md`
+- `SPRINT_RETROSPECTIVE.md`
+- `CHANGELOG.md`
+

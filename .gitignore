@@ -1,0 +1,73 @@
+# Xcode
+DerivedData/
+build/
+Build/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.moved-aside
+*.xccheckout
+*.xcresult
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# CocoaPods / Carthage / fastlane
+Pods/
+Carthage/Build/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Secrets, API keys, and local config
+.env
+.env.*
+!.env.example
+Secrets.plist
+secrets.plist
+*.p8
+*.pem
+*.cer
+*.mobileprovision
+*.provisionprofile
+Config.local.*
+LocalConfig.*
+OpenAIKey.*
+APIKeys.*
+
+# Health/user data exports and generated local data
+*.healthdata
+*.hkarchive
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.store
+*.csv
+*.tsv
+exports/
+UserData/
+GeneratedData/
+
