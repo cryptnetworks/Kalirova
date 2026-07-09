@@ -23,7 +23,8 @@ Current audit findings:
 
 - App framework: native SwiftUI iOS app in `Kalirova.xcodeproj`.
 - Build system: Xcode project plus Swift Package Manager package for core logic.
-- Dependency manager: Swift Package Manager.
+- Dependency manager: Swift Package Manager with Swift tools version 6.0.
+- Local validation toolchain: Xcode 26.6 and Swift 6.3.3.
 - External SwiftPM dependencies: none detected by `swift package show-dependencies`.
 - CocoaPods: no `Podfile` or `Podfile.lock` detected.
 - npm: no `package.json` or npm lockfile detected.
@@ -46,7 +47,7 @@ rg -n --hidden --glob '!.git/**' --glob '!.build/**' "(sk-[A-Za-z0-9_-]{20,}|git
 
 GitHub security automation:
 
-- Dependabot monitors GitHub Actions and Swift Package Manager.
+- Dependabot monitors Swift Package Manager and grouped GitHub Actions updates.
 - Dependency Review runs on pull requests.
 - CodeQL analyzes Swift on source/workflow pull requests, weekly scheduled runs, and manual dispatch.
 - Swift Package inventory runs on Swift dependency-file changes, weekly scheduled runs, and manual dispatch.

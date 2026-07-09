@@ -23,13 +23,14 @@ GitHub Actions runs:
 - CodeQL for Swift on source/workflow pull requests, weekly schedule, and manual runs
 - SwiftPM dependency inventory on dependency-file changes, weekly schedule, and manual runs
 - Conditional CocoaPods, npm, and Bundler audit commands when lockfiles exist
+- Dependabot checks Swift Package Manager and GitHub Actions weekly; GitHub Actions updates are grouped to reduce overlapping PRs.
 
 Current repository security settings:
 
 - Secret scanning: enabled
 - Secret scanning push protection: enabled
 - Code scanning alerts: no open alerts in the latest manual check
-- Dependabot configuration: present for GitHub Actions and Swift Package Manager
+- Dependabot configuration: present for Swift Package Manager and grouped GitHub Actions updates
 - Dependabot security updates/alerts: disabled in GitHub repository settings and should be enabled by an admin
 
 Security scans intentionally do not run on every push to `main`; pull request, scheduled, and manual coverage keeps the advisory checks reliable without duplicating work already covered by CI.

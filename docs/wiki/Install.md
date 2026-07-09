@@ -3,8 +3,9 @@
 ## Requirements
 
 - macOS with full Xcode installed
-- iOS 17 SDK or newer
-- Swift 6 toolchain
+- Xcode 26.6 or newer stable Xcode when available
+- Swift 6 toolchain. Current local validation uses Swift 6.3.3
+- iOS 17 SDK or newer. Kalirova keeps iOS 17 as the deployment target for device compatibility
 - A physical iPhone for HealthKit functionality
 - Apple Developer signing team for physical-device builds
 

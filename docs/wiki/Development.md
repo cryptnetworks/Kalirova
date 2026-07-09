@@ -6,6 +6,8 @@
 - Xcode project: `Kalirova.xcodeproj`
 - Scheme: `Kalirova`
 - Swift Package Manager package: `Package.swift`
+- Swift tools version: 6.0, validated locally with Xcode 26.6 and Swift 6.3.3
+- Minimum deployment target: iOS 17
 - Tests: SwiftPM tests under `Tests/` and Xcode tests under `KalirovaTests/`
 - CI/CD: GitHub Actions in `.github/workflows/`
 
@@ -35,6 +37,10 @@ GitHub Actions are split so documentation-only changes do not run iOS builds:
 - Security runs on pull requests, weekly schedule, and manual dispatch.
 
 See `docs/ci-efficiency.md` for caching details and manual run guidance.
+
+## Dependency Updates
+
+Dependabot monitors Swift Package Manager and GitHub Actions. GitHub Actions updates are grouped so related action bumps arrive together instead of as overlapping single-action pull requests. This repository currently has no external SwiftPM packages, CocoaPods, npm, Ruby/Bundler, Python, Docker, Carthage, or Fastlane dependency stack.
 
 ## Workflow
 

@@ -70,6 +70,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T18 | S0.4 | Optimize GitHub Actions triggers, path-aware jobs, concurrency, caching, and CI efficiency documentation. | Done |
 | S1-T19 | S9.4 | Audit and unify the app-wide color system, fix low-contrast text states, and validate Light/Dark Mode readability. | Done |
 | S1-T20 | S1.1, S7.3 | Fix OpenAI API key keyboard dismissal and add validated profile username editing. | Done |
+| S1-T21 | S0.4 | Update stable workflow dependency versions, review Dependabot PRs, and document current validated toolchain requirements. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -149,3 +150,15 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T20: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
 - S1-T20: `swift test` passed with 9 XCTest tests and 0 failures.
 - S1-T20: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -configuration Debug test` passed with 9 tests and 0 failures.
+- S1-T21: Repository audit found Swift Package Manager only; no CocoaPods, Carthage, Fastlane, Ruby/Bundler, Node, Python, Docker, or external SwiftPM dependencies were present.
+- S1-T21: Local toolchain check showed Xcode 26.6 and Swift 6.3.3; Swift tools version remains 6.0 and app deployment target remains iOS 17 for compatibility.
+- S1-T21: Reviewed Dependabot PRs #1, #2, and #3 for CodeQL v4, dependency-review v5, and checkout v7; all were superseded by the consolidated local workflow update.
+- S1-T21: Workflow and Dependabot YAML parsed successfully with Ruby `YAML.load_file`.
+- S1-T21: Stale GitHub Actions version scan found no old action references after updates.
+- S1-T21: `swift package show-dependencies` reported no external dependencies.
+- S1-T21: Code scanning API returned no open alerts; Dependabot alerts API reported that Dependabot alerts are disabled in repository settings.
+- S1-T21: Secret-pattern scan matched only documented example scan commands, not real credentials.
+- S1-T21: Unsafe logging scan for `print`, `debugPrint`, `NSLog`, and `os_log` returned no matches in app or test sources.
+- S1-T21: `swift test` passed with 9 XCTest tests and 0 failures.
+- S1-T21: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
+- S1-T21: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 9 tests and 0 failures.

@@ -22,8 +22,9 @@ Sprint 1 improves onboarding/profile input, editable profile username, unit pref
 Requirements:
 
 - macOS with full Xcode installed.
-- iOS 17 SDK or newer.
-- Swift 6 toolchain.
+- Xcode 26.6 or newer stable Xcode when available.
+- Swift 6 toolchain. The current local validation toolchain is Swift 6.3.3.
+- iOS 17 SDK or newer. The app deployment target remains iOS 17 to avoid dropping supported devices unnecessarily.
 - A physical iPhone for HealthKit functionality.
 - Apple Developer signing team for physical-device builds. A Personal Development Team can build local development versions when iCloud capability is disabled.
 
@@ -70,6 +71,7 @@ GitHub Actions are path-aware to avoid burning macOS runner minutes on docs-only
 - Security automation runs on pull requests, weekly schedule, and manual dispatch instead of every push.
 - Wiki sync runs only when `docs/wiki/**` or the wiki workflow changes.
 - Swift Package Manager cache is enabled; Xcode DerivedData is intentionally not cached.
+- GitHub Actions dependencies are kept on current stable major versions, including checkout v7, cache v6, dependency-review v5, CodeQL v4, and paths-filter v4.
 
 See `docs/ci-efficiency.md` for the full trigger and caching policy.
 

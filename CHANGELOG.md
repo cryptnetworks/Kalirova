@@ -33,6 +33,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Created private GitHub repository `cryptnetworks/Kalirova` and pushed `main`.
 
 ### Fixed
+- Updated GitHub Actions dependencies to current stable versions, grouped future Dependabot action updates, and documented the validated Xcode/Swift toolchain.
 - Fixed Settings/Profile usability by adding keyboard dismissal for OpenAI API key entry and a validated username edit flow that persists to the local profile without resetting user data or Keychain secrets.
 - Unified app-wide colors behind semantic theme tokens, replaced low-contrast text/status colors, and aligned onboarding, dashboard, meals, activity, insights, profile, cards, buttons, charts, and empty states with Light/Dark Mode readable colors.
 - Optimized GitHub Actions to skip macOS iOS build/test jobs for docs-only changes, remove security scans from every push, cache Swift Package Manager state, and keep wiki sync scoped to wiki docs.

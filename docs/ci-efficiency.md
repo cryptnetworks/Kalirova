@@ -42,6 +42,19 @@ The cache key is based on `Package.swift` and `Package.resolved`. This avoids ca
 
 CocoaPods, npm, and Bundler caches are not configured because this repository currently has no `Podfile.lock`, npm lockfile, or `Gemfile.lock`.
 
+## Action Versions
+
+Workflows use current stable action versions and major tags where the upstream action provides a maintained stable major:
+
+- `actions/checkout@v7`
+- `actions/cache@v6`
+- `actions/dependency-review-action@v5`
+- `github/codeql-action@v4`
+- `dorny/paths-filter@v4`
+- `maxim-lobanov/setup-xcode@v1.7.0`
+
+Dependabot groups GitHub Actions updates so compatible action bumps can be reviewed together.
+
 ## Manual Runs
 
 Use GitHub Actions `Run workflow` for:
