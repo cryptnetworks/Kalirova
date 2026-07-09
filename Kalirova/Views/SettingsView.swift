@@ -3,7 +3,9 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = true
+    @AppStorage(PersistenceService.iCloudBackupEnabledKey) private var storedICloudBackupEnabled = false
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var persistenceService: PersistenceService
 
     @Query private var profiles: [UserProfile]
     @Query private var meals: [MealEntry]
@@ -14,17 +16,21 @@ struct SettingsView: View {
     @Query private var settings: [AppSettings]
 
     @StateObject private var healthKitService = HealthKitService()
+    @StateObject private var iCloudBackupService = ICloudBackupService()
     @State private var aiFeaturesEnabled = false
     @State private var healthKitSyncEnabled = false
     @State private var showDeviceCalories = true
     @State private var showAppEstimatedCalories = true
     @State private var openAIModel = "gpt-5.5"
     @State private var unitSystem: UnitSystem = .metric
+    @State private var iCloudBackupEnabled = false
     @State private var apiKey = ""
     @State private var maskedAPIKey: String?
     @State private var isTestingConnection = false
     @State private var statusMessage: String?
     @State private var showingDeleteConfirmation = false
+    @State private var showingICloudEnableWarning = false
+    @State private var requestedICloudBackupState = false
 
     private let openAIService = OpenAIService()
 
@@ -60,6 +66,31 @@ struct SettingsView: View {
                     }
                     Text(healthKitService.authorizationStatusText)
                         .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("iCloud Backup") {
+                    Toggle("Enable iCloud Backup", isOn: Binding(
+                        get: { iCloudBackupEnabled },
+                        set: { updateICloudBackupPreference($0) }
+                    ))
+                    Text("Health data is stored on this device unless iCloud Backup is enabled. When enabled, supported Kalirova app data may sync through your private iCloud account.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Label(iCloudBackupService.availabilityText, systemImage: iCloudBackupService.isAvailable ? "icloud" : "icloud.slash")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Label("Last backup: \(iCloudBackupService.formattedLastBackup())", systemImage: "clock")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Button {
+                        backUpNow()
+                    } label: {
+                        Label("Back Up Now", systemImage: "icloud.and.arrow.up")
+                    }
+                    .disabled(!iCloudBackupEnabled || !iCloudBackupService.isAvailable)
+                    Text("OpenAI API keys, logs, caches, debug data, and OpenAI request data are not included in iCloud backup.")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
@@ -142,6 +173,14 @@ struct SettingsView: View {
             .onChange(of: showAppEstimatedCalories) { _, _ in saveSettings() }
             .onChange(of: openAIModel) { _, _ in saveSettings() }
             .onChange(of: unitSystem) { _, _ in saveSettings() }
+            .alert("Enable iCloud Backup?", isPresented: $showingICloudEnableWarning) {
+                Button("Enable", action: enableICloudBackupAfterWarning)
+                Button("Cancel", role: .cancel) {
+                    requestedICloudBackupState = false
+                }
+            } message: {
+                Text("Your Kalirova app data may be stored in your private iCloud account. Do not enable this on shared Apple IDs.")
+            }
             .alert("Delete all local data?", isPresented: $showingDeleteConfirmation) {
                 Button("Delete", role: .destructive, action: deleteAllLocalData)
                 Button("Cancel", role: .cancel) {}
@@ -159,6 +198,8 @@ struct SettingsView: View {
         showAppEstimatedCalories = current?.showAppEstimatedCalories ?? true
         openAIModel = current?.openAIModel ?? "gpt-5.5"
         unitSystem = current?.unitSystem ?? profiles.first?.preferredUnitSystem ?? .metric
+        iCloudBackupEnabled = storedICloudBackupEnabled || (current?.iCloudBackupEnabled ?? false)
+        iCloudBackupService.refreshAvailability()
 
         do {
             if let storedAPIKey = try KeychainService.shared.loadOpenAIAPIKey() {
@@ -185,8 +226,68 @@ struct SettingsView: View {
         current.showAppEstimatedCalories = showAppEstimatedCalories
         current.openAIModel = openAIModel
         current.unitSystemRawValue = unitSystem.rawValue
+        current.iCloudBackupEnabled = iCloudBackupEnabled
+        current.lastICloudBackupAt = iCloudBackupService.lastBackupAt
         current.updatedAt = .now
         try? modelContext.save()
+    }
+
+    private func updateICloudBackupPreference(_ isEnabled: Bool) {
+        if isEnabled {
+            requestedICloudBackupState = true
+            showingICloudEnableWarning = true
+        } else {
+            applyICloudBackupPreference(false)
+        }
+    }
+
+    private func enableICloudBackupAfterWarning() {
+        guard requestedICloudBackupState else { return }
+        requestedICloudBackupState = false
+        applyICloudBackupPreference(true)
+    }
+
+    private func applyICloudBackupPreference(_ isEnabled: Bool) {
+        let previousState = storedICloudBackupEnabled
+        do {
+            iCloudBackupEnabled = isEnabled
+            storedICloudBackupEnabled = isEnabled
+            saveSettings()
+            try modelContext.save()
+            try persistenceService.setICloudBackupEnabled(isEnabled)
+            if isEnabled {
+                iCloudBackupService.recordSuccessfulBackup()
+                statusMessage = "iCloud Backup enabled. Existing local Kalirova data is prepared for private iCloud sync."
+            } else {
+                statusMessage = "iCloud Backup disabled. Kalirova will continue using local-only storage on this device."
+            }
+        } catch {
+            storedICloudBackupEnabled = previousState
+            iCloudBackupEnabled = previousState
+            saveSettings()
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    private func backUpNow() {
+        guard iCloudBackupEnabled else {
+            statusMessage = "Enable iCloud Backup before backing up."
+            return
+        }
+
+        guard iCloudBackupService.isAvailable else {
+            statusMessage = "No iCloud account is available on this device."
+            return
+        }
+
+        do {
+            try modelContext.save()
+            iCloudBackupService.recordSuccessfulBackup()
+            saveSettings()
+            statusMessage = "Kalirova data was saved locally and queued for private iCloud sync."
+        } catch {
+            statusMessage = error.localizedDescription
+        }
     }
 
     private func saveAPIKey() {

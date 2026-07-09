@@ -519,6 +519,8 @@ final class AppSettings {
     var showAppEstimatedCalories: Bool
     var openAIModel: String
     var unitSystemRawValue: String
+    var iCloudBackupEnabled: Bool
+    var lastICloudBackupAt: Date?
     var createdAt: Date
     var updatedAt: Date
 
@@ -530,6 +532,8 @@ final class AppSettings {
         showAppEstimatedCalories: Bool = true,
         openAIModel: String = "gpt-5.5",
         unitSystem: UnitSystem = .metric,
+        iCloudBackupEnabled: Bool = false,
+        lastICloudBackupAt: Date? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -540,6 +544,8 @@ final class AppSettings {
         self.showAppEstimatedCalories = showAppEstimatedCalories
         self.openAIModel = openAIModel
         self.unitSystemRawValue = unitSystem.rawValue
+        self.iCloudBackupEnabled = iCloudBackupEnabled
+        self.lastICloudBackupAt = lastICloudBackupAt
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

@@ -24,6 +24,7 @@ Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal
 3. Enable the HealthKit capability on the app target.
 4. Run on a physical iPhone for HealthKit functionality. Simulator previews use mock data.
 5. Optional OpenAI features require an API key stored in Keychain from Settings. Do not place API keys in source files, plist files, or commits.
+6. Optional iCloud Backup uses the private CloudKit container `iCloud.com.michaeldesocio.kalirova` only after the user enables it in Settings. Physical-device signing for iCloud requires an Apple Developer team that supports iCloud capabilities; personal development teams cannot provision this entitlement.
 
 ## Build And Test
 
@@ -42,13 +43,14 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ## Architecture
 
 - UI: SwiftUI with MVVM view models.
-- Local persistence: SwiftData models.
+- Local persistence: SwiftData models, local-only by default.
+- Optional iCloud Backup: CloudKit-backed SwiftData can be enabled from Settings after explicit opt-in.
 - Apple Health integration: HealthKit service isolated behind async APIs.
 - Exercise calories: app-estimated calories are stored separately from device-reported calories.
 - Meals: foods are logged into local meal containers grouped by date and meal type.
-- AI: OpenAI integration is optional, isolated, and opt-in per request, including restaurant meal estimates that show the exact outbound meal fields before sending.
+- AI: OpenAI integration is optional, isolated, and opt-in per request, including restaurant meal estimates that show the exact outbound meal fields before sending. OpenAI API keys remain in Keychain and are never included in iCloud backup.
 - Brand assets: Kalirova app icon, brand board, and named color assets live in the Xcode asset catalog.
-- Analytics/cloud database: none.
+- Analytics: none.
 
 See `ARCHITECTURE.md` and `PRIVACY.md` for details.
 

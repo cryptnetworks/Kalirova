@@ -224,4 +224,19 @@ As a user, I want to export or delete my data at any time.
 Acceptance criteria:
 - Export is local and user-initiated.
 - Delete all data requires confirmation.
-- No cloud database is used.
+- No cloud database is used unless the user explicitly enables private iCloud Backup.
+
+## Epic E10: Optional Private iCloud Backup
+
+### Story S10.1: Opt in to iCloud Backup
+As a user, I want to explicitly enable private iCloud backup so I can preserve Kalirova data across devices without changing the default local-first behavior.
+
+Acceptance criteria:
+- iCloud Backup is off by default.
+- Settings includes an “Enable iCloud Backup” toggle.
+- The app warns that Kalirova app data may be stored in the user's private iCloud account and should not be enabled on shared Apple IDs.
+- The app shows iCloud availability and last backup time.
+- Users can disable iCloud Backup and continue using local-only storage.
+- Eligible data includes meals, food items, weight entries, goals, HealthKit-imported workouts, app-estimated calories, non-secret settings, and weekly summaries.
+- OpenAI API keys, temporary logs, cache files, debug data, and OpenAI request data are not backed up.
+- No data is sent to OpenAI as part of iCloud Backup.

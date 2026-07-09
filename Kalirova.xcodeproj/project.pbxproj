@@ -30,6 +30,8 @@
 		AA0000000000000000000121 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000221 /* Assets.xcassets */; };
 		AA0000000000000000000122 /* CalorieBurnEstimatorXcodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000223 /* CalorieBurnEstimatorXcodeTests.swift */; };
 		AA0000000000000000000123 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000227 /* KeychainServiceTests.swift */; };
+		AA0000000000000000000124 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000228 /* PersistenceService.swift */; };
+		AA0000000000000000000125 /* ICloudBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000229 /* ICloudBackupService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +72,8 @@
 		AA0000000000000000000225 /* Kalirova.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kalirova.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000226 /* KalirovaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KalirovaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000227 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000228 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
+		AA0000000000000000000229 /* ICloudBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudBackupService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +145,8 @@
 				AA0000000000000000000208 /* KeychainService.swift */,
 				AA0000000000000000000209 /* OpenAIService.swift */,
 				AA0000000000000000000210 /* PrivacyConsentService.swift */,
+				AA0000000000000000000228 /* PersistenceService.swift */,
+				AA0000000000000000000229 /* ICloudBackupService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -251,6 +257,9 @@
 							com.apple.HealthKit = {
 								enabled = 1;
 							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
 						};
 					};
 					AA0000000000000000000303 = {
@@ -313,6 +322,8 @@
 				AA0000000000000000000108 /* KeychainService.swift in Sources */,
 				AA0000000000000000000109 /* OpenAIService.swift in Sources */,
 				AA0000000000000000000110 /* PrivacyConsentService.swift in Sources */,
+				AA0000000000000000000124 /* PersistenceService.swift in Sources */,
+				AA0000000000000000000125 /* ICloudBackupService.swift in Sources */,
 				AA0000000000000000000111 /* AppViewModels.swift in Sources */,
 				AA0000000000000000000112 /* RootView.swift in Sources */,
 				AA0000000000000000000113 /* OnboardingView.swift in Sources */,

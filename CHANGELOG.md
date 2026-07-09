@@ -7,6 +7,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 ## [Unreleased]
 
 ### Added
+- Added opt-in iCloud Backup settings, private CloudKit SwiftData container selection, iCloud availability display, manual backup request state, and documentation for backed-up versus excluded data.
 - Planned Sprint 1 work for profile/unit improvements, BMI guidance, restaurant AI meal estimation, meal grouping, Apple-standard UI refinements, and HealthKit 90-day import.
 - Rebranded the full project to Kalirova, including Xcode project, app/test targets, Swift package/core target, scheme, bundle identifier, source folders, repository references, and Kalirova brand assets.
 - Added typed onboarding inputs for profile measurements, unit selection, goal weight, and live BMI with adult BMI category guidance.

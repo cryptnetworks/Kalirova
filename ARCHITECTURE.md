@@ -5,7 +5,7 @@ Kalirova is a local-first SwiftUI iPhone app built around explicit privacy bound
 ## Principles
 
 - Health data stays on device by default.
-- No cloud database.
+- No cloud database unless the user explicitly enables private iCloud Backup.
 - No third-party analytics.
 - Optional ChatGPT calls are opt-in per interaction.
 - The app shows the exact outbound AI payload before sending.
@@ -41,7 +41,9 @@ Required models:
 - `AISummary`
 - `AppSettings`
 
-SwiftData is used for local persistence. User data exports, local stores, and generated datasets are ignored by git.
+SwiftData is used for persistence. The default `ModelConfiguration` is local-only. When the user explicitly enables iCloud Backup in Settings, the app recreates the SwiftData container with a private CloudKit database using `iCloud.com.michaeldesocio.kalirova`. This preserves local-first behavior while allowing eligible app data to sync through the user's private iCloud account.
+
+iCloud Backup includes meals, food items, body-mass and other metric entries, goals, HealthKit-imported workouts, app-estimated calories, non-secret settings, and weekly summaries. It excludes OpenAI API keys, temporary logs, cache files, debug data, and OpenAI request payloads.
 
 ### Services
 
@@ -51,6 +53,7 @@ SwiftData is used for local persistence. User data exports, local stores, and ge
 - `OpenAIService`: optional meal and summary requests, isolated from persistence.
 - `SummaryService`: deterministic daily and weekly summaries.
 - `PersistenceService`: model container setup and local data lifecycle helpers.
+- `ICloudBackupService`: iCloud availability and manual backup timestamp state.
 - `PrivacyConsentService`: per-interaction AI consent and payload review state.
 - `KeychainService`: secure local API key storage.
 
@@ -85,3 +88,5 @@ OpenAI integration is optional. The app works without an API key. Requests must 
 - Date-bounded summary statistics.
 
 The app must not send full HealthKit history unless the user explicitly chooses to.
+
+OpenAI API keys are stored only in Keychain and are not represented in SwiftData, CloudKit, exports, logs, or screenshots.

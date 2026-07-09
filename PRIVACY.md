@@ -13,6 +13,27 @@ By default, the following stay on the user's device:
 - Local deterministic summaries.
 - OpenAI API key stored in Keychain.
 
+## Optional iCloud Backup
+
+iCloud Backup is off by default. If the user enables it in Settings, Kalirova may store supported app data in the user's private iCloud account through CloudKit.
+
+Data eligible for iCloud Backup:
+- Meals and food items.
+- Weight entries and other saved health metrics.
+- Goals.
+- Workouts imported from HealthKit, including device-reported calories and app-estimated calories.
+- User settings, excluding API keys and secrets.
+- Local weekly summaries.
+
+Data not included in iCloud Backup:
+- OpenAI API key.
+- Temporary logs.
+- Cache files.
+- Debug data.
+- OpenAI request payloads or responses unless the user separately saves an AI-derived meal or summary as app data.
+
+Users should not enable iCloud Backup on shared Apple IDs. Disabling iCloud Backup returns the app to local-only storage on the device.
+
 ## What May Be Sent To ChatGPT
 
 Only when the user opts in for a specific interaction, the app may send:
@@ -33,7 +54,7 @@ Before sending, the app must show the exact payload. Restaurant meal estimates a
 
 ## Data Sharing
 
-Kalirova does not sell health data, share health data with third-party analytics, or use a cloud database.
+Kalirova does not sell health data or share health data with third-party analytics. CloudKit is used only for optional iCloud Backup after explicit user opt-in.
 
 ## API Keys
 
