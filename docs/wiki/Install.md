@@ -23,6 +23,8 @@
 5. Configure a development team for signing.
 6. Run the app with Product > Run.
 
+Local development builds intentionally omit iCloud/CloudKit entitlements so Personal Development Teams can sign `com.kalirova.app`. iCloud Backup requires a paid Apple Developer account, the iCloud capability, the `iCloud.com.kalirova.app` CloudKit container entitlement, and the `ENABLE_ICLOUD_BACKUP` Swift compilation condition.
+
 ## Command-Line Build
 
 ```sh

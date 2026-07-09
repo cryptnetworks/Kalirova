@@ -289,9 +289,6 @@
 							com.apple.HealthKit = {
 								enabled = 1;
 							};
-							com.apple.iCloud = {
-								enabled = 1;
-							};
 						};
 					};
 					AA0000000000000000000303 = {

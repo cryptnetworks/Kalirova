@@ -264,3 +264,12 @@ Acceptance criteria:
 - Eligible data includes meals, food items, weight entries, goals, HealthKit-imported workouts, app-estimated calories, non-secret settings, and weekly summaries.
 - OpenAI API keys, temporary logs, cache files, debug data, and OpenAI request data are not backed up.
 - No data is sent to OpenAI as part of iCloud Backup.
+
+### Story S10.2: Keep local development signing compatible with Personal Teams
+As a developer, I want local development builds to omit iCloud entitlements so physical-device builds work with a Personal Development Team.
+
+Acceptance criteria:
+- Local development app entitlements include HealthKit but do not include iCloud or CloudKit keys.
+- The app target does not enable the iCloud capability by default.
+- CloudKit-backed persistence remains in the codebase but is disabled unless a paid-team build explicitly defines `ENABLE_ICLOUD_BACKUP` and restores the iCloud capability/container entitlement.
+- Settings explains that iCloud Backup requires a paid Apple Developer account while local builds continue using local-only SwiftData persistence.

@@ -150,7 +150,7 @@ struct SettingsView: View {
                 }
 
                 Section("Privacy") {
-                    Label("Health data stays on this device unless iCloud Backup is enabled.", systemImage: "lock.shield")
+                    Label(privacyStorageText, systemImage: "lock.shield")
                     Label("No third-party analytics", systemImage: "chart.bar.xaxis")
                     Label("API keys stay in Keychain", systemImage: "key")
                     Text(SummaryService.wellnessDisclaimer)
@@ -163,7 +163,8 @@ struct SettingsView: View {
                         get: { iCloudBackupEnabled },
                         set: { updateICloudBackupPreference($0) }
                     ))
-                    Text("Health data is stored on this device unless iCloud Backup is enabled. When enabled, supported Kalirova app data may sync through your private iCloud account.")
+                    .disabled(!PersistenceService.isICloudBackupCapabilityEnabled)
+                    Text(iCloudBackupDescription)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     Label(iCloudBackupService.availabilityText, systemImage: iCloudBackupService.isAvailable ? "icloud" : "icloud.slash")
@@ -177,7 +178,7 @@ struct SettingsView: View {
                     } label: {
                         Label("Back Up Now", systemImage: "icloud.and.arrow.up")
                     }
-                    .disabled(!iCloudBackupEnabled || !iCloudBackupService.isAvailable)
+                    .disabled(!PersistenceService.isICloudBackupCapabilityEnabled || !iCloudBackupEnabled || !iCloudBackupService.isAvailable)
                     Text("OpenAI API keys, logs, caches, debug data, and OpenAI request data are not included in iCloud backup.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -241,6 +242,18 @@ struct SettingsView: View {
         return "\(profile.goalSummary) • \(unitSystem.displayName)"
     }
 
+    private var privacyStorageText: String {
+        PersistenceService.isICloudBackupCapabilityEnabled
+            ? "Health data stays on this device unless iCloud Backup is enabled."
+            : "Health data stays on this device in local development builds."
+    }
+
+    private var iCloudBackupDescription: String {
+        PersistenceService.isICloudBackupCapabilityEnabled
+            ? "Health data is stored on this device unless iCloud Backup is enabled. When enabled, supported Kalirova app data may sync through your private iCloud account."
+            : "iCloud Backup requires a paid Apple Developer account, the iCloud capability, and the ENABLE_ICLOUD_BACKUP build flag. This local build uses local-only storage."
+    }
+
     private func loadSettings() {
         let current = settings.first
         aiFeaturesEnabled = current?.aiFeaturesEnabled ?? false
@@ -249,7 +262,15 @@ struct SettingsView: View {
         showAppEstimatedCalories = current?.showAppEstimatedCalories ?? true
         openAIModel = current?.openAIModel ?? "gpt-5.5"
         unitSystem = current?.unitSystem ?? profiles.first?.preferredUnitSystem ?? .metric
-        iCloudBackupEnabled = storedICloudBackupEnabled || (current?.iCloudBackupEnabled ?? false)
+        if PersistenceService.isICloudBackupCapabilityEnabled {
+            iCloudBackupEnabled = storedICloudBackupEnabled || (current?.iCloudBackupEnabled ?? false)
+        } else {
+            if storedICloudBackupEnabled || (current?.iCloudBackupEnabled ?? false) {
+                statusMessage = "iCloud Backup was disabled for this local development build. Kalirova is using local-only storage."
+            }
+            storedICloudBackupEnabled = false
+            iCloudBackupEnabled = false
+        }
         iCloudBackupService.refreshAvailability()
 
         do {
@@ -277,13 +298,21 @@ struct SettingsView: View {
         current.showAppEstimatedCalories = showAppEstimatedCalories
         current.openAIModel = openAIModel
         current.unitSystemRawValue = unitSystem.rawValue
-        current.iCloudBackupEnabled = iCloudBackupEnabled
+        current.iCloudBackupEnabled = PersistenceService.isICloudBackupCapabilityEnabled && iCloudBackupEnabled
         current.lastICloudBackupAt = iCloudBackupService.lastBackupAt
         current.updatedAt = .now
         try? modelContext.save()
     }
 
     private func updateICloudBackupPreference(_ isEnabled: Bool) {
+        guard PersistenceService.isICloudBackupCapabilityEnabled else {
+            storedICloudBackupEnabled = false
+            iCloudBackupEnabled = false
+            saveSettings()
+            statusMessage = "iCloud Backup requires a paid Apple Developer account and is disabled for this local development build."
+            return
+        }
+
         if isEnabled {
             requestedICloudBackupState = true
             showingICloudEnableWarning = true
@@ -299,6 +328,14 @@ struct SettingsView: View {
     }
 
     private func applyICloudBackupPreference(_ isEnabled: Bool) {
+        guard !isEnabled || PersistenceService.isICloudBackupCapabilityEnabled else {
+            storedICloudBackupEnabled = false
+            iCloudBackupEnabled = false
+            saveSettings()
+            statusMessage = "iCloud Backup requires a paid Apple Developer account and is disabled for this local development build."
+            return
+        }
+
         let previousState = storedICloudBackupEnabled
         do {
             iCloudBackupEnabled = isEnabled
@@ -321,6 +358,11 @@ struct SettingsView: View {
     }
 
     private func backUpNow() {
+        guard PersistenceService.isICloudBackupCapabilityEnabled else {
+            statusMessage = "iCloud Backup requires a paid Apple Developer account and is disabled for this local development build."
+            return
+        }
+
         guard iCloudBackupEnabled else {
             statusMessage = "Enable iCloud Backup before backing up."
             return

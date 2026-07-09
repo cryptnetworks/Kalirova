@@ -3,10 +3,11 @@ import SwiftUI
 
 @MainActor
 final class ICloudBackupService: ObservableObject {
-    @Published private(set) var availabilityText = "Checking iCloud status..."
+    @Published private(set) var availabilityText = "iCloud Backup is disabled for this local development build"
 
     private let userDefaults: UserDefaults
     private let lastBackupKey = "LastICloudBackupAt"
+    private static let disabledAvailabilityText = "iCloud Backup is disabled for this local development build"
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
@@ -14,7 +15,8 @@ final class ICloudBackupService: ObservableObject {
     }
 
     var isAvailable: Bool {
-        FileManager.default.ubiquityIdentityToken != nil
+        guard PersistenceService.isICloudBackupCapabilityEnabled else { return false }
+        return FileManager.default.ubiquityIdentityToken != nil
     }
 
     var lastBackupAt: Date? {
@@ -23,12 +25,18 @@ final class ICloudBackupService: ObservableObject {
     }
 
     func refreshAvailability() {
+        guard PersistenceService.isICloudBackupCapabilityEnabled else {
+            availabilityText = Self.disabledAvailabilityText
+            return
+        }
+
         availabilityText = isAvailable
             ? "iCloud account available"
             : "No iCloud account is available on this device"
     }
 
     func recordSuccessfulBackup() {
+        guard PersistenceService.isICloudBackupCapabilityEnabled else { return }
         lastBackupAt = .now
     }
 

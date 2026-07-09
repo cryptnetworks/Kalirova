@@ -5,7 +5,7 @@ Kalirova is a local-first SwiftUI iPhone app built around explicit privacy bound
 ## Principles
 
 - Health data stays on device by default.
-- No cloud database unless the user explicitly enables private iCloud Backup.
+- No cloud database in local development builds. Optional private iCloud Backup is preserved behind an explicit paid-team build flag.
 - No third-party analytics.
 - Optional ChatGPT calls are opt-in per interaction.
 - The app shows the exact outbound AI payload before sending.
@@ -46,9 +46,11 @@ Required models:
 - `AISummary`
 - `AppSettings`
 
-SwiftData is used for persistence. The default `ModelConfiguration` is local-only. When the user explicitly enables iCloud Backup in Settings, the app recreates the SwiftData container with a private CloudKit database using `iCloud.com.kalirova.app`. This preserves local-first behavior while allowing eligible app data to sync through the user's private iCloud account.
+SwiftData is used for persistence. The default `ModelConfiguration` is local-only. Local development builds do not include iCloud entitlements and do not create a CloudKit-backed store, which keeps physical-device signing compatible with Personal Development Teams.
 
-iCloud Backup includes meals, food items, body-mass and other metric entries, goals, HealthKit-imported workouts, app-estimated calories, non-secret settings, and weekly summaries. It excludes OpenAI API keys, temporary logs, cache files, debug data, and OpenAI request payloads.
+The CloudKit-backed SwiftData path is preserved behind the `ENABLE_ICLOUD_BACKUP` Swift compilation condition. Paid Apple Developer account builds can re-enable the iCloud capability, add the `iCloud.com.kalirova.app` CloudKit container entitlement, define `ENABLE_ICLOUD_BACKUP`, and then allow users to opt into private iCloud Backup.
+
+When enabled in a paid-team build, iCloud Backup includes meals, food items, body-mass and other metric entries, goals, HealthKit-imported workouts, app-estimated calories, non-secret settings, and weekly summaries. It excludes OpenAI API keys, temporary logs, cache files, debug data, and OpenAI request payloads.
 
 ### Services
 
@@ -58,7 +60,7 @@ iCloud Backup includes meals, food items, body-mass and other metric entries, go
 - `OpenAIService`: optional meal and summary requests, isolated from persistence.
 - `SummaryService`: deterministic daily and weekly summaries.
 - `PersistenceService`: model container setup and local data lifecycle helpers.
-- `ICloudBackupService`: iCloud availability and manual backup timestamp state.
+- `ICloudBackupService`: iCloud availability and manual backup timestamp state, disabled unless the `ENABLE_ICLOUD_BACKUP` build flag is present.
 - `PrivacyConsentService`: per-interaction AI consent and payload review state.
 - `KeychainService`: secure local API key storage.
 

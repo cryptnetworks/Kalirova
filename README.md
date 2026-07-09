@@ -25,17 +25,16 @@ Requirements:
 - iOS 17 SDK or newer.
 - Swift 6 toolchain.
 - A physical iPhone for HealthKit functionality.
-- Apple Developer signing team for physical-device builds and CloudKit/iCloud capability provisioning.
+- Apple Developer signing team for physical-device builds. A Personal Development Team can build local development versions when iCloud capability is disabled.
 
 Install and run:
 
 1. Clone the repository.
 2. Open `Kalirova.xcodeproj` in Xcode. The app product and display name build as Kalirova.
-2. Select a development team for signing.
-3. Enable the HealthKit capability on the app target.
-4. Run on a physical iPhone for HealthKit functionality. Simulator previews use mock data.
+3. Select a development team for signing.
+4. Keep HealthKit enabled for physical-device HealthKit functionality. Simulator previews use mock data.
 5. Optional OpenAI features require an API key stored in Keychain from Settings. Do not place API keys in source files, plist files, or commits.
-6. Optional iCloud Backup uses the private CloudKit container `iCloud.com.kalirova.app` only after the user enables it in Settings. Physical-device signing for iCloud requires an Apple Developer team that supports iCloud capabilities; personal development teams cannot provision this entitlement.
+6. iCloud Backup is disabled for local development builds so Personal Development Teams can sign `com.kalirova.app`. Re-enabling CloudKit sync later requires a paid Apple Developer account, adding the iCloud capability/container back to the target entitlements, and defining the `ENABLE_ICLOUD_BACKUP` Swift compilation condition.
 
 ## Build And Test
 
@@ -67,7 +66,7 @@ xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=i
 
 - UI: SwiftUI with native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, Apple Charts, and reusable Kalirova design-system components.
 - Local persistence: SwiftData models, local-only by default.
-- Optional iCloud Backup: CloudKit-backed SwiftData can be enabled from Settings after explicit opt-in.
+- Optional iCloud Backup: CloudKit-backed SwiftData code is preserved but disabled in local development builds behind the `ENABLE_ICLOUD_BACKUP` compilation condition.
 - Apple Health integration: HealthKit service isolated behind async APIs.
 - Exercise calories: app-estimated calories are stored separately from device-reported calories.
 - Meals: foods are logged into local meal containers grouped by date and meal type.
@@ -85,6 +84,17 @@ HealthKit requires:
 - `com.apple.developer.healthkit` entitlement.
 - Clear HealthKit purpose strings in the generated Info.plist.
 - Permission requests scoped to the data types needed by the selected feature.
+
+## iCloud Entitlements
+
+iCloud/CloudKit entitlements are intentionally absent from local development builds. This allows physical-device signing with a Personal Development Team and bundle identifier `com.kalirova.app`.
+
+To re-enable iCloud Backup for a paid Apple Developer account:
+
+1. Add the iCloud capability and CloudKit service back to the Kalirova app target.
+2. Add the CloudKit container entitlement for `iCloud.com.kalirova.app`.
+3. Define `ENABLE_ICLOUD_BACKUP` in `SWIFT_ACTIVE_COMPILATION_CONDITIONS`.
+4. Verify provisioning with a paid team before distributing the build.
 
 ## SCRUM Artifacts
 

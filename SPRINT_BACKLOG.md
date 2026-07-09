@@ -66,6 +66,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T14 | S0.1, S0.2 | Remove personal identifiers from bundle IDs, Keychain service names, CloudKit container IDs, entitlements, and documentation. | Done |
 | S1-T15 | S9.3 | Import Kalirova design system assets, create reusable SwiftUI theme/components, and normalize major screens to the supplied visual language. | Done |
 | S1-T16 | S0.4 | Add CI, security scanning, Dependabot, repository templates, security policy, and wiki sync documentation. | Done |
+| S1-T17 | S10.2 | Remove iCloud capability from local development signing and guard CloudKit-backed persistence behind a paid-team build flag. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -119,3 +120,12 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T16: `gh repo edit --visibility public --accept-visibility-change-consequences` completed; repository was already public.
 - S1-T16: `gh repo edit --enable-wiki --enable-secret-scanning --enable-secret-scanning-push-protection` completed.
 - S1-T16: Patched `wiki-sync.yml` to initialize the wiki repository on first sync if GitHub has not created it yet.
+- S1-T17: Xcode project target capabilities inspected; local development target keeps HealthKit and removes iCloud.
+- S1-T17: `rg "com.apple.iCloud|com.apple.developer.icloud|iCloud.com.kalirova.app|CloudKit" Kalirova.xcodeproj Kalirova/Kalirova.entitlements` returned no results.
+- S1-T17: `plutil -p Kalirova/Kalirova.entitlements` showed only `com.apple.developer.healthkit`.
+- S1-T17: `plutil -lint Kalirova.xcodeproj/project.pbxproj Kalirova/Kalirova.entitlements` passed.
+- S1-T17: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build` passed.
+- S1-T17: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug -allowProvisioningUpdates build` passed with bundle identifier `com.kalirova.app`.
+- S1-T17: `codesign -d --entitlements :- .../Debug-iphoneos/Kalirova.app` showed HealthKit only, with no iCloud or CloudKit entitlements.
+- S1-T17: `swift test` passed with 9 XCTest tests and 0 failures.
+- S1-T17: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.

@@ -15,7 +15,9 @@ By default, the following stay on the user's device:
 
 ## Optional iCloud Backup
 
-iCloud Backup is off by default. If the user enables it in Settings, Kalirova may store supported app data in the user's private iCloud account through CloudKit.
+iCloud Backup is off by default and disabled in local development builds. Local development builds do not include iCloud/CloudKit entitlements, so supported app data remains on device.
+
+For paid Apple Developer account builds, Kalirova can re-enable the iCloud capability and `ENABLE_ICLOUD_BACKUP` build flag. In those builds, if the user enables iCloud Backup in Settings, Kalirova may store supported app data in the user's private iCloud account through CloudKit.
 
 Data eligible for iCloud Backup:
 - Meals and food items.
@@ -32,7 +34,7 @@ Data not included in iCloud Backup:
 - Debug data.
 - OpenAI request payloads or responses unless the user separately saves an AI-derived meal or summary as app data.
 
-Users should not enable iCloud Backup on shared Apple IDs. Disabling iCloud Backup returns the app to local-only storage on the device.
+Users should not enable iCloud Backup on shared Apple IDs. Disabling iCloud Backup returns the app to local-only storage on the device. Local development builds always use local-only storage.
 
 ## What May Be Sent To ChatGPT
 
@@ -54,7 +56,7 @@ Before sending, the app must show the exact payload. Restaurant meal estimates a
 
 ## Data Sharing
 
-Kalirova does not sell health data or share health data with third-party analytics. CloudKit is used only for optional iCloud Backup after explicit user opt-in.
+Kalirova does not sell health data or share health data with third-party analytics. CloudKit is used only in paid-team builds where optional iCloud Backup has been re-enabled and the user explicitly opts in.
 
 ## API Keys
 

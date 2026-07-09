@@ -26,4 +26,4 @@ Profile contains grouped settings for personal details, units, goals, AI, privac
 
 ## iCloud Backup
 
-iCloud Backup is off by default. If enabled, eligible app data may sync through the user's private iCloud account. OpenAI API keys are never included in iCloud Backup.
+iCloud Backup is off by default and disabled in local development builds so Personal Development Teams can sign the app. Paid Apple Developer account builds can re-enable the iCloud capability and `ENABLE_ICLOUD_BACKUP` build flag. If enabled in those builds, eligible app data may sync through the user's private iCloud account. OpenAI API keys are never included in iCloud Backup.
