@@ -16,6 +16,7 @@ As a user, I want a native SwiftUI iPhone app shell so the product can grow feat
 
 Acceptance criteria:
 - Xcode project opens as `Kalirova.xcodeproj` and builds the Kalirova app product.
+- App bundle identifiers do not contain personal names and use `com.kalirova.app` for the app target.
 - App uses SwiftUI entry point.
 - App has navigable screens for onboarding, dashboard, meals, exercise, metrics, trends, weekly summary, and settings.
 - App includes mock data for previews and simulator flows.
@@ -184,7 +185,7 @@ Acceptance criteria:
 - AI estimates are never saved automatically; user must confirm or edit before saving.
 - UI clearly states restaurant estimates may vary by preparation and portion size.
 - App still works without an API key.
-- OpenAI API keys are saved only in iOS Keychain using service `com.michaeldesocio.kalirova` and account `openai_api_key`.
+- OpenAI API keys are saved only in iOS Keychain using service `com.kalirova.app` and account `openai_api_key`.
 - Settings can load, mask, update, test, and delete the saved OpenAI API key without displaying or logging the full key.
 
 ## Epic E9: Apple Platform Experience

@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.com.michaeldesocio.kalirova</string>
+		<string>iCloud.com.kalirova.app</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>

@@ -20,7 +20,7 @@ final class KeychainService: @unchecked Sendable {
     private let openAIAccount: String
     private let legacyOpenAIAccount = "openai-api-key"
 
-    init(service: String = "com.michaeldesocio.kalirova", openAIAccount: String = "openai_api_key") {
+    init(service: String = "com.kalirova.app", openAIAccount: String = "openai_api_key") {
         self.service = service
         self.openAIAccount = openAIAccount
     }

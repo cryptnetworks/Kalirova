@@ -28,6 +28,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Created private GitHub repository `cryptnetworks/Kalirova` and pushed `main`.
 
 ### Fixed
+- Removed personal identifiers from app/test bundle identifiers, Keychain service names, CloudKit container references, entitlements, and documentation.
 - Persisted the OpenAI API key in iOS Keychain under `openai_api_key`, added masked Settings state, update/delete controls, connection testing, and Keychain CRUD tests.
 - Enabled physical iPhone build and deployment by repairing automatic signing metadata and generating the Kalirova iOS development provisioning profile.
 - Corrected weekly summary test optional unwrapping.

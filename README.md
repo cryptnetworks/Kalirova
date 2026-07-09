@@ -24,7 +24,7 @@ Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal
 3. Enable the HealthKit capability on the app target.
 4. Run on a physical iPhone for HealthKit functionality. Simulator previews use mock data.
 5. Optional OpenAI features require an API key stored in Keychain from Settings. Do not place API keys in source files, plist files, or commits.
-6. Optional iCloud Backup uses the private CloudKit container `iCloud.com.michaeldesocio.kalirova` only after the user enables it in Settings. Physical-device signing for iCloud requires an Apple Developer team that supports iCloud capabilities; personal development teams cannot provision this entitlement.
+6. Optional iCloud Backup uses the private CloudKit container `iCloud.com.kalirova.app` only after the user enables it in Settings. Physical-device signing for iCloud requires an Apple Developer team that supports iCloud capabilities; personal development teams cannot provision this entitlement.
 
 ## Build And Test
 

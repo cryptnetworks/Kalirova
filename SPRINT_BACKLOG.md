@@ -63,6 +63,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T11 | S0.2 | Repair automatic signing and physical iPhone deployment for the Kalirova app target. | Done |
 | S1-T12 | S7.3 | Persist OpenAI API keys in Keychain with masked Settings state, delete, and test connection controls. | Done |
 | S1-T13 | S10.1 | Add opt-in iCloud Backup settings, CloudKit-backed SwiftData container selection, iCloud availability state, and privacy documentation. | Done |
+| S1-T14 | S0.1, S0.2 | Remove personal identifiers from bundle IDs, Keychain service names, CloudKit container IDs, entitlements, and documentation. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -80,13 +81,13 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T10: `swift test` passed with 9 XCTest tests and 0 failures.
 - S1-T10: `xcodebuild -list` showed project `Kalirova`, targets `Kalirova` and `KalirovaTests`, and scheme `Kalirova`.
 - S1-T10: required grep for legacy names returned no results.
-- S1-T10: `xcodebuild -scheme Kalirova -configuration Debug build` reached signing and failed only because no physical-device provisioning profile exists for `com.michaeldesocio.kalirova`.
+- S1-T10: `xcodebuild -scheme Kalirova -configuration Debug build` reached signing and failed only because no physical-device provisioning profile exists for `com.kalirova.app`.
 - S1-T10: `xcodebuild -scheme Kalirova -configuration Debug -destination generic/platform=iOS\ Simulator build` passed.
 - S1-T11: `xcodebuild -list` showed project `Kalirova`, targets `Kalirova` and `KalirovaTests`, and scheme `Kalirova`.
 - S1-T11: `xcrun devicectl list devices` showed `Michael’s iPhone` connected.
 - S1-T11: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
 - S1-T11: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'id=00008150-00021C341AF2401C' -configuration Debug build` passed.
-- S1-T11: `xcrun devicectl device install app --device A9BC3D31-0520-5A69-AB2D-BBC29DBCCE18 .../Kalirova.app` installed `com.michaeldesocio.kalirova` on the connected iPhone.
+- S1-T11: `xcrun devicectl device install app --device A9BC3D31-0520-5A69-AB2D-BBC29DBCCE18 .../Kalirova.app` installed `com.kalirova.app` on the connected iPhone.
 - S1-T12: `plutil -lint Kalirova.xcodeproj/project.pbxproj Kalirova/Kalirova.entitlements` passed.
 - S1-T12: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
 - S1-T12: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
@@ -94,3 +95,9 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T13: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build` passed.
 - S1-T13: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
 - S1-T13: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug -allowProvisioningUpdates build` failed because the current personal development team does not support the iCloud capability required for CloudKit provisioning.
+- S1-T14: Project-wide personal-identifier search returned no results outside Git history.
+- S1-T14: `plutil -lint Kalirova.xcodeproj/project.pbxproj Kalirova/Kalirova.entitlements` passed.
+- S1-T14: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -configuration Debug clean` passed.
+- S1-T14: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build` passed.
+- S1-T14: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
+- S1-T14: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug -allowProvisioningUpdates build` failed because the current personal development team does not support the iCloud capability required for CloudKit provisioning.

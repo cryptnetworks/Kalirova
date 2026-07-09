@@ -41,7 +41,7 @@ Required models:
 - `AISummary`
 - `AppSettings`
 
-SwiftData is used for persistence. The default `ModelConfiguration` is local-only. When the user explicitly enables iCloud Backup in Settings, the app recreates the SwiftData container with a private CloudKit database using `iCloud.com.michaeldesocio.kalirova`. This preserves local-first behavior while allowing eligible app data to sync through the user's private iCloud account.
+SwiftData is used for persistence. The default `ModelConfiguration` is local-only. When the user explicitly enables iCloud Backup in Settings, the app recreates the SwiftData container with a private CloudKit database using `iCloud.com.kalirova.app`. This preserves local-first behavior while allowing eligible app data to sync through the user's private iCloud account.
 
 iCloud Backup includes meals, food items, body-mass and other metric entries, goals, HealthKit-imported workouts, app-estimated calories, non-secret settings, and weekly summaries. It excludes OpenAI API keys, temporary logs, cache files, debug data, and OpenAI request payloads.
 

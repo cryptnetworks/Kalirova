@@ -7,7 +7,7 @@ final class KeychainServiceTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         service = KeychainService(
-            service: "com.michaeldesocio.kalirova.tests.\(UUID().uuidString)",
+            service: "com.kalirova.app.tests.\(UUID().uuidString)",
             openAIAccount: "openai_api_key"
         )
         try service.deleteOpenAIAPIKey()

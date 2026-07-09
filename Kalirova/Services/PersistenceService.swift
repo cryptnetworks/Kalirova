@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 final class PersistenceService: ObservableObject {
     static let iCloudBackupEnabledKey = "iCloudBackupEnabled"
-    static let iCloudContainerIdentifier = "iCloud.com.michaeldesocio.kalirova"
+    static let iCloudContainerIdentifier = "iCloud.com.kalirova.app"
 
     @Published private(set) var modelContainer: ModelContainer
 
