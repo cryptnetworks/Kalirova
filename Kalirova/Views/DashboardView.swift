@@ -8,6 +8,7 @@ struct DashboardView: View {
     @Query(sort: \HealthMetricEntry.loggedAt, order: .reverse) private var metrics: [HealthMetricEntry]
     @Query private var goals: [Goal]
     @Query private var settings: [AppSettings]
+    @Query(sort: \UserProfile.createdAt, order: .reverse) private var profiles: [UserProfile]
     private let viewModel = DashboardViewModel()
     @State private var period: DashboardPeriod = .day
 
@@ -86,6 +87,8 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(greeting)
                         .kalirovaText(.navigation)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.75)
                     Text("Track. Understand. Elevate.")
                         .font(.kalirovaCaption)
                         .foregroundStyle(KalirovaTheme.Colors.success)
@@ -216,9 +219,23 @@ struct DashboardView: View {
 
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: .now)
-        if hour < 12 { return "Good morning" }
-        if hour < 17 { return "Good afternoon" }
-        return "Good evening"
+        let greeting: String
+        if hour < 12 {
+            greeting = "Good morning"
+        } else if hour < 17 {
+            greeting = "Good afternoon"
+        } else {
+            greeting = "Good evening"
+        }
+
+        guard
+            let username = profiles.first?.username?.trimmedUsername,
+            !username.isEmpty
+        else {
+            return greeting
+        }
+
+        return "\(greeting), \(username)"
     }
 
     private func displayWeightValue(_ kilograms: Double) -> Double {

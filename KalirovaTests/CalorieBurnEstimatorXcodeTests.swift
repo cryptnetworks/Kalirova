@@ -85,3 +85,32 @@ final class DailySnapshotBuilderXcodeTests: XCTestCase {
         XCTAssertEqual(snapshots[0].bodyMassKg, 81.8)
     }
 }
+
+final class UserProfileXcodeTests: XCTestCase {
+    func testDisplayUsernameUsesFallbackWhenUnset() {
+        let profile = UserProfile(
+            ageYears: 35,
+            sex: .notSpecified,
+            heightCentimeters: 175,
+            bodyMassKg: 80,
+            activityLevel: .moderatelyActive,
+            goalSummary: "Improve Fitness"
+        )
+
+        XCTAssertEqual(profile.displayUsername, "Kalirova User")
+    }
+
+    func testDisplayUsernameTrimsWhitespace() {
+        let profile = UserProfile(
+            username: "  Jordan  ",
+            ageYears: 35,
+            sex: .notSpecified,
+            heightCentimeters: 175,
+            bodyMassKg: 80,
+            activityLevel: .moderatelyActive,
+            goalSummary: "Improve Fitness"
+        )
+
+        XCTAssertEqual(profile.displayUsername, "Jordan")
+    }
+}

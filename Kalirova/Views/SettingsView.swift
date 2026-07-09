@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = true
@@ -31,6 +32,10 @@ struct SettingsView: View {
     @State private var showingDeleteConfirmation = false
     @State private var showingICloudEnableWarning = false
     @State private var requestedICloudBackupState = false
+    @State private var showingUsernameEditor = false
+    @State private var usernameDraft = ""
+    @State private var usernameValidationMessage: String?
+    @FocusState private var focusedSettingsField: SettingsFocusField?
 
     private let openAIService = OpenAIService()
 
@@ -54,7 +59,7 @@ struct SettingsView: View {
                             .font(.system(size: 52))
                             .foregroundStyle(KalirovaTheme.Colors.accentPrimary)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Kalirova Profile")
+                            Text(profileDisplayName)
                                 .font(.kalirovaSectionTitle)
                                 .foregroundStyle(KalirovaTheme.Colors.textPrimary)
                             Text(profileSummary)
@@ -67,6 +72,13 @@ struct SettingsView: View {
 
                 Section("Personal") {
                     if let profile = profiles.first {
+                        LabeledContent("Username", value: profile.displayUsername)
+                        Button {
+                            beginUsernameEdit(profile)
+                        } label: {
+                            Label("Edit Username", systemImage: "pencil")
+                        }
+                        .accessibilityLabel("Edit profile username")
                         LabeledContent("Goal", value: profile.goalSummary)
                         LabeledContent("Age", value: "\(profile.ageYears)")
                         LabeledContent("Activity", value: profile.activityLevel.rawValue.displayName)
@@ -111,10 +123,16 @@ struct SettingsView: View {
                     TextField("Model", text: $openAIModel)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .focused($focusedSettingsField, equals: .openAIModel)
+                        .submitLabel(.done)
+                        .onSubmit(dismissKeyboard)
                     SecureField("OpenAI API Key", text: $apiKey)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .privacySensitive()
+                        .focused($focusedSettingsField, equals: .apiKey)
+                        .submitLabel(.done)
+                        .onSubmit(dismissKeyboard)
                     if let maskedAPIKey {
                         Label("Saved key: \(maskedAPIKey)", systemImage: "checkmark.seal")
                             .font(.footnote)
@@ -209,6 +227,8 @@ struct SettingsView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
+            .dismissKeyboardOnOutsideTap(dismissKeyboard)
             .navigationTitle("Profile")
             .onAppear(perform: loadSettings)
             .onChange(of: aiFeaturesEnabled) { _, _ in saveSettings() }
@@ -231,7 +251,29 @@ struct SettingsView: View {
             } message: {
                 Text("Meals, workouts, metrics, goals, summaries, settings, and the Keychain API key will be removed from this device.")
             }
+            .sheet(isPresented: $showingUsernameEditor) {
+                UsernameEditorView(
+                    username: $usernameDraft,
+                    validationMessage: usernameValidationMessage,
+                    onCancel: {
+                        usernameValidationMessage = nil
+                        showingUsernameEditor = false
+                    },
+                    onSave: saveUsername
+                )
+                .presentationDetents([.medium])
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done", action: dismissKeyboard)
+                }
+            }
         }
+    }
+
+    private var profileDisplayName: String {
+        profiles.first?.displayUsername ?? "Kalirova Profile"
     }
 
     private var profileSummary: String {
@@ -240,6 +282,48 @@ struct SettingsView: View {
         }
 
         return "\(profile.goalSummary) • \(unitSystem.displayName)"
+    }
+
+    private func beginUsernameEdit(_ profile: UserProfile) {
+        usernameDraft = profile.displayUsername
+        usernameValidationMessage = nil
+        showingUsernameEditor = true
+    }
+
+    private func saveUsername() {
+        guard let profile = profiles.first else {
+            usernameValidationMessage = "Complete onboarding before editing your username."
+            return
+        }
+
+        let trimmedUsername = usernameDraft.trimmedUsername
+        guard !trimmedUsername.isEmpty else {
+            usernameValidationMessage = "Username cannot be empty."
+            return
+        }
+
+        let invalidCharacters = CharacterSet.newlines.union(.controlCharacters)
+        guard trimmedUsername.rangeOfCharacter(from: invalidCharacters) == nil else {
+            usernameValidationMessage = "Username cannot contain line breaks or control characters."
+            return
+        }
+
+        profile.username = trimmedUsername
+        profile.updatedAt = .now
+        do {
+            try modelContext.save()
+            usernameDraft = trimmedUsername
+            usernameValidationMessage = nil
+            showingUsernameEditor = false
+            statusMessage = "Username updated."
+        } catch {
+            usernameValidationMessage = error.localizedDescription
+        }
+    }
+
+    private func dismissKeyboard() {
+        focusedSettingsField = nil
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     private var privacyStorageText: String {
@@ -384,6 +468,7 @@ struct SettingsView: View {
     }
 
     private func saveAPIKey() {
+        dismissKeyboard()
         do {
             let trimmedAPIKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmedAPIKey.isEmpty else {
@@ -451,6 +536,168 @@ struct SettingsView: View {
     }
 }
 
+private enum SettingsFocusField: Hashable {
+    case openAIModel
+    case apiKey
+}
+
+private struct UsernameEditorView: View {
+    @Binding var username: String
+    var validationMessage: String?
+    var onCancel: () -> Void
+    var onSave: () -> Void
+    @FocusState private var isUsernameFocused: Bool
+
+    private var trimmedUsername: String {
+        username.trimmedUsername
+    }
+
+    private var canSave: Bool {
+        !trimmedUsername.isEmpty
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Username", text: $username)
+                        .textInputAutocapitalization(.words)
+                        .autocorrectionDisabled()
+                        .textContentType(.nickname)
+                        .focused($isUsernameFocused)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            if canSave {
+                                isUsernameFocused = false
+                                onSave()
+                            }
+                        }
+                        .accessibilityLabel("Profile username")
+
+                    if let validationMessage {
+                        Text(validationMessage)
+                            .font(.footnote)
+                            .foregroundStyle(KalirovaTheme.Colors.error)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                } footer: {
+                    Text("This name appears on your Home and Profile screens. It does not change saved meals, metrics, workouts, settings, or API keys.")
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .dismissKeyboardOnOutsideTap {
+                isUsernameFocused = false
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
+            .navigationTitle("Edit Username")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                isUsernameFocused = true
+            }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        isUsernameFocused = false
+                        onSave()
+                    }
+                    .disabled(!canSave)
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        isUsernameFocused = false
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private extension View {
+    func dismissKeyboardOnOutsideTap(_ action: @escaping () -> Void) -> some View {
+        background(KeyboardDismissTapInstaller(onTapOutsideTextInput: action))
+    }
+}
+
+private struct KeyboardDismissTapInstaller: UIViewRepresentable {
+    var onTapOutsideTextInput: () -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onTapOutsideTextInput: onTapOutsideTextInput)
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView(frame: .zero)
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        context.coordinator.onTapOutsideTextInput = onTapOutsideTextInput
+        DispatchQueue.main.async {
+            context.coordinator.installIfNeeded(from: uiView)
+        }
+    }
+
+    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
+        coordinator.uninstall()
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var onTapOutsideTextInput: () -> Void
+        private weak var installedWindow: UIWindow?
+        private weak var tapRecognizer: UITapGestureRecognizer?
+
+        init(onTapOutsideTextInput: @escaping () -> Void) {
+            self.onTapOutsideTextInput = onTapOutsideTextInput
+        }
+
+        func installIfNeeded(from view: UIView) {
+            guard let window = view.window else { return }
+            guard installedWindow !== window || tapRecognizer == nil else { return }
+
+            uninstall()
+
+            let recognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+            recognizer.cancelsTouchesInView = false
+            recognizer.delegate = self
+            window.addGestureRecognizer(recognizer)
+            installedWindow = window
+            tapRecognizer = recognizer
+        }
+
+        func uninstall() {
+            if let tapRecognizer, let installedWindow {
+                installedWindow.removeGestureRecognizer(tapRecognizer)
+            }
+            tapRecognizer = nil
+            installedWindow = nil
+        }
+
+        @objc private func handleTap() {
+            onTapOutsideTextInput()
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+            guard let view = touch.view else { return true }
+            return !view.isTextInputOrDescendant
+        }
+    }
+}
+
+private extension UIView {
+    var isTextInputOrDescendant: Bool {
+        if self is UITextField || self is UITextView || self is UISearchTextField {
+            return true
+        }
+        return superview?.isTextInputOrDescendant ?? false
+    }
+}
+
 private enum LocalDataExporter {
     static func export(
         profiles: [UserProfile],
@@ -464,7 +711,7 @@ private enum LocalDataExporter {
             exportedAt: .now,
             disclaimer: SummaryService.wellnessDisclaimer,
             profiles: profiles.map {
-                ExportProfile(ageYears: $0.ageYears, sex: $0.sexRawValue, dateOfBirth: $0.dateOfBirth, heightCentimeters: $0.heightCentimeters, bodyMassKg: $0.bodyMassKg, goalBodyMassKg: $0.goalBodyMassKg, activityLevel: $0.activityLevelRawValue, unitSystem: $0.preferredUnitSystemRawValue, goalSummary: $0.goalSummary)
+                ExportProfile(username: $0.displayUsername, ageYears: $0.ageYears, sex: $0.sexRawValue, dateOfBirth: $0.dateOfBirth, heightCentimeters: $0.heightCentimeters, bodyMassKg: $0.bodyMassKg, goalBodyMassKg: $0.goalBodyMassKg, activityLevel: $0.activityLevelRawValue, unitSystem: $0.preferredUnitSystemRawValue, goalSummary: $0.goalSummary)
             },
             meals: meals.map {
                 ExportMeal(title: $0.displayTitle, mealType: $0.mealTypeRawValue, customMealTypeName: $0.customMealTypeName, loggedAt: $0.loggedAt, calories: $0.totalCalories, proteinGrams: $0.totalProtein, source: $0.sourceRawValue)
@@ -510,6 +757,7 @@ private struct LocalExport: Codable {
 }
 
 private struct ExportProfile: Codable {
+    var username: String
     var ageYears: Int
     var sex: String
     var dateOfBirth: Date?

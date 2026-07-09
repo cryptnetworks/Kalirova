@@ -108,6 +108,7 @@ enum GoalCadence: String, Codable, CaseIterable, Identifiable {
 @Model
 final class UserProfile {
     var id: UUID
+    var username: String?
     var ageYears: Int
     var sexRawValue: String
     var dateOfBirth: Date?
@@ -122,6 +123,7 @@ final class UserProfile {
 
     init(
         id: UUID = UUID(),
+        username: String? = nil,
         ageYears: Int,
         sex: BiologicalSex,
         dateOfBirth: Date? = nil,
@@ -135,6 +137,7 @@ final class UserProfile {
         updatedAt: Date = .now
     ) {
         self.id = id
+        self.username = username?.trimmedUsername
         self.ageYears = ageYears
         self.sexRawValue = sex.rawValue
         self.dateOfBirth = dateOfBirth
@@ -160,6 +163,11 @@ final class UserProfile {
         UnitSystem(rawValue: preferredUnitSystemRawValue) ?? .metric
     }
 
+    var displayUsername: String {
+        let trimmed = username?.trimmedUsername ?? ""
+        return trimmed.isEmpty ? "Kalirova User" : trimmed
+    }
+
     var snapshot: UserProfileSnapshot {
         UserProfileSnapshot(
             ageYears: ageYears,
@@ -167,6 +175,12 @@ final class UserProfile {
             bodyMassKg: bodyMassKg,
             activityLevel: activityLevel
         )
+    }
+}
+
+extension String {
+    var trimmedUsername: String {
+        trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

@@ -53,6 +53,7 @@ Acceptance criteria:
 - Imperial and metric input are supported.
 - BMI updates immediately after height and weight are entered.
 - BMI includes an info sheet explaining standard adult BMI categories and that BMI is a screening tool, not a diagnosis.
+- Profile username can be edited after onboarding, trims leading/trailing whitespace, rejects empty or control-character values, persists locally, and updates Home/Profile display without resetting saved data.
 
 ### Story S1.3: Choose preferred units
 As a user, I want to choose imperial or metric units so health data is displayed in familiar units while storage remains normalized.
@@ -197,6 +198,7 @@ Acceptance criteria:
 - App still works without an API key.
 - OpenAI API keys are saved only in iOS Keychain using service `com.kalirova.app` and account `openai_api_key`.
 - Settings can load, mask, update, test, and delete the saved OpenAI API key without displaying or logging the full key.
+- OpenAI API key entry supports Done, submit, tap-outside, and interactive-scroll keyboard dismissal while preserving secure text entry.
 
 ## Epic E9: Apple Platform Experience
 
