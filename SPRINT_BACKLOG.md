@@ -61,6 +61,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T9 | S0.3 | Run SwiftPM tests and Xcode simulator build. | Todo |
 | S1-T10 | S9.2 | Rebrand project, Xcode targets, Swift package target, scheme, repository references, bundle identifier, docs, and brand assets to Kalirova. | Done |
 | S1-T11 | S0.2 | Repair automatic signing and physical iPhone deployment for the Kalirova app target. | Done |
+| S1-T12 | S7.3 | Persist OpenAI API keys in Keychain with masked Settings state, delete, and test connection controls. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -85,3 +86,6 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T11: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
 - S1-T11: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'id=00008150-00021C341AF2401C' -configuration Debug build` passed.
 - S1-T11: `xcrun devicectl device install app --device A9BC3D31-0520-5A69-AB2D-BBC29DBCCE18 .../Kalirova.app` installed `com.michaeldesocio.kalirova` on the connected iPhone.
+- S1-T12: `plutil -lint Kalirova.xcodeproj/project.pbxproj Kalirova/Kalirova.entitlements` passed.
+- S1-T12: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
+- S1-T12: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.

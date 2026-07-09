@@ -29,6 +29,7 @@
 		AA0000000000000000000120 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000220 /* SettingsView.swift */; };
 		AA0000000000000000000121 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000221 /* Assets.xcassets */; };
 		AA0000000000000000000122 /* CalorieBurnEstimatorXcodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000223 /* CalorieBurnEstimatorXcodeTests.swift */; };
+		AA0000000000000000000123 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000227 /* KeychainServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 		AA0000000000000000000224 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		AA0000000000000000000225 /* Kalirova.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kalirova.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000226 /* KalirovaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KalirovaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000227 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000223 /* CalorieBurnEstimatorXcodeTests.swift */,
+				AA0000000000000000000227 /* KeychainServiceTests.swift */,
 			);
 			path = KalirovaTests;
 			sourceTree = "<group>";
@@ -328,6 +331,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0000000000000000000122 /* CalorieBurnEstimatorXcodeTests.swift in Sources */,
+				AA0000000000000000000123 /* KeychainServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

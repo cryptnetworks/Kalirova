@@ -21,8 +21,12 @@ struct SettingsView: View {
     @State private var openAIModel = "gpt-5.5"
     @State private var unitSystem: UnitSystem = .metric
     @State private var apiKey = ""
+    @State private var maskedAPIKey: String?
+    @State private var isTestingConnection = false
     @State private var statusMessage: String?
     @State private var showingDeleteConfirmation = false
+
+    private let openAIService = OpenAIService()
 
     private var exportText: String {
         LocalDataExporter.export(
@@ -81,6 +85,13 @@ struct SettingsView: View {
                     SecureField("OpenAI API Key", text: $apiKey)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .privacySensitive()
+                    if let maskedAPIKey {
+                        Label("Saved key: \(maskedAPIKey)", systemImage: "checkmark.seal")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("OpenAI API key is saved")
+                    }
                     HStack {
                         Button {
                             saveAPIKey()
@@ -88,10 +99,17 @@ struct SettingsView: View {
                             Label("Save Key", systemImage: "key.fill")
                         }
                         Spacer()
+                        Button {
+                            Task { await testOpenAIConnection() }
+                        } label: {
+                            Label(isTestingConnection ? "Testing" : "Test Connection", systemImage: "network")
+                        }
+                        .disabled(isTestingConnection || (apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && maskedAPIKey == nil))
+                        Spacer()
                         Button(role: .destructive) {
                             deleteAPIKey()
                         } label: {
-                            Label("Delete Key", systemImage: "trash")
+                            Label("Delete/Clear Key", systemImage: "trash")
                         }
                     }
                 }
@@ -142,8 +160,16 @@ struct SettingsView: View {
         openAIModel = current?.openAIModel ?? "gpt-5.5"
         unitSystem = current?.unitSystem ?? profiles.first?.preferredUnitSystem ?? .metric
 
-        if (try? KeychainService.shared.loadOpenAIAPIKey()) != nil {
-            statusMessage = "OpenAI API key is stored in Keychain."
+        do {
+            if let storedAPIKey = try KeychainService.shared.loadOpenAIAPIKey() {
+                maskedAPIKey = KeychainService.maskedAPIKey(storedAPIKey)
+                statusMessage = "OpenAI API key is stored in Keychain."
+            } else {
+                maskedAPIKey = nil
+            }
+        } catch {
+            maskedAPIKey = nil
+            statusMessage = error.localizedDescription
         }
     }
 
@@ -165,9 +191,16 @@ struct SettingsView: View {
 
     private func saveAPIKey() {
         do {
-            try KeychainService.shared.saveOpenAIAPIKey(apiKey)
+            let trimmedAPIKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedAPIKey.isEmpty else {
+                statusMessage = "Enter an OpenAI API key before saving."
+                return
+            }
+
+            try KeychainService.shared.saveOpenAIAPIKey(trimmedAPIKey)
+            maskedAPIKey = KeychainService.maskedAPIKey(trimmedAPIKey)
             apiKey = ""
-            statusMessage = "OpenAI API key saved to Keychain."
+            statusMessage = "OpenAI API key saved to Keychain as \(maskedAPIKey ?? "a masked key")."
         } catch {
             statusMessage = error.localizedDescription
         }
@@ -177,7 +210,23 @@ struct SettingsView: View {
         do {
             try KeychainService.shared.deleteOpenAIAPIKey()
             apiKey = ""
+            maskedAPIKey = nil
             statusMessage = "OpenAI API key deleted from Keychain."
+        } catch {
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func testOpenAIConnection() async {
+        isTestingConnection = true
+        defer { isTestingConnection = false }
+
+        do {
+            let pendingAPIKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            let keyToTest = pendingAPIKey.isEmpty ? try KeychainService.shared.loadOpenAIAPIKey() : pendingAPIKey
+            try await openAIService.testConnection(apiKey: keyToTest)
+            statusMessage = "OpenAI connection succeeded."
         } catch {
             statusMessage = error.localizedDescription
         }

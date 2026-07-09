@@ -67,6 +67,7 @@ enum OpenAIServiceError: LocalizedError {
 
 final class OpenAIService: @unchecked Sendable {
     private let endpoint = URL(string: "https://api.openai.com/v1/responses")!
+    private let modelsEndpoint = URL(string: "https://api.openai.com/v1/models")!
     private let urlSession: URLSession
 
     init(urlSession: URLSession = .shared) {
@@ -95,6 +96,21 @@ final class OpenAIService: @unchecked Sendable {
 
     func previewRestaurantMealInformation(_ request: RestaurantMealEstimateRequest) throws -> String {
         try request.mealInformation.prettyPrintedJSONString()
+    }
+
+    func testConnection(apiKey: String?) async throws {
+        guard let apiKey, !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw OpenAIServiceError.missingAPIKey
+        }
+
+        var request = URLRequest(url: modelsEndpoint)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+        let (_, response) = try await urlSession.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
+            throw OpenAIServiceError.invalidResponse
+        }
     }
 
     func analyzeMeal(mealText: String, model: String, apiKey: String?) async throws -> OpenAIMealAnalysis {

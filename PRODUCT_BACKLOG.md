@@ -184,6 +184,8 @@ Acceptance criteria:
 - AI estimates are never saved automatically; user must confirm or edit before saving.
 - UI clearly states restaurant estimates may vary by preparation and portion size.
 - App still works without an API key.
+- OpenAI API keys are saved only in iOS Keychain using service `com.michaeldesocio.kalirova` and account `openai_api_key`.
+- Settings can load, mask, update, test, and delete the saved OpenAI API key without displaying or logging the full key.
 
 ## Epic E9: Apple Platform Experience
 
