@@ -6,7 +6,7 @@ HealthTrack AI is a native SwiftUI iPhone app for private, on-device health trac
 
 ## Current Sprint
 
-Sprint 0 establishes the repository, SCRUM workflow, privacy architecture, SwiftUI app scaffold, core calorie and summary logic, and test coverage for the first deterministic services.
+Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal grouping, optional restaurant meal estimation with ChatGPT, Apple-standard UI patterns, and 90-day HealthKit workout import.
 
 ## Repository Rules
 
@@ -66,4 +66,3 @@ HealthKit requires:
 - `SPRINT_REVIEW.md`
 - `SPRINT_RETROSPECTIVE.md`
 - `CHANGELOG.md`
-

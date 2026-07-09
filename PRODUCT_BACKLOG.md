@@ -38,6 +38,19 @@ Acceptance criteria:
 - User profile is stored locally.
 - The profile can be edited.
 - The app works without network connectivity.
+- Height, date of birth or age, weight, biological sex, activity level, and goal weight support typed input.
+- Imperial and metric input are supported.
+- BMI updates immediately after height and weight are entered.
+- BMI includes an info sheet explaining standard adult BMI categories and that BMI is a screening tool, not a diagnosis.
+
+### Story S1.3: Choose preferred units
+As a user, I want to choose imperial or metric units so health data is displayed in familiar units while storage remains normalized.
+
+Acceptance criteria:
+- User can choose Imperial or Metric during onboarding and in settings.
+- Height, weight, distance, and body measurements display according to preference.
+- Internal persisted values remain normalized in metric units where appropriate.
+- Nutrition portion labels preserve user-entered context where applicable.
 
 ### Story S1.2: Explain privacy before permissions
 As a user, I want to understand what stays local before granting HealthKit access.
@@ -56,6 +69,11 @@ Acceptance criteria:
 - HealthKit service exposes permission requests and date-bounded reads.
 - Imported values keep source metadata where available.
 - Import can be manually triggered from settings.
+- First HealthKit authorization imports workouts from the last 90 days.
+- Manual “Import Last 90 Days” action is available.
+- Imports include workout type, start/end date, duration, distance, active energy, average heart rate when available, and source app/device when available.
+- Duplicate imports are skipped using stable HealthKit identifiers.
+- Import shows loading state and a summary of imported, skipped duplicate, and errored items.
 
 ### Story S2.2: Preserve device calories separately
 As a user, I want device-reported calories shown separately from app estimates so I can compare them.
@@ -74,6 +92,10 @@ Acceptance criteria:
 - Meals can contain multiple food items.
 - Calories, protein, carbs, fat, fiber, sugar, and sodium can be edited before saving.
 - Saved meals appear in dashboard totals.
+- Meal entries do not require a user-provided title.
+- Meals are grouped by date and meal type: breakfast, lunch, dinner, snack, or custom.
+- Users can add multiple food items to the same meal/date container without duplicate meal sections.
+- Dashboard displays meals grouped by day and meal type.
 
 ### Story S3.2: Log workouts manually
 As a user, I want to log workouts manually so non-watch activities are included.
@@ -152,6 +174,27 @@ Acceptance criteria:
 - User can edit before saving.
 - App works with AI disabled.
 
+### Story S7.3: Estimate restaurant meals with ChatGPT
+As a user, I want optional ChatGPT restaurant meal estimates so I can log meals when restaurant nutrition details are incomplete.
+
+Acceptance criteria:
+- User can enter restaurant name, food item, portion or measurement, and notes/modifications.
+- User sees the exact meal information payload before sending it to OpenAI.
+- OpenAI response includes calories, protein, carbs, fat, confidence, assumptions, and source or estimation notes when available.
+- AI estimates are never saved automatically; user must confirm or edit before saving.
+- UI clearly states restaurant estimates may vary by preparation and portion size.
+- App still works without an API key.
+
+## Epic E9: Apple Platform Experience
+
+### Story S9.1: Align UI with Apple Human Interface Guidelines
+As a user, I want HealthTrack AI to feel like a native iOS app with accessible system behavior.
+
+Acceptance criteria:
+- Core flows use native SwiftUI `NavigationStack`, `Form`, `List`, `Section`, `Picker`, `DatePicker`, `Sheet`, `ConfirmationDialog`, `ToolbarItem`, and SF Symbols where appropriate.
+- Spacing, hierarchy, typography, accessibility labels, Dynamic Type, and contrast are improved.
+- Liquid Glass visual treatment is used where available on iOS 26 with availability checks and graceful fallbacks.
+
 ### Story S7.2: Generate optional AI weekly summary
 As a user, I want optional coaching-style insights based on a bounded weekly summary.
 
@@ -169,4 +212,3 @@ Acceptance criteria:
 - Export is local and user-initiated.
 - Delete all data requires confirmation.
 - No cloud database is used.
-
