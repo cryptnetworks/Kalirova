@@ -72,6 +72,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T20 | S1.1, S7.3 | Fix OpenAI API key keyboard dismissal and add validated profile username editing. | Done |
 | S1-T21 | S0.4 | Update stable workflow dependency versions, review Dependabot PRs, and document current validated toolchain requirements. | Done |
 | S1-T22 | S9.5 | Add shared accessible error handling, validation, sanitized logging, and recoverable failure UI across app flows. | Done |
+| S1-T23 | S9.6 | Add persisted System Default, Light, and Dark appearance selection applied at the app root. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -172,3 +173,9 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T22: `swift test` passed with 13 XCTest tests and 0 failures.
 - S1-T22: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
 - S1-T22: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 9 tests and 0 failures.
+- S1-T23: Appearance audit found no existing forced `.preferredColorScheme(.light)` or `.preferredColorScheme(.dark)` usage.
+- S1-T23: Added `AppAppearance` with System Default, Light, and Dark; persisted it on `AppSettings`; applied it once at `RootView`; and replaced the Settings placeholder with an Appearance picker.
+- S1-T23: Follow-up scan found only the centralized `RootView` `.preferredColorScheme(activeAppearance.colorScheme)` usage and no forced light/dark color-scheme overrides.
+- S1-T23: `swift test` passed with 13 XCTest tests and 0 failures after rerunning outside the sandbox due SwiftPM cache permissions.
+- S1-T23: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
+- S1-T23: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 13 tests and 0 failures.

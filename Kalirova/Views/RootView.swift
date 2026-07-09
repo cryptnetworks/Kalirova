@@ -1,8 +1,10 @@
+import SwiftData
 import SwiftUI
 
 struct RootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @EnvironmentObject private var persistenceService: PersistenceService
+    @Query private var settings: [AppSettings]
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -20,6 +22,11 @@ struct RootView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+        .preferredColorScheme(activeAppearance.colorScheme)
+    }
+
+    private var activeAppearance: AppAppearance {
+        settings.first?.appearance ?? .system
     }
 }
 

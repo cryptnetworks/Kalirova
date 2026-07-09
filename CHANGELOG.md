@@ -7,6 +7,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 ## [Unreleased]
 
 ### Added
+- Added a persisted Appearance selector with System Default, Light, and Dark options applied at the app root.
 - Added shared accessible error handling with `AppError`, sanitized error mapping/logging, reusable banners, inline validation, alert helpers, and focused mapper tests.
 - Added CI efficiency documentation covering path-aware workflows, caching policy, manual runs, and Actions minute savings estimates.
 - Added performance documentation covering optimized code paths, local validation commands, and recommended Xcode Instruments passes.

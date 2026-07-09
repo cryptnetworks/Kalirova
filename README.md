@@ -78,6 +78,7 @@ See `docs/ci-efficiency.md` for the full trigger and caching policy.
 ## Architecture
 
 - UI: SwiftUI with native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, Apple Charts, reusable Kalirova design-system components, and centralized semantic color tokens for Light/Dark Mode readability.
+- Appearance: System Default, Light, and Dark preferences are stored in app settings and applied once at the app root.
 - Local persistence: SwiftData models, local-only by default.
 - Optional iCloud Backup: CloudKit-backed SwiftData code is preserved but disabled in local development builds behind the `ENABLE_ICLOUD_BACKUP` compilation condition.
 - Apple Health integration: HealthKit service isolated behind async APIs.

@@ -256,6 +256,16 @@ Acceptance criteria:
 - Blocking or destructive failures use alerts or visible form errors before dismissing.
 - Error logs avoid API keys, tokens, HealthKit data, weight values, meal contents, and other personal health data.
 
+### Story S9.6: Choose adaptive app appearance
+As a user, I want Kalirova to follow my iPhone appearance by default while still allowing Light or Dark Mode overrides so the app matches my visual preference.
+
+Acceptance criteria:
+- Appearance options include System Default, Light, and Dark.
+- System Default is selected by default and does not force a color scheme.
+- Light and Dark explicitly apply the selected app-wide appearance at the root.
+- Appearance preference persists in app settings without resetting health data, API keys, meals, workouts, metrics, goals, or onboarding state.
+- Onboarding, Home, Meals, Activity, Insights, Profile, AI Search, charts, cards, buttons, forms, alerts, and error messages continue to use adaptive semantic colors.
+
 ### Story S7.2: Generate optional AI weekly summary
 As a user, I want optional coaching-style insights based on a bounded weekly summary.
 

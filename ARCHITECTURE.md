@@ -32,6 +32,7 @@ The `Kalirova/DesignSystem` module centralizes the supplied visual language:
 - `Theme.swift` maps namespaced asset colors and adaptive system colors to semantic roles such as background, surface, text, accent, success, warning, error, borders, dividers, inputs, buttons, charts, nutrition, exercise, and AI.
 - `Spacing.swift`, `Typography.swift`, `CardStyles.swift`, `ButtonStyles.swift`, and `Animations.swift` define reusable layout, type, surface, action, and motion tokens.
 - `Icons.swift` and `Components.swift` expose shared brand marks, dashboard tiles, insight cards, and search fields so screens do not duplicate styling.
+- `AppAppearance` represents System Default, Light, and Dark app appearance choices. The selected value is persisted in `AppSettings` and applied at `RootView`; System Default maps to no forced SwiftUI color scheme so iOS controls the appearance.
 
 Text and status colors should use semantic roles instead of raw brand colors. Raw palette colors remain available for brand art and decorative accents, while app text, selected states, errors, warnings, charts, and controls use adaptive tokens that remain readable in Light Mode and Dark Mode.
 

@@ -24,6 +24,7 @@ struct SettingsView: View {
     @State private var showAppEstimatedCalories = true
     @State private var openAIModel = "gpt-5.5"
     @State private var unitSystem: UnitSystem = .metric
+    @State private var appearance: AppAppearance = .system
     @State private var iCloudBackupEnabled = false
     @State private var apiKey = ""
     @State private var maskedAPIKey: String?
@@ -212,7 +213,13 @@ struct SettingsView: View {
                 }
 
                 Section("Appearance") {
-                    Label("Uses system appearance, Dynamic Type, and high-contrast settings.", systemImage: "paintbrush")
+                    Picker("Appearance", selection: $appearance) {
+                        ForEach(AppAppearance.allCases) { appearance in
+                            Text(appearance.displayName).tag(appearance)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    Label("System Default follows your iPhone Light or Dark Mode setting.", systemImage: "paintbrush")
                         .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
 
@@ -259,6 +266,7 @@ struct SettingsView: View {
             .onChange(of: showAppEstimatedCalories) { _, _ in saveSettings() }
             .onChange(of: openAIModel) { _, _ in saveSettings() }
             .onChange(of: unitSystem) { _, _ in saveSettings() }
+            .onChange(of: appearance) { _, _ in saveSettings() }
             .alert("Enable iCloud Backup?", isPresented: $showingICloudEnableWarning) {
                 Button("Enable", action: enableICloudBackupAfterWarning)
                 Button("Cancel", role: .cancel) {
@@ -374,6 +382,7 @@ struct SettingsView: View {
         showAppEstimatedCalories = current?.showAppEstimatedCalories ?? true
         openAIModel = current?.openAIModel ?? "gpt-5.5"
         unitSystem = current?.unitSystem ?? profiles.first?.preferredUnitSystem ?? .metric
+        appearance = current?.appearance ?? .system
         if PersistenceService.isICloudBackupCapabilityEnabled {
             iCloudBackupEnabled = storedICloudBackupEnabled || (current?.iCloudBackupEnabled ?? false)
         } else {
@@ -410,6 +419,7 @@ struct SettingsView: View {
         current.showAppEstimatedCalories = showAppEstimatedCalories
         current.openAIModel = openAIModel
         current.unitSystemRawValue = unitSystem.rawValue
+        current.appearanceRawValue = appearance.rawValue
         current.iCloudBackupEnabled = PersistenceService.isICloudBackupCapabilityEnabled && iCloudBackupEnabled
         current.lastICloudBackupAt = iCloudBackupService.lastBackupAt
         current.updatedAt = .now

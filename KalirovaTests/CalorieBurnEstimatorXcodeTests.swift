@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 @testable import Kalirova
 
@@ -112,5 +113,31 @@ final class UserProfileXcodeTests: XCTestCase {
         )
 
         XCTAssertEqual(profile.displayUsername, "Jordan")
+    }
+}
+
+final class AppAppearanceXcodeTests: XCTestCase {
+    func testSystemAppearanceDoesNotForceColorScheme() {
+        XCTAssertEqual(AppAppearance.system.displayName, "System Default")
+        XCTAssertNil(AppAppearance.system.colorScheme)
+    }
+
+    func testManualAppearancesForceExpectedColorScheme() {
+        XCTAssertEqual(AppAppearance.light.colorScheme, .light)
+        XCTAssertEqual(AppAppearance.dark.colorScheme, .dark)
+    }
+
+    func testSettingsDefaultToSystemAppearance() {
+        let settings = AppSettings()
+
+        XCTAssertEqual(settings.appearance, .system)
+        XCTAssertEqual(settings.appearanceRawValue, AppAppearance.system.rawValue)
+    }
+
+    func testExistingSettingsWithoutAppearanceMigrateToSystemDefault() {
+        let settings = AppSettings(appearance: .dark)
+        settings.appearanceRawValue = nil
+
+        XCTAssertEqual(settings.appearance, .system)
     }
 }
