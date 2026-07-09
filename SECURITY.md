@@ -29,6 +29,11 @@ Current audit findings:
 - npm: no `package.json` or npm lockfile detected.
 - Ruby/Bundler: no `Gemfile` or `Gemfile.lock` detected.
 - CI/CD: GitHub Actions workflows in `.github/workflows/`.
+- Local secret-pattern scan: no hardcoded API keys, GitHub tokens, AWS keys, or private keys detected in source/docs/workflows.
+- Logging scan: no `print`, `debugPrint`, `NSLog`, or `os_log` calls detected in app or test sources. Current `os.Logger` usage logs status metadata only.
+- GitHub code scanning: no open alerts in the latest manual `gh api` check.
+- GitHub secret scanning and push protection: enabled.
+- GitHub Dependabot security updates/alerts: disabled in repository settings even though `.github/dependabot.yml` is present; enable it in GitHub repository settings for advisory alerts.
 
 Available checks:
 
@@ -36,14 +41,17 @@ Available checks:
 swift package show-dependencies
 swift test
 xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build
+rg -n --hidden --glob '!.git/**' --glob '!.build/**' "(sk-[A-Za-z0-9_-]{20,}|github_pat_|ghp_|AKIA[0-9A-Z]{16}|BEGIN .* PRIVATE KEY)" .
 ```
 
 GitHub security automation:
 
 - Dependabot monitors GitHub Actions and Swift Package Manager.
 - Dependency Review runs on pull requests.
-- CodeQL analyzes Swift on pushes, pull requests, scheduled runs, and manual dispatch.
-- The security workflow runs available ecosystem audit commands only when lockfiles are present.
+- CodeQL analyzes Swift on source/workflow pull requests, weekly scheduled runs, and manual dispatch.
+- Swift Package inventory runs on Swift dependency-file changes, weekly scheduled runs, and manual dispatch.
+- The security workflow runs available ecosystem audit commands only when dependency lockfiles are present, on schedule, or on manual dispatch.
+- Security scans intentionally do not run on every push to `main`; pull request, scheduled, and manual coverage avoids duplicating CI work while preserving advisory coverage.
 
 ## Secret Handling
 

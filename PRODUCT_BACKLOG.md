@@ -273,3 +273,17 @@ Acceptance criteria:
 - The app target does not enable the iCloud capability by default.
 - CloudKit-backed persistence remains in the codebase but is disabled unless a paid-team build explicitly defines `ENABLE_ICLOUD_BACKUP` and restores the iCloud capability/container entitlement.
 - Settings explains that iCloud Backup requires a paid Apple Developer account while local builds continue using local-only SwiftData persistence.
+
+## Epic E11: Performance, Reliability, And Battery
+
+### Story S11.1: Keep core screens responsive as local data grows
+As a user, I want dashboards, insights, AI requests, and HealthKit imports to remain responsive and efficient so daily tracking does not waste battery or feel sluggish.
+
+Acceptance criteria:
+- Dashboard totals avoid repeated filtering and reducing during SwiftUI recomposition.
+- Insight daily snapshots group records efficiently by date.
+- Long-running AI and HealthKit tasks are cancellable when the user leaves the flow.
+- HealthKit imports skip duplicate workout identifiers before inserting local records.
+- Network requests use explicit timeouts and do not persist OpenAI response caches.
+- Diagnostics use `os.Logger` without logging API keys, meal text, weight values, HealthKit samples, or personal health data.
+- Local build, app tests, package tests, and follow-up security scans are documented.

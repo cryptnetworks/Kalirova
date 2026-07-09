@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -27,12 +28,14 @@ final class PersistenceService: ObservableObject {
 
     @Published private(set) var modelContainer: ModelContainer
 
+    private static let logger = Logger(subsystem: "com.kalirova.app", category: "persistence")
     private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         let requestedICloudBackup = userDefaults.bool(forKey: Self.iCloudBackupEnabledKey)
         if requestedICloudBackup && !Self.isICloudBackupCapabilityEnabled {
+            Self.logger.info("Disabling requested iCloud backup because the local build lacks the entitlement")
             userDefaults.set(false, forKey: Self.iCloudBackupEnabledKey)
         }
 
@@ -40,7 +43,9 @@ final class PersistenceService: ObservableObject {
             self.modelContainer = try Self.makeModelContainer(
                 iCloudBackupEnabled: requestedICloudBackup && Self.isICloudBackupCapabilityEnabled
             )
+            Self.logger.info("SwiftData model container initialized. iCloud enabled: \(requestedICloudBackup && Self.isICloudBackupCapabilityEnabled, privacy: .public)")
         } catch {
+            Self.logger.error("SwiftData model container initialization failed. Falling back to local-only storage")
             userDefaults.set(false, forKey: Self.iCloudBackupEnabledKey)
             self.modelContainer = try! Self.makeModelContainer(iCloudBackupEnabled: false)
         }
@@ -55,6 +60,7 @@ final class PersistenceService: ObservableObject {
         let updatedContainer = try Self.makeModelContainer(iCloudBackupEnabled: isEnabled)
         userDefaults.set(isEnabled, forKey: Self.iCloudBackupEnabledKey)
         modelContainer = updatedContainer
+        Self.logger.info("SwiftData storage mode changed. iCloud enabled: \(isEnabled, privacy: .public)")
     }
 
     static func makeModelContainer(iCloudBackupEnabled: Bool) throws -> ModelContainer {

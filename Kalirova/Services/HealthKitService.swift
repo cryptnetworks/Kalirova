@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import OSLog
 
 #if canImport(HealthKit)
 import HealthKit
@@ -8,6 +9,7 @@ import HealthKit
 final class HealthKitService: ObservableObject {
     @Published private(set) var authorizationStatusText = "Not requested"
 
+    private let logger = Logger(subsystem: "com.kalirova.app", category: "healthkit")
     private let store = HKHealthStore()
 
     var isHealthDataAvailable: Bool {
@@ -17,10 +19,12 @@ final class HealthKitService: ObservableObject {
     func requestAuthorization() async throws {
         guard isHealthDataAvailable else {
             authorizationStatusText = "Health data is not available on this device."
+            logger.info("HealthKit authorization skipped because health data is unavailable")
             return
         }
 
         let readTypes = requiredReadTypes()
+        logger.info("Requesting HealthKit authorization")
 
         let success = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
             store.requestAuthorization(toShare: [], read: readTypes) { success, error in
@@ -33,9 +37,13 @@ final class HealthKitService: ObservableObject {
         }
 
         authorizationStatusText = success ? "Authorized" : "Authorization denied"
+        logger.info("HealthKit authorization finished with success: \(success, privacy: .public)")
     }
 
-    func importedWorkouts(from startDate: Date, to endDate: Date, limit: Int = 100) async throws -> [HealthKitWorkoutSampleDTO] {
+    func importedWorkouts(from startDate: Date, to endDate: Date, limit: Int = HKObjectQueryNoLimit) async throws -> [HealthKitWorkoutSampleDTO] {
+        try Task.checkCancellation()
+        logger.info("Starting HealthKit workout import")
+
         let predicate = HKQuery.predicateForSamples(
             withStart: startDate,
             end: endDate,
@@ -43,7 +51,7 @@ final class HealthKitService: ObservableObject {
         )
         let sort = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
 
-        return try await withCheckedThrowingContinuation { continuation in
+        let workouts = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HealthKitWorkoutSampleDTO], Error>) in
             let query = HKSampleQuery(
                 sampleType: HKObjectType.workoutType(),
                 predicate: predicate,
@@ -73,6 +81,10 @@ final class HealthKitService: ObservableObject {
 
             store.execute(query)
         }
+
+        try Task.checkCancellation()
+        logger.info("HealthKit workout import returned \(workouts.count, privacy: .public) workouts")
+        return workouts
     }
 
     private func requiredReadTypes() -> Set<HKObjectType> {
@@ -102,7 +114,7 @@ final class HealthKitService: ObservableObject {
         return types
     }
 
-    private static func activityTypeName(_ type: HKWorkoutActivityType) -> String {
+    private nonisolated static func activityTypeName(_ type: HKWorkoutActivityType) -> String {
         switch type {
         case .running: "running"
         case .walking: "walking"

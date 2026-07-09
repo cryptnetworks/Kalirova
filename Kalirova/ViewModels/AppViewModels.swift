@@ -16,8 +16,7 @@ struct DashboardTotals {
     var weightKg: Double?
 }
 
-@MainActor
-final class DashboardViewModel: ObservableObject {
+struct DashboardViewModel {
     func totals(
         meals: [MealEntry],
         workouts: [WorkoutEntry],
@@ -26,31 +25,63 @@ final class DashboardViewModel: ObservableObject {
         referenceDate: Date = .now
     ) -> DashboardTotals {
         let calendar = Calendar.current
-        let filteredMeals = meals.filter { period.contains($0.loggedAt, referenceDate: referenceDate, calendar: calendar) }
-        let filteredWorkouts = workouts.filter { period.contains($0.startedAt, referenceDate: referenceDate, calendar: calendar) }
-        let filteredMetrics = metrics.filter { period.contains($0.loggedAt, referenceDate: referenceDate, calendar: calendar) }
+        var caloriesIn: Double = 0
+        var protein: Double = 0
+        var carbohydrates: Double = 0
+        var fat: Double = 0
+        var deviceOut: Double = 0
+        var appOut: Double = 0
+        var workoutMinutes: Double = 0
+        var steps: Double = 0
+        var waterLiters: Double = 0
+        var sleepHours: Double = 0
+        var weightKg: Double?
+        var latestWeightDate: Date?
 
-        let caloriesIn = filteredMeals.reduce(0) { $0 + $1.totalCalories }
-        let deviceOut = filteredWorkouts.reduce(0) { $0 + ($1.deviceReportedCalories ?? 0) }
-        let appOut = filteredWorkouts.reduce(0) { $0 + ($1.appEstimatedCalories ?? 0) }
+        for meal in meals where period.contains(meal.loggedAt, referenceDate: referenceDate, calendar: calendar) {
+            caloriesIn += meal.totalCalories
+            protein += meal.totalProtein
+            carbohydrates += meal.totalCarbohydrates
+            fat += meal.totalFat
+        }
+
+        for workout in workouts where period.contains(workout.startedAt, referenceDate: referenceDate, calendar: calendar) {
+            deviceOut += workout.deviceReportedCalories ?? 0
+            appOut += workout.appEstimatedCalories ?? 0
+            workoutMinutes += workout.durationMinutes
+        }
+
+        for metric in metrics where period.contains(metric.loggedAt, referenceDate: referenceDate, calendar: calendar) {
+            switch metric.type {
+            case .steps:
+                steps += metric.value
+            case .water:
+                waterLiters += metric.value
+            case .sleep:
+                sleepHours += metric.value
+            case .bodyMass:
+                if latestWeightDate == nil || metric.loggedAt > latestWeightDate ?? .distantPast {
+                    weightKg = metric.value
+                    latestWeightDate = metric.loggedAt
+                }
+            case .bodyFat, .heartRate, .mood, .note, .custom:
+                break
+            }
+        }
 
         return DashboardTotals(
             caloriesIn: caloriesIn,
             deviceCaloriesOut: deviceOut,
             appCaloriesOut: appOut,
             netCalories: caloriesIn - appOut,
-            protein: filteredMeals.reduce(0) { $0 + $1.totalProtein },
-            carbohydrates: filteredMeals.reduce(0) { $0 + $1.totalCarbohydrates },
-            fat: filteredMeals.reduce(0) { $0 + $1.totalFat },
-            workoutMinutes: filteredWorkouts.reduce(0) { $0 + $1.durationMinutes },
-            steps: Int(filteredMetrics.filter { $0.type == .steps }.reduce(0) { $0 + $1.value }),
-            waterLiters: filteredMetrics.filter { $0.type == .water }.reduce(0) { $0 + $1.value },
-            sleepHours: filteredMetrics.filter { $0.type == .sleep }.reduce(0) { $0 + $1.value },
-            weightKg: filteredMetrics
-                .filter { $0.type == .bodyMass }
-                .sorted { $0.loggedAt > $1.loggedAt }
-                .first?
-                .value
+            protein: protein,
+            carbohydrates: carbohydrates,
+            fat: fat,
+            workoutMinutes: workoutMinutes,
+            steps: Int(steps),
+            waterLiters: waterLiters,
+            sleepHours: sleepHours,
+            weightKg: weightKg
         )
     }
 }

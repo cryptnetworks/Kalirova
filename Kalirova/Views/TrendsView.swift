@@ -259,46 +259,88 @@ enum DailySnapshotBuilder {
         referenceDate: Date = .now
     ) -> [DailyHealthSnapshot] {
         let calendar = Calendar.current
-        let relevantDates = Set(
-            meals.map(\.loggedAt) + workouts.map(\.startedAt) + metrics.map(\.loggedAt)
-        )
-        .filter { period.contains($0, referenceDate: referenceDate, calendar: calendar) }
+        var days: [Date: DailySnapshotAccumulator] = [:]
 
-        return relevantDates
-            .map { calendar.startOfDay(for: $0) }
-            .uniqued()
+        for meal in meals where period.contains(meal.loggedAt, referenceDate: referenceDate, calendar: calendar) {
+            let day = calendar.startOfDay(for: meal.loggedAt)
+            days[day, default: DailySnapshotAccumulator()].add(meal)
+        }
+
+        for workout in workouts where period.contains(workout.startedAt, referenceDate: referenceDate, calendar: calendar) {
+            let day = calendar.startOfDay(for: workout.startedAt)
+            days[day, default: DailySnapshotAccumulator()].add(workout)
+        }
+
+        for metric in metrics where period.contains(metric.loggedAt, referenceDate: referenceDate, calendar: calendar) {
+            let day = calendar.startOfDay(for: metric.loggedAt)
+            days[day, default: DailySnapshotAccumulator()].add(metric)
+        }
+
+        return days.keys
             .sorted()
-            .map { date in
-                let dayMeals = meals.filter { calendar.isDate($0.loggedAt, inSameDayAs: date) }
-                let dayWorkouts = workouts.filter { calendar.isDate($0.startedAt, inSameDayAs: date) }
-                let dayMetrics = metrics.filter { calendar.isDate($0.loggedAt, inSameDayAs: date) }
-
-                return DailyHealthSnapshot(
-                    date: date,
-                    nutrition: NutrientTotals(
-                        calories: dayMeals.reduce(0) { $0 + $1.totalCalories },
-                        proteinGrams: dayMeals.reduce(0) { $0 + $1.totalProtein },
-                        carbohydrateGrams: dayMeals.reduce(0) { $0 + $1.totalCarbohydrates },
-                        fatGrams: dayMeals.reduce(0) { $0 + $1.totalFat }
-                    ),
-                    activeEnergyBurned: dayWorkouts.reduce(0) { $0 + ($1.appEstimatedCalories ?? 0) },
-                    workoutMinutes: dayWorkouts.reduce(0) { $0 + $1.durationMinutes },
-                    steps: Int(dayMetrics.filter { $0.type == .steps }.reduce(0) { $0 + $1.value }),
-                    waterLiters: dayMetrics.filter { $0.type == .water }.reduce(0) { $0 + $1.value },
-                    sleepHours: dayMetrics.filter { $0.type == .sleep }.reduce(0) { $0 + $1.value },
-                    bodyMassKg: dayMetrics
-                        .filter { $0.type == .bodyMass }
-                        .sorted { $0.loggedAt > $1.loggedAt }
-                        .first?
-                        .value
-                )
-            }
+            .compactMap { date in days[date]?.snapshot(date: date) }
     }
 }
 
-private extension Array where Element: Hashable {
-    func uniqued() -> [Element] {
-        Array(Set(self))
+private struct DailySnapshotAccumulator {
+    private var calories: Double = 0
+    private var proteinGrams: Double = 0
+    private var carbohydrateGrams: Double = 0
+    private var fatGrams: Double = 0
+    private var activeEnergyBurned: Double = 0
+    private var workoutMinutes: Double = 0
+    private var steps: Double = 0
+    private var waterLiters: Double = 0
+    private var sleepHours: Double = 0
+    private var bodyMassKg: Double?
+    private var latestBodyMassDate: Date?
+
+    mutating func add(_ meal: MealEntry) {
+        calories += meal.totalCalories
+        proteinGrams += meal.totalProtein
+        carbohydrateGrams += meal.totalCarbohydrates
+        fatGrams += meal.totalFat
+    }
+
+    mutating func add(_ workout: WorkoutEntry) {
+        activeEnergyBurned += workout.appEstimatedCalories ?? 0
+        workoutMinutes += workout.durationMinutes
+    }
+
+    mutating func add(_ metric: HealthMetricEntry) {
+        switch metric.type {
+        case .steps:
+            steps += metric.value
+        case .water:
+            waterLiters += metric.value
+        case .sleep:
+            sleepHours += metric.value
+        case .bodyMass:
+            if latestBodyMassDate == nil || metric.loggedAt > latestBodyMassDate ?? .distantPast {
+                bodyMassKg = metric.value
+                latestBodyMassDate = metric.loggedAt
+            }
+        case .bodyFat, .heartRate, .mood, .note, .custom:
+            break
+        }
+    }
+
+    func snapshot(date: Date) -> DailyHealthSnapshot {
+        DailyHealthSnapshot(
+            date: date,
+            nutrition: NutrientTotals(
+                calories: calories,
+                proteinGrams: proteinGrams,
+                carbohydrateGrams: carbohydrateGrams,
+                fatGrams: fatGrams
+            ),
+            activeEnergyBurned: activeEnergyBurned,
+            workoutMinutes: workoutMinutes,
+            steps: Int(steps),
+            waterLiters: waterLiters,
+            sleepHours: sleepHours,
+            bodyMassKg: bodyMassKg
+        )
     }
 }
 

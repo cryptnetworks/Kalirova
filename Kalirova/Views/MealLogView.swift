@@ -213,6 +213,7 @@ private struct AddMealView: View {
     @State private var errorMessage: String?
     @State private var showingAIPrivacyConfirmation = false
     @State private var isEstimatingWithAI = false
+    @State private var aiEstimateTask: Task<Void, Never>?
 
     private let nutritionService = NutritionService()
     private let openAIService = OpenAIService()
@@ -282,14 +283,20 @@ private struct AddMealView: View {
                     onCancel: { showingAIPrivacyConfirmation = false },
                     onConfirm: {
                         showingAIPrivacyConfirmation = false
-                        Task { await estimateRestaurantMeal() }
+                        startRestaurantMealEstimate()
                     }
                 )
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        aiEstimateTask?.cancel()
+                        dismiss()
+                    }
                 }
+            }
+            .onDisappear {
+                aiEstimateTask?.cancel()
             }
         }
     }
@@ -483,10 +490,18 @@ private struct AddMealView: View {
         }
     }
 
+    private func startRestaurantMealEstimate() {
+        aiEstimateTask?.cancel()
+        aiEstimateTask = Task { await estimateRestaurantMeal() }
+    }
+
     @MainActor
     private func estimateRestaurantMeal() async {
         isEstimatingWithAI = true
-        defer { isEstimatingWithAI = false }
+        defer {
+            isEstimatingWithAI = false
+            aiEstimateTask = nil
+        }
 
         do {
             let apiKey = try KeychainService.shared.loadOpenAIAPIKey()
@@ -501,6 +516,8 @@ private struct AddMealView: View {
             selectedSource = .openAI
             errorMessage = nil
             step = .review
+        } catch is CancellationError {
+            errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
         }

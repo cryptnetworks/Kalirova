@@ -62,6 +62,17 @@ Run Xcode tests on an available simulator:
 xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test
 ```
 
+## CI Efficiency
+
+GitHub Actions are path-aware to avoid burning macOS runner minutes on docs-only work.
+
+- CI runs Ubuntu metadata checks for documentation-only changes and runs macOS Swift/iOS jobs only for Swift, package, Xcode project, workflow, or manual runs.
+- Security automation runs on pull requests, weekly schedule, and manual dispatch instead of every push.
+- Wiki sync runs only when `docs/wiki/**` or the wiki workflow changes.
+- Swift Package Manager cache is enabled; Xcode DerivedData is intentionally not cached.
+
+See `docs/ci-efficiency.md` for the full trigger and caching policy.
+
 ## Architecture
 
 - UI: SwiftUI with native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, Apple Charts, and reusable Kalirova design-system components.
@@ -74,7 +85,7 @@ xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=i
 - Brand assets: Kalirova app icon, brand marks, icon assets, reference mockups, and namespaced semantic color assets live in the Xcode asset catalog.
 - Analytics: none.
 
-See `ARCHITECTURE.md` and `PRIVACY.md` for details.
+See `ARCHITECTURE.md`, `PRIVACY.md`, and `docs/performance.md` for details.
 
 ## HealthKit Entitlements
 
@@ -110,8 +121,9 @@ Security automation lives in `.github/workflows/security.yml` and `.github/depen
 
 - Dependabot monitors GitHub Actions and Swift Package Manager.
 - Dependency Review runs on pull requests.
-- CodeQL analyzes Swift.
+- CodeQL analyzes Swift on source/workflow pull requests, scheduled runs, and manual runs.
 - Conditional audit steps run for CocoaPods, npm, and Bundler if those lockfiles are later added.
+- GitHub secret scanning and push protection are enabled for the public repository. Dependabot security updates are configured in the repo but must also be enabled in GitHub repository settings for advisory alerts.
 
 See `SECURITY.md` for vulnerability reporting and secret-handling rules.
 

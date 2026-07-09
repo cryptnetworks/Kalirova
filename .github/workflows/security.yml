@@ -1,8 +1,6 @@
 name: Security
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   schedule:
@@ -10,20 +8,79 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: read
   contents: read
   pull-requests: read
-  security-events: write
 
 concurrency:
-  group: security-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect Security-Relevant Changes
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.filter.outputs.source }}
+      dependencies: ${{ steps.filter.outputs.dependencies }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+      run_codeql: ${{ steps.decide.outputs.run_codeql }}
+      run_dependency_inventory: ${{ steps.decide.outputs.run_dependency_inventory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            source:
+              - 'Kalirova/**'
+              - 'Kalirova.xcodeproj/**'
+              - 'KalirovaTests/**'
+              - 'Tests/**'
+              - 'Package.swift'
+              - 'Package.resolved'
+              - '.github/workflows/security.yml'
+              - '.github/workflows/ci.yml'
+            dependencies:
+              - 'Package.swift'
+              - 'Package.resolved'
+              - 'Podfile'
+              - 'Podfile.lock'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'npm-shrinkwrap.json'
+              - 'Gemfile'
+              - 'Gemfile.lock'
+              - '.github/dependabot.yml'
+              - '.github/workflows/security.yml'
+            workflows:
+              - '.github/workflows/**'
+              - '.github/dependabot.yml'
+
+      - name: Decide security jobs
+        id: decide
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ steps.filter.outputs.source }}" = "true" ] || [ "${{ steps.filter.outputs.workflows }}" = "true" ]; then
+            echo "run_codeql=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_codeql=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ steps.filter.outputs.dependencies }}" = "true" ]; then
+            echo "run_dependency_inventory=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_dependency_inventory=false" >> "$GITHUB_OUTPUT"
+          fi
+
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,25 +88,19 @@ jobs:
       - name: Review dependency changes
         uses: actions/dependency-review-action@v4
 
-  package-audit:
-    name: Package Audit
-    runs-on: macos-latest
+  ecosystem-audit:
+    name: Ecosystem Audit
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.run_dependency_inventory == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-
-      - name: Swift package dependency inventory
-        run: swift package show-dependencies
-
       - name: CocoaPods audit if present
         run: |
           if [ -f Podfile.lock ]; then
-            pod outdated || true
+            echo "Podfile.lock detected. Run CocoaPods audit on macOS or through a Bundler-managed CocoaPods setup."
           else
             echo "No CocoaPods lockfile detected."
           fi
@@ -71,9 +122,11 @@ jobs:
             echo "No Gemfile.lock detected."
           fi
 
-  codeql:
-    name: CodeQL
+  swift-package-inventory:
+    name: Swift Package Inventory
     runs-on: macos-latest
+    needs: changes
+    if: needs.changes.outputs.run_dependency_inventory == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,6 +135,49 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Swift package dependency inventory
+        run: swift package show-dependencies
+
+  codeql:
+    name: CodeQL
+    runs-on: macos-latest
+    needs: changes
+    if: needs.changes.outputs.run_codeql == 'true'
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3

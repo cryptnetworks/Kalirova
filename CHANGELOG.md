@@ -7,6 +7,8 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 ## [Unreleased]
 
 ### Added
+- Added CI efficiency documentation covering path-aware workflows, caching policy, manual runs, and Actions minute savings estimates.
+- Added performance documentation covering optimized code paths, local validation commands, and recommended Xcode Instruments passes.
 - Added GitHub Actions CI, security scanning, wiki sync, Dependabot configuration, repository issue/PR templates, `SECURITY.md`, `CONTRIBUTING.md`, and wiki-ready docs under `docs/wiki/`.
 - Applied the supplied Kalirova design system with namespaced color assets, app icon assets, brand marks, reference mockups, semantic SwiftUI theme tokens, typography, spacing, card styles, button styles, icon helpers, and reusable dashboard/search/insight components.
 - Redesigned the core SwiftUI experience with five native tabs, step-by-step onboarding, card-based Home/Meals/Activity/Insights/Profile surfaces, Apple Charts trend cards, guided meal entry, polished empty states, and Dynamic Type-friendly hierarchy.
@@ -31,6 +33,8 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Created private GitHub repository `cryptnetworks/Kalirova` and pushed `main`.
 
 ### Fixed
+- Optimized GitHub Actions to skip macOS iOS build/test jobs for docs-only changes, remove security scans from every push, cache Swift Package Manager state, and keep wiki sync scoped to wiki docs.
+- Optimized dashboard and insight aggregation to avoid repeated filtering/sorting during SwiftUI recomposition, added cancellable AI estimate and HealthKit import tasks, skipped duplicate imported workouts before insertion, and added privacy-safe diagnostics for lifecycle, persistence, HealthKit, and OpenAI request status.
 - Removed iCloud/CloudKit capability and entitlement keys from local development builds, preserving CloudKit-backed persistence behind `ENABLE_ICLOUD_BACKUP` for future paid Apple Developer account builds.
 - Removed personal identifiers from app/test bundle identifiers, Keychain service names, CloudKit container references, entitlements, and documentation.
 - Persisted the OpenAI API key in iOS Keychain under `openai_api_key`, added masked Settings state, update/delete controls, connection testing, and Keychain CRUD tests.

@@ -67,6 +67,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T15 | S9.3 | Import Kalirova design system assets, create reusable SwiftUI theme/components, and normalize major screens to the supplied visual language. | Done |
 | S1-T16 | S0.4 | Add CI, security scanning, Dependabot, repository templates, security policy, and wiki sync documentation. | Done |
 | S1-T17 | S10.2 | Remove iCloud capability from local development signing and guard CloudKit-backed persistence behind a paid-team build flag. | Done |
+| S1-T18 | S0.4 | Optimize GitHub Actions triggers, path-aware jobs, concurrency, caching, and CI efficiency documentation. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -129,3 +130,13 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T17: `codesign -d --entitlements :- .../Debug-iphoneos/Kalirova.app` showed HealthKit only, with no iCloud or CloudKit entitlements.
 - S1-T17: `swift test` passed with 9 XCTest tests and 0 failures.
 - S1-T17: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
+- S1-T18: Workflow audit found CI was running macOS build/test jobs for docs-only changes and security scans were running on every push to `main`.
+- S1-T18: `ruby -e 'require "yaml"; ...' .github/workflows/*.yml .github/dependabot.yml` parsed all workflow and Dependabot YAML successfully.
+- S1-T18: CI now runs Ubuntu validation for docs-only changes and gates macOS Swift/iOS jobs behind Swift, package, Xcode project, workflow, or manual changes.
+- S1-T18: Security now runs on pull requests, weekly schedule, and manual dispatch, with CodeQL gated to source/workflow changes plus scheduled/manual runs.
+- S1-T18: `swift package show-dependencies` reported no external dependencies.
+- S1-T18: Secret pattern scan returned no matches.
+- S1-T18: Unsafe logging scan for `print`, `debugPrint`, `NSLog`, and `os_log` returned no matches.
+- S1-T18: `swift test` passed with 9 XCTest tests and 0 failures.
+- S1-T18: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
+- S1-T18: `xcodebuild test -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17'` passed with 7 tests and 0 failures.

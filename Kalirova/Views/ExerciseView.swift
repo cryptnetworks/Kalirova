@@ -10,6 +10,9 @@ struct ExerciseView: View {
     @StateObject private var healthKitService = HealthKitService()
     @State private var showingAddWorkout = false
     @State private var importError: String?
+    @State private var importStatus: String?
+    @State private var isImportingWorkouts = false
+    @State private var importTask: Task<Void, Never>?
 
     private var unitSystem: UnitSystem {
         settings.first?.unitSystem ?? profiles.first?.preferredUnitSystem ?? .metric
@@ -23,12 +26,13 @@ struct ExerciseView: View {
 
                     HStack(spacing: 12) {
                         Button {
-                            Task { await importRecentWorkouts() }
+                            startRecentWorkoutImport()
                         } label: {
-                            Label("Import Last 90 Days", systemImage: "square.and.arrow.down")
+                            Label(isImportingWorkouts ? "Importing" : "Import Last 90 Days", systemImage: "square.and.arrow.down")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(PrimaryKalirovaButton())
+                        .disabled(isImportingWorkouts)
 
                         Button {
                             showingAddWorkout = true
@@ -48,6 +52,14 @@ struct ExerciseView: View {
                             .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
 
+                    if let importStatus {
+                        Text(importStatus)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .padding()
+                            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    }
+
                     SectionHeader(title: "Today’s Workouts")
 
                     if workouts.isEmpty {
@@ -57,9 +69,10 @@ struct ExerciseView: View {
                             Text("Import from Apple Health or add a manual workout.")
                         } actions: {
                             Button("Import Last 90 Days") {
-                                Task { await importRecentWorkouts() }
+                                startRecentWorkoutImport()
                             }
                             .buttonStyle(PrimaryKalirovaButton())
+                            .disabled(isImportingWorkouts)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -96,6 +109,9 @@ struct ExerciseView: View {
             .sheet(isPresented: $showingAddWorkout) {
                 AddWorkoutView(profile: profiles.first, unitSystem: unitSystem, viewModel: viewModel)
             }
+            .onDisappear {
+                importTask?.cancel()
+            }
         }
     }
 
@@ -117,15 +133,39 @@ struct ExerciseView: View {
         }
     }
 
+    private func startRecentWorkoutImport() {
+        guard !isImportingWorkouts else { return }
+        importTask?.cancel()
+        importTask = Task { await importRecentWorkouts() }
+    }
+
+    @MainActor
     private func importRecentWorkouts() async {
+        isImportingWorkouts = true
+        importStatus = nil
+        defer {
+            isImportingWorkouts = false
+            importTask = nil
+        }
+
         do {
             try await healthKitService.requestAuthorization()
             let endDate = Date()
             let startDate = Calendar.current.date(byAdding: .day, value: -90, to: endDate) ?? endDate
             let imported = try await healthKitService.importedWorkouts(from: startDate, to: endDate)
+            var knownWorkoutIDs = Set(workouts.map(\.id))
+            var importedCount = 0
+            var duplicateCount = 0
 
             for sample in imported {
+                try Task.checkCancellation()
                 let mapped = HealthKitMapping.mapWorkout(sample)
+                guard !knownWorkoutIDs.contains(mapped.id) else {
+                    duplicateCount += 1
+                    continue
+                }
+                knownWorkoutIDs.insert(mapped.id)
+
                 let estimate = viewModel.estimate(
                     kind: mapped.input.kind,
                     durationMinutes: mapped.input.durationMinutes,
@@ -152,12 +192,19 @@ struct ExerciseView: View {
                     distanceMeters: mapped.input.distanceMeters
                 )
                 modelContext.insert(workout)
+                importedCount += 1
             }
 
-            try? modelContext.save()
+            if importedCount > 0 {
+                try modelContext.save()
+            }
+            importError = nil
+            importStatus = "Imported \(importedCount) workouts. Skipped \(duplicateCount) duplicates."
+        } catch is CancellationError {
             importError = nil
         } catch {
             importError = error.localizedDescription
+            importStatus = nil
         }
     }
 

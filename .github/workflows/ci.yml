@@ -3,21 +3,113 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - '.github/**'
+      - 'Kalirova/**'
+      - 'Kalirova.xcodeproj/**'
+      - 'KalirovaTests/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'Package.resolved'
+      - 'docs/**'
+      - '*.md'
   pull_request:
     branches: [main]
+    paths:
+      - '.github/**'
+      - 'Kalirova/**'
+      - 'Kalirova.xcodeproj/**'
+      - 'KalirovaTests/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'Package.resolved'
+      - 'docs/**'
+      - '*.md'
+  workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
-    name: Build and Test
-    runs-on: macos-latest
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      swift: ${{ steps.filter.outputs.swift }}
+      docs: ${{ steps.filter.outputs.docs }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+      run_ios: ${{ steps.decide.outputs.run_ios }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            swift:
+              - 'Kalirova/**'
+              - 'Kalirova.xcodeproj/**'
+              - 'KalirovaTests/**'
+              - 'Tests/**'
+              - 'Package.swift'
+              - 'Package.resolved'
+            docs:
+              - 'docs/**'
+              - '*.md'
+            workflows:
+              - '.github/**'
+
+      - name: Decide expensive jobs
+        id: decide
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ steps.filter.outputs.swift }}" = "true" ] || [ "${{ steps.filter.outputs.workflows }}" = "true" ]; then
+            echo "run_ios=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_ios=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  validate:
+    name: Validate Repo Metadata
+    runs-on: ubuntu-latest
+    needs: changes
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate workflow YAML
+        run: |
+          ruby -e 'require "yaml"; ARGV.each { |file| YAML.load_file(file); puts "valid #{file}" }' \
+            .github/workflows/*.yml \
+            .github/dependabot.yml
+
+      - name: Check wiki docs exist
+        run: |
+          test -f docs/wiki/Home.md
+          test -f docs/wiki/Install.md
+          test -f docs/wiki/Usage.md
+          test -f docs/wiki/Development.md
+          test -f docs/wiki/Security.md
+
+      - name: Run SwiftLint if available
+        run: |
+          if command -v swiftlint >/dev/null 2>&1; then
+            swiftlint
+          else
+            echo "SwiftLint is not installed on this runner; skipping."
+          fi
+
+  swift-package-tests:
+    name: Swift Package Tests
+    runs-on: macos-latest
+    needs: [changes, validate]
+    if: needs.changes.outputs.run_ios == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,17 +119,58 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
       - name: Show tool versions
         run: |
           xcodebuild -version
           swift --version
 
       - name: Resolve Swift package dependencies
+        run: swift package resolve
+
+      - name: Run Swift package tests
+        run: swift test
+
+  ios-build-and-test:
+    name: iOS Build and Tests
+    runs-on: macos-latest
+    needs: [changes, swift-package-tests]
+    if: needs.changes.outputs.run_ios == 'true' && needs.swift-package-tests.result == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/.swiftpm
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Resolve Xcode package dependencies
         run: |
           xcodebuild -resolvePackageDependencies \
             -project Kalirova.xcodeproj \
             -scheme Kalirova
-          swift package resolve
 
       - name: Build app
         run: |
@@ -48,9 +181,6 @@ jobs:
             -configuration Debug \
             build
 
-      - name: Run Swift package tests
-        run: swift test
-
       - name: Run Xcode tests
         run: |
           DEVICE_NAME="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1; exit}')"
@@ -58,17 +188,8 @@ jobs:
             echo "No available iPhone simulator found; skipping Xcode test action."
             exit 0
           fi
-          xcodebuild \
+          xcodebuild test \
             -project Kalirova.xcodeproj \
             -scheme Kalirova \
             -destination "platform=iOS Simulator,name=${DEVICE_NAME}" \
-            -configuration Debug \
-            test
-
-      - name: Run SwiftLint if available
-        run: |
-          if command -v swiftlint >/dev/null 2>&1; then
-            swiftlint
-          else
-            echo "SwiftLint is not installed or configured; skipping."
-          fi
+            -configuration Debug

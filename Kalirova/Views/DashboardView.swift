@@ -8,7 +8,7 @@ struct DashboardView: View {
     @Query(sort: \HealthMetricEntry.loggedAt, order: .reverse) private var metrics: [HealthMetricEntry]
     @Query private var goals: [Goal]
     @Query private var settings: [AppSettings]
-    @StateObject private var viewModel = DashboardViewModel()
+    private let viewModel = DashboardViewModel()
     @State private var period: DashboardPeriod = .day
 
     private var totals: DashboardTotals {
@@ -21,10 +21,6 @@ struct DashboardView: View {
 
     private var calorieGoal: Double {
         goals.first { $0.type == .calories && $0.isActive }?.targetValue ?? 2_100
-    }
-
-    private var caloriesRemaining: Double {
-        calorieGoal - totals.netCalories
     }
 
     private var groupedMeals: [MealDayGroup] {
@@ -42,6 +38,10 @@ struct DashboardView: View {
     }
 
     var body: some View {
+        let totals = self.totals
+        let calorieGoal = self.calorieGoal
+        let caloriesRemaining = calorieGoal - totals.netCalories
+
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
@@ -55,7 +55,7 @@ struct DashboardView: View {
                     .pickerStyle(.segmented)
                     .accessibilityLabel("Dashboard time range")
 
-                    todaySummary
+                    todaySummary(totals: totals, calorieGoal: calorieGoal, caloriesRemaining: caloriesRemaining)
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
                         MetricCard(title: "Nutrition", value: totals.caloriesIn.kcalText, systemImage: "fork.knife", tint: KalirovaTheme.Colors.nutrition)
@@ -66,7 +66,7 @@ struct DashboardView: View {
 
                     MacroPanel(protein: totals.protein, carbohydrates: totals.carbohydrates, fat: totals.fat)
 
-                    weightTrendCard
+                    weightTrendCard(totals: totals)
 
                     groupedMealsSection
 
@@ -99,7 +99,7 @@ struct DashboardView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private var todaySummary: some View {
+    private func todaySummary(totals: DashboardTotals, calorieGoal: Double, caloriesRemaining: Double) -> some View {
         PremiumCard {
             HStack(alignment: .center, spacing: 20) {
                 ProgressRing(progress: min(max((calorieGoal - caloriesRemaining) / max(calorieGoal, 1), 0), 1), tint: KalirovaTheme.Colors.oceanGreen) {
@@ -132,7 +132,7 @@ struct DashboardView: View {
         .accessibilityLabel("Calories remaining \(caloriesRemaining.formatted(.number.precision(.fractionLength(0))))")
     }
 
-    private var weightTrendCard: some View {
+    private func weightTrendCard(totals: DashboardTotals) -> some View {
         PremiumCard {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {

@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 struct OpenAIRequestPreview: Codable, Equatable, Sendable {
     var endpoint: String
@@ -68,9 +69,20 @@ enum OpenAIServiceError: LocalizedError {
 final class OpenAIService: @unchecked Sendable {
     private let endpoint = URL(string: "https://api.openai.com/v1/responses")!
     private let modelsEndpoint = URL(string: "https://api.openai.com/v1/models")!
+    private let logger = Logger(subsystem: "com.kalirova.app", category: "openai")
     private let urlSession: URLSession
 
-    init(urlSession: URLSession = .shared) {
+    private static let defaultURLSession: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 60
+        configuration.waitsForConnectivity = true
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        configuration.urlCache = nil
+        return URLSession(configuration: configuration)
+    }()
+
+    init(urlSession: URLSession = OpenAIService.defaultURLSession) {
         self.urlSession = urlSession
     }
 
@@ -103,14 +115,9 @@ final class OpenAIService: @unchecked Sendable {
             throw OpenAIServiceError.missingAPIKey
         }
 
-        var request = URLRequest(url: modelsEndpoint)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-
-        let (_, response) = try await urlSession.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
-            throw OpenAIServiceError.invalidResponse
-        }
+        _ = try await perform(
+            authorizedRequest(url: modelsEndpoint, method: "GET", apiKey: apiKey)
+        )
     }
 
     func analyzeMeal(mealText: String, model: String, apiKey: String?) async throws -> OpenAIMealAnalysis {
@@ -118,27 +125,11 @@ final class OpenAIService: @unchecked Sendable {
             throw OpenAIServiceError.missingAPIKey
         }
 
-        var request = URLRequest(url: endpoint)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.httpBody = try JSONSerialization.data(withJSONObject: mealAnalysisPayload(mealText: mealText, model: model))
-
-        let (data, response) = try await urlSession.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
-            throw OpenAIServiceError.invalidResponse
-        }
-
-        let decoded = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-        guard let outputText = decoded.outputText else {
-            throw OpenAIServiceError.noOutputText
-        }
-
-        guard let jsonData = outputText.data(using: .utf8) else {
-            throw OpenAIServiceError.invalidResponse
-        }
-
-        return try JSONDecoder().decode(OpenAIMealAnalysis.self, from: jsonData)
+        let data = try JSONSerialization.data(withJSONObject: mealAnalysisPayload(mealText: mealText, model: model))
+        let responseData = try await perform(
+            authorizedRequest(url: endpoint, method: "POST", apiKey: apiKey, body: data)
+        )
+        return try decodeMealAnalysis(from: responseData)
     }
 
     func estimateRestaurantMeal(request: RestaurantMealEstimateRequest, model: String, apiKey: String?) async throws -> OpenAIMealAnalysis {
@@ -146,17 +137,45 @@ final class OpenAIService: @unchecked Sendable {
             throw OpenAIServiceError.missingAPIKey
         }
 
-        var urlRequest = URLRequest(url: endpoint)
-        urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        urlRequest.httpBody = try JSONSerialization.data(withJSONObject: restaurantMealEstimatePayload(request: request, model: model))
+        let data = try JSONSerialization.data(withJSONObject: restaurantMealEstimatePayload(request: request, model: model))
+        let responseData = try await perform(
+            authorizedRequest(url: endpoint, method: "POST", apiKey: apiKey, body: data)
+        )
+        return try decodeMealAnalysis(from: responseData)
+    }
 
-        let (data, response) = try await urlSession.data(for: urlRequest)
-        guard let httpResponse = response as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
+    private func authorizedRequest(url: URL, method: String, apiKey: String, body: Data? = nil) -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.timeoutInterval = 30
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        if let body {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = body
+        }
+        return request
+    }
+
+    private func perform(_ request: URLRequest) async throws -> Data {
+        try Task.checkCancellation()
+        let (data, response) = try await urlSession.data(for: request)
+        try Task.checkCancellation()
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            logger.error("OpenAI request returned a non-HTTP response")
             throw OpenAIServiceError.invalidResponse
         }
 
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            logger.error("OpenAI request failed with status \(httpResponse.statusCode, privacy: .public)")
+            throw OpenAIServiceError.invalidResponse
+        }
+
+        logger.debug("OpenAI request completed with status \(httpResponse.statusCode, privacy: .public)")
+        return data
+    }
+
+    private func decodeMealAnalysis(from data: Data) throws -> OpenAIMealAnalysis {
         let decoded = try JSONDecoder().decode(OpenAIResponse.self, from: data)
         guard let outputText = decoded.outputText else {
             throw OpenAIServiceError.noOutputText
