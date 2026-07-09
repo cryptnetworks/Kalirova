@@ -118,3 +118,4 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T16: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
 - S1-T16: `gh repo edit --visibility public --accept-visibility-change-consequences` completed; repository was already public.
 - S1-T16: `gh repo edit --enable-wiki --enable-secret-scanning --enable-secret-scanning-push-protection` completed.
+- S1-T16: Patched `wiki-sync.yml` to initialize the wiki repository on first sync if GitHub has not created it yet.
