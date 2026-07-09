@@ -209,6 +209,15 @@
 			path = KalirovaTests;
 			sourceTree = "<group>";
 		};
+		AA0000000000000000000510 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000225 /* Kalirova.app */,
+				AA0000000000000000000226 /* KalirovaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		AA0000000000000000000511 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
@@ -222,15 +231,6 @@
 				AA0000000000000000000237 /* Components.swift */,
 			);
 			path = DesignSystem;
-			sourceTree = "<group>";
-		};
-		AA0000000000000000000510 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				AA0000000000000000000225 /* Kalirova.app */,
-				AA0000000000000000000226 /* KalirovaTests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -293,7 +293,6 @@
 					};
 					AA0000000000000000000303 = {
 						CreatedOnToolsVersion = 26.0;
-						DevelopmentTeam = 426M75XSX8;
 						ProvisioningStyle = Automatic;
 						TestTargetID = AA0000000000000000000302;
 					};
@@ -590,7 +589,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 426M75XSX8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -615,7 +614,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 426M75XSX8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
