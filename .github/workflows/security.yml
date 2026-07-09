@@ -180,7 +180,7 @@ jobs:
             ${{ runner.os }}-spm-
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: swift
 
@@ -194,4 +194,4 @@ jobs:
             build
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
