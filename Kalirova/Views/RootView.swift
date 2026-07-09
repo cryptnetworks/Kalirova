@@ -18,30 +18,24 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             DashboardView()
-                .tabItem { Label("Dashboard", systemImage: "gauge.with.dots.needle.50percent") }
+                .tabItem { Label("Home", systemImage: "house.fill") }
 
             MealLogView()
                 .tabItem { Label("Meals", systemImage: "fork.knife") }
 
             ExerciseView()
-                .tabItem { Label("Exercise", systemImage: "figure.run") }
+                .tabItem { Label("Activity", systemImage: "figure.run") }
 
-            MetricsView()
-                .tabItem { Label("Metrics", systemImage: "waveform.path.ecg") }
-
-            TrendsView()
-                .tabItem { Label("Trends", systemImage: "chart.xyaxis.line") }
-
-            WeeklySummaryView()
-                .tabItem { Label("Summary", systemImage: "calendar.badge.clock") }
+            InsightsView()
+                .tabItem { Label("Insights", systemImage: "chart.xyaxis.line") }
 
             SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
+        .tint(.teal)
     }
 }
 
 #Preview {
     RootView()
 }
-

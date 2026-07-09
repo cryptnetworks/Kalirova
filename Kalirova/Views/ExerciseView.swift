@@ -17,35 +17,73 @@ struct ExerciseView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    Button {
-                        Task { await importRecentWorkouts() }
-                    } label: {
-                        Label("Import Recent Workouts", systemImage: "square.and.arrow.down")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    headerCard
+
+                    HStack(spacing: 12) {
+                        Button {
+                            Task { await importRecentWorkouts() }
+                        } label: {
+                            Label("Import Last 90 Days", systemImage: "square.and.arrow.down")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+
+                        Button {
+                            showingAddWorkout = true
+                        } label: {
+                            Label("Manual", systemImage: "plus")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
                     }
+                    .controlSize(.large)
 
                     if let importError {
                         Text(importError)
                             .font(.footnote)
                             .foregroundStyle(.red)
+                            .padding()
+                            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
-                }
 
-                Section("Workouts") {
-                    ForEach(workouts) { workout in
-                        WorkoutSummaryRow(workout: workout, unitSystem: unitSystem)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    SectionHeader(title: "Today’s Workouts")
+
+                    if workouts.isEmpty {
+                        ContentUnavailableView {
+                            Label("No workouts logged", systemImage: "figure.run.circle")
+                        } description: {
+                            Text("Import from Apple Health or add a manual workout.")
+                        } actions: {
+                            Button("Import Last 90 Days") {
+                                Task { await importRecentWorkouts() }
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    } else {
+                        LazyVStack(spacing: 14) {
+                            ForEach(workouts) { workout in
+                                WorkoutSummaryRow(workout: workout, unitSystem: unitSystem)
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            modelContext.delete(workout)
+                                            try? modelContext.save()
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                            }
+                        }
                     }
-                    .onDelete(perform: deleteWorkouts)
                 }
+                .padding()
             }
-            .overlay {
-                if workouts.isEmpty {
-                    ContentUnavailableView("No workouts logged", systemImage: "figure.run")
-                }
-            }
-            .navigationTitle("Exercise")
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Activity")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -61,11 +99,28 @@ struct ExerciseView: View {
         }
     }
 
+    private var headerCard: some View {
+        PremiumCard {
+            HStack(spacing: 18) {
+                Image(systemName: "figure.run.circle.fill")
+                    .font(.system(size: 46))
+                    .foregroundStyle(.teal)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Move data, clearly.")
+                        .font(.title2.bold())
+                    Text("Compare Apple Watch calories with Kalirova’s estimate, including heart rate, duration, and distance when available.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
     private func importRecentWorkouts() async {
         do {
             try await healthKitService.requestAuthorization()
             let endDate = Date()
-            let startDate = Calendar.current.date(byAdding: .day, value: -14, to: endDate) ?? endDate
+            let startDate = Calendar.current.date(byAdding: .day, value: -90, to: endDate) ?? endDate
             let imported = try await healthKitService.importedWorkouts(from: startDate, to: endDate)
 
             for sample in imported {

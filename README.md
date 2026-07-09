@@ -6,7 +6,7 @@ Kalirova is a native SwiftUI iPhone app for private, on-device health tracking. 
 
 ## Current Sprint
 
-Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal grouping, optional restaurant meal estimation with ChatGPT, Apple-standard UI patterns, 90-day HealthKit workout import, and the Kalirova brand rename.
+Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal grouping, optional restaurant meal estimation with ChatGPT, Apple-standard UI patterns, a five-tab card-based navigation experience, 90-day HealthKit workout import, and the Kalirova brand rename.
 
 ## Repository Rules
 
@@ -42,7 +42,7 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
 ## Architecture
 
-- UI: SwiftUI with MVVM view models.
+- UI: SwiftUI with native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, and Apple Charts.
 - Local persistence: SwiftData models, local-only by default.
 - Optional iCloud Backup: CloudKit-backed SwiftData can be enabled from Settings after explicit opt-in.
 - Apple Health integration: HealthKit service isolated behind async APIs.

@@ -197,6 +197,10 @@ Acceptance criteria:
 - Core flows use native SwiftUI `NavigationStack`, `Form`, `List`, `Section`, `Picker`, `DatePicker`, `Sheet`, `ConfirmationDialog`, `ToolbarItem`, and SF Symbols where appropriate.
 - Spacing, hierarchy, typography, accessibility labels, Dynamic Type, and contrast are improved.
 - Liquid Glass visual treatment is used where available on iOS 26 with availability checks and graceful fallbacks.
+- Onboarding uses progressive disclosure with one primary question per step.
+- Main navigation uses a native five-tab structure: Home, Meals, Activity, Insights, and Profile.
+- Home, Meals, Activity, Insights, and Profile prioritize spacious cards, empty states, and native controls over dense tables or long forms.
+- Charts use Apple Charts with selectable ranges including Today, Week, Month, 3 Months, and Year.
 
 ### Story S9.2: Apply Kalirova brand identity
 As a user, I want the app to present consistently as Kalirova so the product feels cohesive and recognizable.

@@ -48,16 +48,52 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Privacy") {
-                    Label("No cloud database", systemImage: "icloud.slash")
-                    Label("No third-party analytics", systemImage: "chart.bar.xaxis")
-                    Label("API keys stay in Keychain", systemImage: "key")
-                    Text(SummaryService.wellnessDisclaimer)
-                        .font(.footnote)
+                Section {
+                    HStack(spacing: 16) {
+                        Image(systemName: "person.crop.circle.fill")
+                            .font(.system(size: 52))
+                            .foregroundStyle(.teal)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Kalirova Profile")
+                                .font(.title2.bold())
+                            Text(profileSummary)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
+
+                Section("Personal") {
+                    if let profile = profiles.first {
+                        LabeledContent("Goal", value: profile.goalSummary)
+                        LabeledContent("Age", value: "\(profile.ageYears)")
+                        LabeledContent("Activity", value: profile.activityLevel.rawValue.displayName)
+                    } else {
+                        ContentUnavailableView("No profile", systemImage: "person.crop.circle", description: Text("Complete onboarding to create your profile."))
+                    }
+                }
+
+                Section("General") {
+                    Toggle("Device Reported Calories", isOn: $showDeviceCalories)
+                    Toggle("App Estimated Calories", isOn: $showAppEstimatedCalories)
+                }
+
+                Section("Units") {
+                    Picker("Unit Preference", selection: $unitSystem) {
+                        ForEach(UnitSystem.allCases) { unitSystem in
+                            Text(unitSystem.displayName).tag(unitSystem)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+
+                Section("Notifications") {
+                    Label("Notification preferences are not enabled yet.", systemImage: "bell")
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Apple Health") {
+                Section("HealthKit") {
                     Toggle("HealthKit Sync", isOn: $healthKitSyncEnabled)
                     Button {
                         Task { await requestHealthAccess() }
@@ -69,7 +105,59 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Section("iCloud Backup") {
+                Section("AI") {
+                    Toggle("AI Features", isOn: $aiFeaturesEnabled)
+                    TextField("Model", text: $openAIModel)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    SecureField("OpenAI API Key", text: $apiKey)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .privacySensitive()
+                    if let maskedAPIKey {
+                        Label("Saved key: \(maskedAPIKey)", systemImage: "checkmark.seal")
+                            .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("OpenAI API key is saved")
+                    }
+                    VStack(spacing: 10) {
+                        Button {
+                            saveAPIKey()
+                        } label: {
+                            Label("Save Key", systemImage: "key.fill")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+
+                        Button {
+                            Task { await testOpenAIConnection() }
+                        } label: {
+                            Label(isTestingConnection ? "Testing" : "Test Connection", systemImage: "network")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(isTestingConnection || (apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && maskedAPIKey == nil))
+
+                        Button(role: .destructive) {
+                            deleteAPIKey()
+                        } label: {
+                            Label("Delete/Clear Key", systemImage: "trash")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+
+                Section("Privacy") {
+                    Label("Health data stays on this device unless iCloud Backup is enabled.", systemImage: "lock.shield")
+                    Label("No third-party analytics", systemImage: "chart.bar.xaxis")
+                    Label("API keys stay in Keychain", systemImage: "key")
+                    Text(SummaryService.wellnessDisclaimer)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("iCloud") {
                     Toggle("Enable iCloud Backup", isOn: Binding(
                         get: { iCloudBackupEnabled },
                         set: { updateICloudBackupPreference($0) }
@@ -94,58 +182,12 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Calories") {
-                    Toggle("Device Reported Calories", isOn: $showDeviceCalories)
-                    Toggle("App Estimated Calories", isOn: $showAppEstimatedCalories)
+                Section("Appearance") {
+                    Label("Uses system appearance, Dynamic Type, and high-contrast settings.", systemImage: "paintbrush")
+                        .foregroundStyle(.secondary)
                 }
 
-                Section("Units") {
-                    Picker("Unit Preference", selection: $unitSystem) {
-                        ForEach(UnitSystem.allCases) { unitSystem in
-                            Text(unitSystem.displayName).tag(unitSystem)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                }
-
-                Section("ChatGPT") {
-                    Toggle("AI Features", isOn: $aiFeaturesEnabled)
-                    TextField("Model", text: $openAIModel)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    SecureField("OpenAI API Key", text: $apiKey)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .privacySensitive()
-                    if let maskedAPIKey {
-                        Label("Saved key: \(maskedAPIKey)", systemImage: "checkmark.seal")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .accessibilityLabel("OpenAI API key is saved")
-                    }
-                    HStack {
-                        Button {
-                            saveAPIKey()
-                        } label: {
-                            Label("Save Key", systemImage: "key.fill")
-                        }
-                        Spacer()
-                        Button {
-                            Task { await testOpenAIConnection() }
-                        } label: {
-                            Label(isTestingConnection ? "Testing" : "Test Connection", systemImage: "network")
-                        }
-                        .disabled(isTestingConnection || (apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && maskedAPIKey == nil))
-                        Spacer()
-                        Button(role: .destructive) {
-                            deleteAPIKey()
-                        } label: {
-                            Label("Delete/Clear Key", systemImage: "trash")
-                        }
-                    }
-                }
-
-                Section("Data") {
+                Section("Developer") {
                     ShareLink(item: exportText) {
                         Label("Export Local Data", systemImage: "square.and.arrow.up")
                     }
@@ -165,7 +207,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Profile")
             .onAppear(perform: loadSettings)
             .onChange(of: aiFeaturesEnabled) { _, _ in saveSettings() }
             .onChange(of: healthKitSyncEnabled) { _, _ in saveSettings() }
@@ -188,6 +230,14 @@ struct SettingsView: View {
                 Text("Meals, workouts, metrics, goals, summaries, settings, and the Keychain API key will be removed from this device.")
             }
         }
+    }
+
+    private var profileSummary: String {
+        guard let profile = profiles.first else {
+            return "Local-first health settings"
+        }
+
+        return "\(profile.goalSummary) • \(unitSystem.displayName)"
     }
 
     private func loadSettings() {
@@ -472,6 +522,12 @@ private struct ExportAISummary: Codable {
     var startDate: Date
     var endDate: Date
     var model: String
+}
+
+private extension String {
+    var displayName: String {
+        split(separator: "_").joined(separator: " ").capitalized
+    }
 }
 
 #Preview {

@@ -17,16 +17,14 @@ Kalirova is a local-first SwiftUI iPhone app built around explicit privacy bound
 ### SwiftUI Views
 
 Screens:
-- Onboarding
-- Dashboard
-- Meal Log
-- Exercise
-- Metrics
-- Trends
-- Weekly Summary
-- Settings
+- Step-by-step onboarding
+- Home
+- Meals
+- Activity
+- Insights
+- Profile
 
-Views use MVVM view models for formatting, derived state, and service orchestration.
+Views use native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, Apple Charts, and MVVM view models for formatting, derived state, and service orchestration.
 
 ### SwiftData Persistence
 

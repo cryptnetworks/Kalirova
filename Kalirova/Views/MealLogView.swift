@@ -15,33 +15,52 @@ struct MealLogView: View {
         NavigationStack {
             List {
                 ForEach(groupedMeals) { group in
-                    Section(group.date.formatted(date: .complete, time: .omitted)) {
+                    Section {
                         ForEach(group.meals) { meal in
                             MealContainerRow(meal: meal, showsDate: false)
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
                         }
                         .onDelete { offsets in
                             deleteMeals(at: offsets, in: group)
                         }
+                    } header: {
+                        Text(group.date.formatted(date: .complete, time: .omitted))
+                            .font(.headline)
+                            .textCase(nil)
                     }
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color(.systemGroupedBackground))
             .overlay {
                 if meals.isEmpty {
-                    ContentUnavailableView("No meals logged", systemImage: "fork.knife")
+                    ContentUnavailableView {
+                        Label("No meals logged today", systemImage: "fork.knife.circle")
+                    } description: {
+                        Text("Track breakfast, lunch, dinner, snacks, or a custom meal.")
+                    } actions: {
+                        Button("Add Your First Meal") {
+                            showingAddMeal = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 }
             }
-            .navigationTitle("Meal Log")
+            .navigationTitle("Meals")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showingAddMeal = true
                     } label: {
-                        Label("Add Food", systemImage: "plus")
+                        Label("Add Meal", systemImage: "plus")
                     }
                 }
             }
             .sheet(isPresented: $showingAddMeal) {
                 AddMealView(settings: settings.first)
+                    .presentationDetents([.large])
             }
         }
     }
@@ -71,7 +90,6 @@ struct MealDayGroup: Identifiable {
                         if $0.mealType.sortOrder == $1.mealType.sortOrder {
                             return $0.displayTitle.localizedCaseInsensitiveCompare($1.displayTitle) == .orderedAscending
                         }
-
                         return $0.mealType.sortOrder < $1.mealType.sortOrder
                     }
                 )
@@ -85,75 +103,96 @@ struct MealContainerRow: View {
     var showsDate = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(meal.displayTitle)
-                        .font(.headline)
-                    if showsDate {
-                        Text(meal.loggedAt, style: .date)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Spacer()
-
-                Text(meal.totalCalories.kcalText)
-                    .font(.subheadline.weight(.semibold))
-            }
-
-            if meal.items.isEmpty {
-                Text("No food items")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(meal.items) { item in
-                        HStack(alignment: .firstTextBaseline) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(item.name)
-                                    .font(.subheadline)
-                                if !item.servingDescription.isEmpty {
-                                    Text(item.servingDescription)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-
-                            Spacer()
-
-                            Text(item.calories.kcalText)
-                                .font(.caption.weight(.semibold))
+        PremiumCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Label(meal.displayTitle, systemImage: icon(for: meal.mealType))
+                            .font(.headline)
+                        if showsDate {
+                            Text(meal.loggedAt, style: .date)
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                     }
+
+                    Spacer()
+
+                    Text(meal.totalCalories.kcalText)
+                        .font(.title3.weight(.semibold))
+                }
+
+                if meal.items.isEmpty {
+                    Text("No food items")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    VStack(spacing: 10) {
+                        ForEach(meal.items) { item in
+                            FoodItemCard(item: item)
+                        }
+                    }
+                }
+
+                HStack(spacing: 10) {
+                    Label("\(meal.totalProtein.formatted(.number.precision(.fractionLength(0))))g protein", systemImage: "p.circle")
+                    Label("\(meal.items.count) item\(meal.items.count == 1 ? "" : "s")", systemImage: "list.bullet")
+                    Label(meal.source.displayName, systemImage: "tag")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func icon(for type: MealType) -> String {
+        switch type {
+        case .breakfast: "sunrise.fill"
+        case .lunch: "sun.max.fill"
+        case .dinner: "moon.stars.fill"
+        case .snack: "takeoutbag.and.cup.and.straw.fill"
+        case .custom: "fork.knife.circle.fill"
+        }
+    }
+}
+
+private struct FoodItemCard: View {
+    var item: FoodItem
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.name)
+                    .font(.subheadline.weight(.semibold))
+                if !item.servingDescription.isEmpty {
+                    Text(item.servingDescription)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
-
-            HStack(spacing: 12) {
-                Label("\(meal.totalProtein.formatted(.number.precision(.fractionLength(0))))g protein", systemImage: "p.circle")
-                Label("\(meal.items.count) item\(meal.items.count == 1 ? "" : "s")", systemImage: "list.bullet")
-                Label(meal.source.displayName, systemImage: "tag")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Spacer()
+            Text(item.calories.kcalText)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 4)
+        .padding(12)
+        .background(.background.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
 private struct AddMealView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-
     @Query(sort: \MealEntry.loggedAt, order: .reverse) private var existingMeals: [MealEntry]
 
     var settings: AppSettings?
 
+    @State private var step: MealEntryStep = .day
     @State private var loggedAt = Date()
     @State private var mealType: MealType = .breakfast
     @State private var customMealTypeName = ""
+    @State private var entryMode: MealEntryMode = .ai
     @State private var restaurantName = ""
     @State private var foodName = ""
     @State private var servingDescription = ""
@@ -179,115 +218,68 @@ private struct AddMealView: View {
     private let openAIService = OpenAIService()
 
     private var canSave: Bool {
-        let hasFoodName = !foodName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        let hasCustomMealName = mealType != .custom || !customMealTypeName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        return hasFoodName && hasCustomMealName
+        !foodName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        (manualCalories > 0 || aiEstimate != nil || localEstimate != nil) &&
+        (mealType != .custom || !customMealTypeName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
 
     private var canEstimateRestaurantMeal: Bool {
-        !restaurantName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !foodName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !servingDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Meal") {
-                    DatePicker("Date", selection: $loggedAt, displayedComponents: .date)
+            VStack(spacing: 0) {
+                ProgressView(value: Double(step.index + 1), total: Double(MealEntryStep.allCases.count))
+                    .tint(.teal)
+                    .padding(.horizontal)
 
-                    Picker("Meal Type", selection: $mealType) {
-                        ForEach(MealType.allCases) { mealType in
-                            Text(mealType.displayName).tag(mealType)
-                        }
-                    }
-                    .pickerStyle(.menu)
-
-                    if mealType == .custom {
-                        TextField("Custom meal type", text: $customMealTypeName)
-                    }
+                TabView(selection: $step) {
+                    dayStep.tag(MealEntryStep.day)
+                    mealStep.tag(MealEntryStep.meal)
+                    foodStep.tag(MealEntryStep.food)
+                    reviewStep.tag(MealEntryStep.review)
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
 
-                Section("Food") {
-                    TextField("Restaurant name", text: $restaurantName)
-                    TextField("Food item", text: $foodName)
-                    TextField("Portion or measurement", text: $servingDescription)
-                    TextEditor(text: $mealText)
-                        .frame(minHeight: 88)
-                        .overlay(alignment: .topLeading) {
-                            if mealText.isEmpty {
-                                Text("Notes or modifications")
-                                    .foregroundStyle(.tertiary)
-                                    .padding(.top, 8)
-                                    .padding(.leading, 5)
-                            }
-                        }
-                }
-
-                Section("Nutrition") {
-                    nutritionField("Calories", value: $manualCalories, unit: "kcal")
-                    nutritionField("Protein", value: $manualProtein, unit: "g")
-                    nutritionField("Carbs", value: $manualCarbs, unit: "g")
-                    nutritionField("Fat", value: $manualFat, unit: "g")
-                    nutritionField("Fiber", value: $manualFiber, unit: "g")
-                    nutritionField("Sugar", value: $manualSugar, unit: "g")
-                    nutritionField("Sodium", value: $manualSodium, unit: "mg")
-                }
-
-                Section("Local Estimate") {
-                    Button {
-                        applyLocalEstimate()
-                    } label: {
-                        Label("Estimate Locally", systemImage: "wand.and.stars")
-                    }
-                    .disabled(localEstimateText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-                    if let localEstimate {
-                        NutritionEstimateSummary(estimate: localEstimate)
-                    }
-                }
-
-                Section("ChatGPT Restaurant Estimate") {
-                    Text("Restaurant nutrition estimates may vary by preparation and portion size. Review and edit the estimate before saving.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-
-                    Button {
-                        prepareAIPrivacyConfirmation()
-                    } label: {
-                        if isEstimatingWithAI {
-                            Label("Estimating", systemImage: "hourglass")
-                        } else {
-                            Label("Estimate With ChatGPT", systemImage: "sparkles")
-                        }
-                    }
-                    .disabled(!canEstimateRestaurantMeal || isEstimatingWithAI)
-
-                    if let aiEstimate {
-                        OpenAIRestaurantEstimateSummary(analysis: aiEstimate)
-
+                HStack {
+                    if step != .day {
                         Button {
-                            applyAIEstimate(aiEstimate)
+                            if let previous = step.previous {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.86)) { step = previous }
+                            }
                         } label: {
-                            Label("Apply Estimate to Form", systemImage: "square.and.pencil")
+                            Label("Back", systemImage: "chevron.left")
                         }
+                        .buttonStyle(.bordered)
                     }
 
-                    if let errorMessage {
-                        Text(errorMessage)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                    Button {
+                        if step == .review {
+                            saveFoodItem()
+                            dismiss()
+                        } else if let next = step.next {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.86)) { step = next }
+                        }
+                    } label: {
+                        Label(step == .review ? "Accept" : "Continue", systemImage: step == .review ? "checkmark" : "chevron.right")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(step == .review && !canSave)
                 }
+                .controlSize(.large)
+                .padding()
+                .background(.bar)
             }
-            .navigationTitle("Add Food")
+            .navigationTitle("Add Meal")
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingAIPrivacyConfirmation) {
                 OpenAIPrivacyConfirmationSheet(
                     preview: aiPayloadPreview,
                     mealInformationPayload: aiPrivacyPayload,
-                    onCancel: {
-                        showingAIPrivacyConfirmation = false
-                    },
+                    onCancel: { showingAIPrivacyConfirmation = false },
                     onConfirm: {
                         showingAIPrivacyConfirmation = false
                         Task { await estimateRestaurantMeal() }
@@ -298,15 +290,133 @@ private struct AddMealView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
+            }
+        }
+    }
 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveFoodItem()
-                        dismiss()
+    private var dayStep: some View {
+        GuidedMealStep(title: "Choose day", subtitle: "Meals are grouped by date and meal type.", symbol: "calendar") {
+            DatePicker("Meal date", selection: $loggedAt, displayedComponents: .date)
+                .datePickerStyle(.graphical)
+        }
+    }
+
+    private var mealStep: some View {
+        GuidedMealStep(title: "Choose meal", subtitle: "Add multiple food items to the same meal section.", symbol: "fork.knife") {
+            VStack(spacing: 12) {
+                ForEach(MealType.allCases) { type in
+                    SelectableMealTypeCard(type: type, isSelected: mealType == type) {
+                        mealType = type
                     }
-                    .disabled(!canSave)
+                }
+                if mealType == .custom {
+                    TextField("Custom meal name", text: $customMealTypeName)
+                        .textFieldStyle(.roundedBorder)
                 }
             }
+        }
+    }
+
+    private var foodStep: some View {
+        GuidedMealStep(title: "Add food", subtitle: "Search with AI or enter nutrition manually. Estimates are never saved automatically.", symbol: "magnifyingglass") {
+            VStack(alignment: .leading, spacing: 18) {
+                Picker("Entry mode", selection: $entryMode) {
+                    ForEach(MealEntryMode.allCases) { mode in
+                        Label(mode.title, systemImage: mode.symbol).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                if entryMode == .ai {
+                    TextField("16 oz Texas Roadhouse Ribeye", text: $foodName)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.words)
+                    TextField("Restaurant or brand", text: $restaurantName)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.words)
+                    TextField("Portion or measurement", text: $servingDescription)
+                        .textFieldStyle(.roundedBorder)
+                    TextField("Notes or modifications", text: $mealText, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+
+                    Button {
+                        prepareAIPrivacyConfirmation()
+                    } label: {
+                        Label(isEstimatingWithAI ? "Estimating" : "AI Search", systemImage: "sparkles")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!canEstimateRestaurantMeal || isEstimatingWithAI)
+                } else {
+                    TextField("Two scrambled eggs", text: $foodName)
+                        .textFieldStyle(.roundedBorder)
+                    TextField("Serving", text: $servingDescription)
+                        .textFieldStyle(.roundedBorder)
+                    nutritionEditor
+                    Button {
+                        applyLocalEstimate()
+                    } label: {
+                        Label("Estimate Locally", systemImage: "wand.and.stars")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(localEstimateText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+    }
+
+    private var reviewStep: some View {
+        GuidedMealStep(title: "Review before saving", subtitle: "Accept, edit, or cancel. Kalirova will not save the estimate until you accept.", symbol: "checklist") {
+            VStack(spacing: 16) {
+                if let aiEstimate {
+                    OpenAIRestaurantEstimateSummary(analysis: aiEstimate)
+                    Button("Edit Nutrition") {
+                        applyAIEstimate(aiEstimate)
+                        entryMode = .manual
+                        step = .food
+                    }
+                    .buttonStyle(.bordered)
+                } else {
+                    NutritionReviewCard(
+                        name: foodName,
+                        serving: savedServingDescription,
+                        calories: manualCalories,
+                        protein: manualProtein,
+                        carbs: manualCarbs,
+                        fat: manualFat,
+                        confidence: selectedConfidence
+                    )
+                    Button("Edit") {
+                        entryMode = .manual
+                        step = .food
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                Button(role: .cancel) {
+                    dismiss()
+                } label: {
+                    Text("Cancel")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private var nutritionEditor: some View {
+        VStack(spacing: 10) {
+            nutritionField("Calories", value: $manualCalories, unit: "kcal")
+            nutritionField("Protein", value: $manualProtein, unit: "g")
+            nutritionField("Carbs", value: $manualCarbs, unit: "g")
+            nutritionField("Fat", value: $manualFat, unit: "g")
         }
     }
 
@@ -318,11 +428,7 @@ private struct AddMealView: View {
     }
 
     private var mealDisplayTitle: String {
-        if mealType == .custom {
-            return customMealTypeName.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-
-        return mealType.displayName
+        mealType == .custom ? customMealTypeName.trimmingCharacters(in: .whitespacesAndNewlines) : mealType.displayName
     }
 
     private func nutritionField(_ label: String, value: Binding<Double>, unit: String) -> some View {
@@ -335,6 +441,7 @@ private struct AddMealView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .padding(.vertical, 6)
     }
 
     private func applyLocalEstimate() {
@@ -349,6 +456,7 @@ private struct AddMealView: View {
         manualSodium = estimate.totals.sodiumMilligrams
         selectedSource = .localParser
         selectedConfidence = estimate.confidence
+        step = .review
     }
 
     private var restaurantEstimateRequest: RestaurantMealEstimateRequest {
@@ -387,7 +495,12 @@ private struct AddMealView: View {
                 model: settings?.openAIModel ?? "gpt-5.5",
                 apiKey: apiKey
             )
+            if let aiEstimate {
+                applyAIEstimate(aiEstimate)
+            }
+            selectedSource = .openAI
             errorMessage = nil
+            step = .review
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -422,7 +535,6 @@ private struct AddMealView: View {
             existingMeal.items.append(item)
             existingMeal.sourceRawValue = selectedSource.rawValue
             existingMeal.confidenceRawValue = selectedConfidence.rawValue
-
             if !savedNotes.isEmpty {
                 existingMeal.notes = [existingMeal.notes, savedNotes]
                     .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -457,11 +569,7 @@ private struct AddMealView: View {
             guard calendar.isDate(meal.loggedAt, inSameDayAs: loggedAt), meal.mealType == mealType else {
                 return false
             }
-
-            guard mealType == .custom else {
-                return true
-            }
-
+            guard mealType == .custom else { return true }
             return meal.customMealTypeName.normalizedMealKey == normalizedCustomName
         }
     }
@@ -475,47 +583,134 @@ private struct AddMealView: View {
 
     private var savedNotes: String {
         var lines: [String] = []
-
         let trimmedRestaurant = restaurantName.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedRestaurant.isEmpty {
-            lines.append("Restaurant: \(trimmedRestaurant)")
-        }
-
+        if !trimmedRestaurant.isEmpty { lines.append("Restaurant: \(trimmedRestaurant)") }
         let trimmedNotes = mealText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedNotes.isEmpty {
-            lines.append("Notes: \(trimmedNotes)")
-        }
-
+        if !trimmedNotes.isEmpty { lines.append("Notes: \(trimmedNotes)") }
         if selectedSource == .openAI, let aiEstimate {
-            if !aiEstimate.assumptions.isEmpty {
-                lines.append("ChatGPT assumptions: \(aiEstimate.assumptions.joined(separator: "; "))")
-            }
-
-            if !aiEstimate.sourceNotes.isEmpty {
-                lines.append("ChatGPT source notes: \(aiEstimate.sourceNotes.joined(separator: "; "))")
-            }
-
-            if !aiEstimate.disclaimer.isEmpty {
-                lines.append("ChatGPT disclaimer: \(aiEstimate.disclaimer)")
-            }
+            if !aiEstimate.assumptions.isEmpty { lines.append("ChatGPT assumptions: \(aiEstimate.assumptions.joined(separator: "; "))") }
+            if !aiEstimate.sourceNotes.isEmpty { lines.append("ChatGPT source notes: \(aiEstimate.sourceNotes.joined(separator: "; "))") }
+            if !aiEstimate.disclaimer.isEmpty { lines.append("ChatGPT disclaimer: \(aiEstimate.disclaimer)") }
         }
-
         return lines.joined(separator: "\n")
     }
 }
 
-private struct NutritionEstimateSummary: View {
-    var estimate: MealNutritionEstimate
+private enum MealEntryStep: String, CaseIterable, Identifiable {
+    case day
+    case meal
+    case food
+    case review
+
+    var id: String { rawValue }
+    var index: Int { Self.allCases.firstIndex(of: self) ?? 0 }
+    var next: Self? {
+        let nextIndex = index + 1
+        return Self.allCases.indices.contains(nextIndex) ? Self.allCases[nextIndex] : nil
+    }
+    var previous: Self? {
+        let previousIndex = index - 1
+        return Self.allCases.indices.contains(previousIndex) ? Self.allCases[previousIndex] : nil
+    }
+}
+
+private enum MealEntryMode: String, CaseIterable, Identifiable {
+    case ai
+    case manual
+
+    var id: String { rawValue }
+    var title: String { self == .ai ? "AI Search" : "Manual" }
+    var symbol: String { self == .ai ? "sparkles" : "square.and.pencil" }
+}
+
+private struct GuidedMealStep<Content: View>: View {
+    var title: String
+    var subtitle: String
+    var symbol: String
+    @ViewBuilder var content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            SummaryRow(label: "Calories", value: estimate.totals.calories.kcalText)
-            SummaryRow(label: "Protein", value: "\(estimate.totals.proteinGrams.formatted(.number.precision(.fractionLength(1)))) g")
-            SummaryRow(label: "Carbs", value: "\(estimate.totals.carbohydrateGrams.formatted(.number.precision(.fractionLength(1)))) g")
-            SummaryRow(label: "Fat", value: "\(estimate.totals.fatGrams.formatted(.number.precision(.fractionLength(1)))) g")
-            Text("Confidence: \(estimate.confidence.rawValue.capitalized)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                Label(title, systemImage: symbol)
+                    .font(.largeTitle.bold())
+                    .labelStyle(.titleAndIcon)
+                Text(subtitle)
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                content
+            }
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+}
+
+private struct SelectableMealTypeCard: View {
+    var type: MealType
+    var isSelected: Bool
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .frame(width: 32)
+                Text(type.displayName)
+                    .font(.headline)
+                Spacer()
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+            }
+            .padding()
+            .background(isSelected ? AnyShapeStyle(Color.teal.gradient) : AnyShapeStyle(.thinMaterial), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .foregroundStyle(isSelected ? .white : .primary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var icon: String {
+        switch type {
+        case .breakfast: "sunrise.fill"
+        case .lunch: "sun.max.fill"
+        case .dinner: "moon.stars.fill"
+        case .snack: "takeoutbag.and.cup.and.straw.fill"
+        case .custom: "fork.knife.circle.fill"
+        }
+    }
+}
+
+private struct NutritionReviewCard: View {
+    var name: String
+    var serving: String
+    var calories: Double
+    var protein: Double
+    var carbs: Double
+    var fat: Double
+    var confidence: EstimateConfidence
+
+    var body: some View {
+        PremiumCard {
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(name.isEmpty ? "Food item" : name)
+                        .font(.title2.bold())
+                    if !serving.isEmpty {
+                        Text(serving)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Text(calories.kcalText)
+                    .font(.system(.largeTitle, design: .rounded).weight(.bold))
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    SummaryPillMini(title: "Protein", value: "\(protein.formatted(.number.precision(.fractionLength(0)))) g")
+                    SummaryPillMini(title: "Carbs", value: "\(carbs.formatted(.number.precision(.fractionLength(0)))) g")
+                    SummaryPillMini(title: "Fat", value: "\(fat.formatted(.number.precision(.fractionLength(0)))) g")
+                    SummaryPillMini(title: "Confidence", value: confidence.rawValue.capitalized)
+                }
+            }
         }
     }
 }
@@ -562,7 +757,6 @@ private struct OpenAIPrivacyConfirmationSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onCancel)
                 }
-
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Send", action: onConfirm)
                 }
@@ -575,33 +769,54 @@ private struct OpenAIRestaurantEstimateSummary: View {
     var analysis: OpenAIMealAnalysis
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SummaryRow(label: "Calories", value: analysis.totalCalories.kcalText)
-            SummaryRow(label: "Protein", value: "\(analysis.totalProteinGrams.formatted(.number.precision(.fractionLength(1)))) g")
-            SummaryRow(label: "Carbs", value: "\(analysis.totalCarbohydrateGrams.formatted(.number.precision(.fractionLength(1)))) g")
-            SummaryRow(label: "Fat", value: "\(analysis.totalFatGrams.formatted(.number.precision(.fractionLength(1)))) g")
-            Text("Confidence: \(analysis.confidence.capitalized)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            if !analysis.assumptions.isEmpty {
-                Text("Assumptions: \(analysis.assumptions.joined(separator: "; "))")
-                    .font(.caption)
+        PremiumCard {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("AI Estimate")
+                    .font(.headline)
                     .foregroundStyle(.secondary)
-            }
-
-            if !analysis.sourceNotes.isEmpty {
-                Text("Source notes: \(analysis.sourceNotes.joined(separator: "; "))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            if !analysis.disclaimer.isEmpty {
-                Text(analysis.disclaimer)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(analysis.totalCalories.kcalText)
+                    .font(.system(.largeTitle, design: .rounded).weight(.bold))
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    SummaryPillMini(title: "Protein", value: "\(analysis.totalProteinGrams.formatted(.number.precision(.fractionLength(0)))) g")
+                    SummaryPillMini(title: "Carbs", value: "\(analysis.totalCarbohydrateGrams.formatted(.number.precision(.fractionLength(0)))) g")
+                    SummaryPillMini(title: "Fat", value: "\(analysis.totalFatGrams.formatted(.number.precision(.fractionLength(0)))) g")
+                    SummaryPillMini(title: "Confidence", value: analysis.confidence.capitalized)
+                }
+                if !analysis.assumptions.isEmpty {
+                    Text("Assumptions: \(analysis.assumptions.joined(separator: "; "))")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                if !analysis.sourceNotes.isEmpty {
+                    Text("Source notes: \(analysis.sourceNotes.joined(separator: "; "))")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                if !analysis.disclaimer.isEmpty {
+                    Text(analysis.disclaimer)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
+    }
+}
+
+private struct SummaryPillMini: View {
+    var title: String
+    var value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(.background.opacity(0.55), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 

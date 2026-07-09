@@ -59,10 +59,19 @@ enum DashboardPeriod: String, CaseIterable, Identifiable {
     case day
     case week
     case month
+    case threeMonths
     case year
 
     var id: String { rawValue }
-    var displayName: String { rawValue.capitalized }
+    var displayName: String {
+        switch self {
+        case .day: "Today"
+        case .week: "Week"
+        case .month: "Month"
+        case .threeMonths: "3 Months"
+        case .year: "Year"
+        }
+    }
 
     func contains(_ date: Date, referenceDate: Date, calendar: Calendar) -> Bool {
         switch self {
@@ -72,6 +81,9 @@ enum DashboardPeriod: String, CaseIterable, Identifiable {
             return calendar.isDate(date, equalTo: referenceDate, toGranularity: .weekOfYear)
         case .month:
             return calendar.isDate(date, equalTo: referenceDate, toGranularity: .month)
+        case .threeMonths:
+            let startDate = calendar.date(byAdding: .month, value: -3, to: referenceDate) ?? referenceDate
+            return date >= startDate && date <= referenceDate
         case .year:
             return calendar.isDate(date, equalTo: referenceDate, toGranularity: .year)
         }

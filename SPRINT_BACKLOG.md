@@ -56,7 +56,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T4 | S3.1 | Redesign meal logging around date and meal type containers with multiple food items. | Done |
 | S1-T5 | S7.3 | Add ChatGPT restaurant meal estimation payload preview, API call, confirmation/editing, and save flow. | Done |
 | S1-T6 | S2.1, S2.2 | Add 90-day HealthKit workout import, duplicate skipping, heart-rate averaging, progress UI, and import summary. | Todo |
-| S1-T7 | S9.1 | Refine screens with native SwiftUI forms/lists, accessibility labels, Dynamic Type support, and Liquid Glass availability fallbacks. | Todo |
+| S1-T7 | S9.1 | Refine screens with native SwiftUI forms/lists, card layouts, accessibility labels, Dynamic Type support, Apple Charts, and Liquid Glass-style material fallbacks. | Done |
 | S1-T8 | S0.3 | Add or update tests for unit conversion, BMI, meal grouping, AI request payloads, and HealthKit duplicate handling. | Todo |
 | S1-T9 | S0.3 | Run SwiftPM tests and Xcode simulator build. | Todo |
 | S1-T10 | S9.2 | Rebrand project, Xcode targets, Swift package target, scheme, repository references, bundle identifier, docs, and brand assets to Kalirova. | Done |
@@ -101,3 +101,5 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T14: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build` passed.
 - S1-T14: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
 - S1-T14: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug -allowProvisioningUpdates build` failed because the current personal development team does not support the iCloud capability required for CloudKit provisioning.
+- S1-T7: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build` passed.
+- S1-T7: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
