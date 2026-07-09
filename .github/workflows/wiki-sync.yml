@@ -26,6 +26,7 @@ jobs:
       - name: Sync wiki pages
         env:
           WIKI_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN || github.token }}
+          HAS_WIKI_PUSH_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN != '' }}
         run: |
           set -euo pipefail
           WIKI_REMOTE="https://x-access-token:${WIKI_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
@@ -34,7 +35,11 @@ jobs:
           if git clone "${WIKI_REMOTE}" wiki; then
             echo "Cloned existing wiki repository."
           else
-            echo "Wiki repository does not exist yet; creating initial wiki commit."
+            if [ "${HAS_WIKI_PUSH_TOKEN}" != "true" ]; then
+              echo "::warning::GitHub Wiki repository is not accessible with GITHUB_TOKEN. Create the wiki once in GitHub or configure a WIKI_PUSH_TOKEN secret with wiki write access, then rerun this workflow."
+              exit 0
+            fi
+            echo "Wiki repository is not accessible yet; creating initial wiki commit with WIKI_PUSH_TOKEN."
             mkdir wiki
             cd wiki
             git init

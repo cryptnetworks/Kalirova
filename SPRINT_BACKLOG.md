@@ -162,3 +162,4 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T21: `swift test` passed with 9 XCTest tests and 0 failures.
 - S1-T21: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
 - S1-T21: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 9 tests and 0 failures.
+- S1-T21: Post-push workflow check found Wiki Sync failing when GitHub returned the wiki remote as unavailable; workflow now exits with an actionable warning unless a `WIKI_PUSH_TOKEN` is configured to initialize the wiki.

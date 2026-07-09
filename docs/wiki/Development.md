@@ -54,3 +54,5 @@ Dependabot monitors Swift Package Manager and GitHub Actions. GitHub Actions upd
 ## Wiki Sync
 
 Wiki pages live in `docs/wiki/`. The `wiki-sync.yml` workflow pushes them to the GitHub Wiki when they change. If `GITHUB_TOKEN` cannot write to the wiki, create a repository secret named `WIKI_PUSH_TOKEN` with a fine-grained token that can write the wiki repository.
+
+If the GitHub Wiki repository has not been created yet, add the first wiki page in GitHub or configure `WIKI_PUSH_TOKEN`, then rerun the workflow manually. The workflow avoids creating fallback branches in the main repository when the wiki remote is unavailable.

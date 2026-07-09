@@ -30,6 +30,8 @@ Docs-only changes run the Ubuntu validation job and skip the macOS iOS build/tes
 
 `.github/workflows/wiki-sync.yml` runs on pushes to `main` only when `docs/wiki/**` or the wiki workflow changes. It can also be started manually. Pull requests do not push to the wiki.
 
+If GitHub has not created the wiki repository yet, the workflow exits successfully with a warning when only `GITHUB_TOKEN` is available. Create the first wiki page in GitHub or configure a `WIKI_PUSH_TOKEN` secret with wiki write access, then rerun the workflow manually.
+
 ## Caching
 
 The CI and security workflows cache Swift Package Manager state:
