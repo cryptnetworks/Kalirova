@@ -5,10 +5,15 @@ struct ExerciseView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \WorkoutEntry.startedAt, order: .reverse) private var workouts: [WorkoutEntry]
     @Query(sort: \UserProfile.createdAt, order: .reverse) private var profiles: [UserProfile]
+    @Query private var settings: [AppSettings]
     @StateObject private var viewModel = ExerciseViewModel()
     @StateObject private var healthKitService = HealthKitService()
     @State private var showingAddWorkout = false
     @State private var importError: String?
+
+    private var unitSystem: UnitSystem {
+        settings.first?.unitSystem ?? profiles.first?.preferredUnitSystem ?? .metric
+    }
 
     var body: some View {
         NavigationStack {
@@ -29,7 +34,7 @@ struct ExerciseView: View {
 
                 Section("Workouts") {
                     ForEach(workouts) { workout in
-                        WorkoutSummaryRow(workout: workout)
+                        WorkoutSummaryRow(workout: workout, unitSystem: unitSystem)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                     }
                     .onDelete(perform: deleteWorkouts)
@@ -51,7 +56,7 @@ struct ExerciseView: View {
                 }
             }
             .sheet(isPresented: $showingAddWorkout) {
-                AddWorkoutView(profile: profiles.first, viewModel: viewModel)
+                AddWorkoutView(profile: profiles.first, unitSystem: unitSystem, viewModel: viewModel)
             }
         }
     }
@@ -111,14 +116,17 @@ private struct AddWorkoutView: View {
     @Environment(\.modelContext) private var modelContext
 
     var profile: UserProfile?
+    var unitSystem: UnitSystem
     @ObservedObject var viewModel: ExerciseViewModel
 
     @State private var kind: WorkoutKind = .running
     @State private var title = "Workout"
     @State private var durationMinutes = 30.0
     @State private var bodyMassKg = 80.0
+    @State private var bodyMassPounds = UnitConverter.pounds(fromKilograms: 80)
     @State private var averageHeartRate = 0
     @State private var distanceMeters = 0.0
+    @State private var distanceMiles = 0.0
     @State private var deviceCalories = 0.0
     @State private var perceivedEffort: PerceivedEffort = .moderate
     @State private var estimate: CalorieEstimate?
@@ -139,8 +147,25 @@ private struct AddWorkoutView: View {
                         }
                     }
                     numberField("Duration", value: $durationMinutes, unit: "min")
-                    numberField("Body Mass", value: $bodyMassKg, unit: "kg")
-                    numberField("Distance", value: $distanceMeters, unit: "m")
+                    if unitSystem == .metric {
+                        numberField("Body Mass", value: $bodyMassKg, unit: "kg")
+                            .onChange(of: bodyMassKg) { _, newValue in
+                                bodyMassPounds = UnitConverter.pounds(fromKilograms: newValue)
+                            }
+                        numberField("Distance", value: $distanceMeters, unit: "m")
+                            .onChange(of: distanceMeters) { _, newValue in
+                                distanceMiles = UnitConverter.miles(fromKilometers: newValue / 1_000)
+                            }
+                    } else {
+                        numberField("Body Mass", value: $bodyMassPounds, unit: "lb")
+                            .onChange(of: bodyMassPounds) { _, newValue in
+                                bodyMassKg = UnitConverter.kilograms(fromPounds: newValue)
+                            }
+                        numberField("Distance", value: $distanceMiles, unit: "mi")
+                            .onChange(of: distanceMiles) { _, newValue in
+                                distanceMeters = UnitConverter.kilometers(fromMiles: newValue) * 1_000
+                            }
+                    }
                     numberField("Device Calories", value: $deviceCalories, unit: "kcal")
                     Stepper("Average HR: \(averageHeartRate == 0 ? "None" : "\(averageHeartRate) bpm")", value: $averageHeartRate, in: 0...220)
                 }
@@ -163,6 +188,8 @@ private struct AddWorkoutView: View {
             .navigationTitle("Add Workout")
             .onAppear {
                 bodyMassKg = profile?.bodyMassKg ?? bodyMassKg
+                bodyMassPounds = UnitConverter.pounds(fromKilograms: bodyMassKg)
+                distanceMiles = UnitConverter.miles(fromKilometers: distanceMeters / 1_000)
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -228,4 +255,3 @@ private struct AddWorkoutView: View {
 #Preview {
     ExerciseView()
 }
-

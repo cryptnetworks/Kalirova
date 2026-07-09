@@ -5,11 +5,16 @@ struct DashboardView: View {
     @Query(sort: \MealEntry.loggedAt, order: .reverse) private var meals: [MealEntry]
     @Query(sort: \WorkoutEntry.startedAt, order: .reverse) private var workouts: [WorkoutEntry]
     @Query(sort: \HealthMetricEntry.loggedAt, order: .reverse) private var metrics: [HealthMetricEntry]
+    @Query private var settings: [AppSettings]
     @StateObject private var viewModel = DashboardViewModel()
     @State private var period: DashboardPeriod = .day
 
     private var totals: DashboardTotals {
         viewModel.totals(meals: meals, workouts: workouts, metrics: metrics, period: period)
+    }
+
+    private var unitSystem: UnitSystem {
+        settings.first?.unitSystem ?? .metric
     }
 
     var body: some View {
@@ -44,7 +49,7 @@ struct DashboardView: View {
                         SummaryRow(label: "Water", value: "\(totals.waterLiters.formatted(.number.precision(.fractionLength(1)))) L")
                         SummaryRow(label: "Sleep", value: "\(totals.sleepHours.formatted(.number.precision(.fractionLength(1)))) hr")
                         if let weightKg = totals.weightKg {
-                            SummaryRow(label: "Latest Weight", value: "\(weightKg.formatted(.number.precision(.fractionLength(1)))) kg")
+                            SummaryRow(label: "Latest Weight", value: weightKg.formattedWeight(unitSystem: unitSystem))
                         }
                     }
                     .padding()
@@ -56,7 +61,7 @@ struct DashboardView: View {
                     } else {
                         SectionHeader(title: "Recent Workouts")
                         ForEach(workouts.prefix(3)) { workout in
-                            WorkoutSummaryRow(workout: workout)
+                            WorkoutSummaryRow(workout: workout, unitSystem: unitSystem)
                         }
                     }
                 }
@@ -162,6 +167,7 @@ struct SummaryRow: View {
 
 struct WorkoutSummaryRow: View {
     var workout: WorkoutEntry
+    var unitSystem: UnitSystem = .metric
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -175,6 +181,9 @@ struct WorkoutSummaryRow: View {
             }
             SummaryRow(label: "Device Reported Calories", value: workout.deviceReportedCalories?.kcalText ?? "Not available")
             SummaryRow(label: "App Estimated Calories", value: workout.appEstimatedCalories?.kcalText ?? "Not available")
+            if let distanceMeters = workout.distanceMeters {
+                SummaryRow(label: "Distance", value: distanceMeters.formattedDistance(unitSystem: unitSystem))
+            }
         }
         .padding()
         .background(.thinMaterial)
@@ -193,6 +202,28 @@ struct WorkoutSummaryRow: View {
 extension Double {
     var kcalText: String {
         "\(formatted(.number.precision(.fractionLength(0)))) kcal"
+    }
+
+    func formattedWeight(unitSystem: UnitSystem) -> String {
+        switch unitSystem {
+        case .metric:
+            "\(formatted(.number.precision(.fractionLength(1)))) kg"
+        case .imperial:
+            "\(UnitConverter.pounds(fromKilograms: self).formatted(.number.precision(.fractionLength(1)))) lb"
+        }
+    }
+
+    func formattedDistance(unitSystem: UnitSystem) -> String {
+        switch unitSystem {
+        case .metric:
+            if self >= 1_000 {
+                return "\((self / 1_000).formatted(.number.precision(.fractionLength(2)))) km"
+            }
+            return "\(formatted(.number.precision(.fractionLength(0)))) m"
+        case .imperial:
+            let miles = UnitConverter.miles(fromKilometers: self / 1_000)
+            return "\(miles.formatted(.number.precision(.fractionLength(2)))) mi"
+        }
     }
 }
 

@@ -4,7 +4,12 @@ import SwiftUI
 struct MetricsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \HealthMetricEntry.loggedAt, order: .reverse) private var metrics: [HealthMetricEntry]
+    @Query private var settings: [AppSettings]
     @State private var showingAddMetric = false
+
+    private var unitSystem: UnitSystem {
+        settings.first?.unitSystem ?? .metric
+    }
 
     var body: some View {
         NavigationStack {
@@ -15,7 +20,7 @@ struct MetricsView: View {
                             Label(metric.displayName, systemImage: icon(for: metric.type))
                                 .font(.headline)
                             Spacer()
-                            Text("\(metric.value.formatted(.number.precision(.fractionLength(0...2)))) \(metric.unit)")
+                            Text(displayValue(for: metric))
                                 .fontWeight(.semibold)
                         }
                         Text(metric.loggedAt, format: .dateTime.month().day().hour().minute())
@@ -47,7 +52,7 @@ struct MetricsView: View {
                 }
             }
             .sheet(isPresented: $showingAddMetric) {
-                AddMetricView()
+                AddMetricView(unitSystem: unitSystem)
             }
         }
     }
@@ -70,11 +75,21 @@ struct MetricsView: View {
         case .custom: "slider.horizontal.3"
         }
     }
+
+    private func displayValue(for metric: HealthMetricEntry) -> String {
+        if metric.type == .bodyMass {
+            return metric.value.formattedWeight(unitSystem: unitSystem)
+        }
+
+        return "\(metric.value.formatted(.number.precision(.fractionLength(0...2)))) \(metric.unit)"
+    }
 }
 
 private struct AddMetricView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+
+    var unitSystem: UnitSystem
 
     @State private var type: MetricType = .bodyMass
     @State private var customName = ""
@@ -110,6 +125,9 @@ private struct AddMetricView: View {
                 }
             }
             .navigationTitle("Add Metric")
+            .onAppear {
+                unit = defaultUnit(for: type)
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -126,11 +144,22 @@ private struct AddMetricView: View {
     }
 
     private func saveMetric() {
+        let normalizedValue: Double
+        let normalizedUnit: String
+
+        if type == .bodyMass, unitSystem == .imperial {
+            normalizedValue = UnitConverter.kilograms(fromPounds: value)
+            normalizedUnit = "kg"
+        } else {
+            normalizedValue = value
+            normalizedUnit = unit
+        }
+
         let metric = HealthMetricEntry(
             type: type,
             customName: customName,
-            value: value,
-            unit: unit,
+            value: normalizedValue,
+            unit: normalizedUnit,
             note: note
         )
         modelContext.insert(metric)
@@ -139,7 +168,7 @@ private struct AddMetricView: View {
 
     private func defaultUnit(for type: MetricType) -> String {
         switch type {
-        case .bodyMass: "kg"
+        case .bodyMass: unitSystem == .imperial ? "lb" : "kg"
         case .bodyFat: "%"
         case .water: "L"
         case .sleep: "hr"
@@ -155,4 +184,3 @@ private struct AddMetricView: View {
 #Preview {
     MetricsView()
 }
-
