@@ -224,7 +224,7 @@ private enum LocalDataExporter {
                 ExportProfile(ageYears: $0.ageYears, sex: $0.sexRawValue, dateOfBirth: $0.dateOfBirth, heightCentimeters: $0.heightCentimeters, bodyMassKg: $0.bodyMassKg, goalBodyMassKg: $0.goalBodyMassKg, activityLevel: $0.activityLevelRawValue, unitSystem: $0.preferredUnitSystemRawValue, goalSummary: $0.goalSummary)
             },
             meals: meals.map {
-                ExportMeal(title: $0.title, loggedAt: $0.loggedAt, calories: $0.totalCalories, proteinGrams: $0.totalProtein, source: $0.sourceRawValue)
+                ExportMeal(title: $0.displayTitle, mealType: $0.mealTypeRawValue, customMealTypeName: $0.customMealTypeName, loggedAt: $0.loggedAt, calories: $0.totalCalories, proteinGrams: $0.totalProtein, source: $0.sourceRawValue)
             },
             workouts: workouts.map {
                 ExportWorkout(title: $0.title, startedAt: $0.startedAt, durationMinutes: $0.durationMinutes, kind: $0.kindRawValue, sourceName: $0.sourceName, deviceReportedCalories: $0.deviceReportedCalories, appEstimatedCalories: $0.appEstimatedCalories, confidence: $0.estimateConfidenceRawValue, algorithmVersion: $0.algorithmVersion)
@@ -280,6 +280,8 @@ private struct ExportProfile: Codable {
 
 private struct ExportMeal: Codable {
     var title: String
+    var mealType: String
+    var customMealTypeName: String
     var loggedAt: Date
     var calories: Double
     var proteinGrams: Double

@@ -45,6 +45,7 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 - Local persistence: SwiftData models.
 - Apple Health integration: HealthKit service isolated behind async APIs.
 - Exercise calories: app-estimated calories are stored separately from device-reported calories.
+- Meals: foods are logged into local meal containers grouped by date and meal type.
 - AI: OpenAI integration is optional, isolated, and opt-in per request.
 - Analytics/cloud database: none.
 

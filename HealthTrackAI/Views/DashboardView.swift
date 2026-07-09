@@ -17,6 +17,15 @@ struct DashboardView: View {
         settings.first?.unitSystem ?? .metric
     }
 
+    private var groupedMeals: [MealDayGroup] {
+        let calendar = Calendar.current
+        let filteredMeals = meals.filter {
+            period.contains($0.loggedAt, referenceDate: .now, calendar: calendar)
+        }
+
+        return MealDayGroup.group(filteredMeals, calendar: calendar)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -40,6 +49,27 @@ struct DashboardView: View {
                         carbohydrates: totals.carbohydrates,
                         fat: totals.fat
                     )
+
+                    if !groupedMeals.isEmpty {
+                        SectionHeader(title: "Meals")
+                        ForEach(groupedMeals) { group in
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(group.date.formatted(date: .abbreviated, time: .omitted))
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+
+                                ForEach(group.meals) { meal in
+                                    MealContainerRow(meal: meal, showsDate: false)
+                                    if meal.id != group.meals.last?.id {
+                                        Divider()
+                                    }
+                                }
+                            }
+                            .padding()
+                            .background(.thinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
 
                     SectionHeader(title: "Today")
 

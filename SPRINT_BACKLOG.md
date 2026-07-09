@@ -53,7 +53,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T1 | S1.1, S1.3, S2.1, S3.1, S7.3, S9.1 | Update product and sprint backlog for requested changes. | Done |
 | S1-T2 | S1.1, S1.3 | Add unit preferences, typed onboarding fields, goal weight, BMI calculation, and BMI info sheet. | Done |
 | S1-T3 | S1.3 | Apply unit preference display/input conversions across profile, workouts, metrics, and settings. | Done |
-| S1-T4 | S3.1 | Redesign meal logging around date and meal type containers with multiple food items. | Todo |
+| S1-T4 | S3.1 | Redesign meal logging around date and meal type containers with multiple food items. | Done |
 | S1-T5 | S7.3 | Add ChatGPT restaurant meal estimation payload preview, API call, confirmation/editing, and save flow. | Todo |
 | S1-T6 | S2.1, S2.2 | Add 90-day HealthKit workout import, duplicate skipping, heart-rate averaging, progress UI, and import summary. | Todo |
 | S1-T7 | S9.1 | Refine screens with native SwiftUI forms/lists, accessibility labels, Dynamic Type support, and Liquid Glass availability fallbacks. | Todo |
@@ -66,3 +66,5 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T2: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.
 - S1-T3: `swift test` passed with 9 XCTest tests and 0 failures.
 - S1-T3: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.
+- S1-T4: `swift test` passed with 9 XCTest tests and 0 failures.
+- S1-T4: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.

@@ -110,6 +110,7 @@ enum PreviewData {
         [
             MealEntry(
                 title: "Breakfast",
+                mealType: .breakfast,
                 source: .localParser,
                 confidence: .medium,
                 items: [

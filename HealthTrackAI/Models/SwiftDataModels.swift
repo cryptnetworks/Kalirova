@@ -16,6 +16,36 @@ enum MealSource: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+enum MealType: String, Codable, CaseIterable, Identifiable {
+    case breakfast
+    case lunch
+    case dinner
+    case snack
+    case custom
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .breakfast: "Breakfast"
+        case .lunch: "Lunch"
+        case .dinner: "Dinner"
+        case .snack: "Snack"
+        case .custom: "Custom"
+        }
+    }
+
+    var sortOrder: Int {
+        switch self {
+        case .breakfast: 0
+        case .lunch: 1
+        case .dinner: 2
+        case .snack: 3
+        case .custom: 4
+        }
+    }
+}
+
 enum MetricType: String, Codable, CaseIterable, Identifiable {
     case bodyMass
     case bodyFat
@@ -198,6 +228,8 @@ final class MealEntry {
     var id: UUID
     var title: String
     var loggedAt: Date
+    var mealTypeRawValue: String
+    var customMealTypeName: String
     var sourceRawValue: String
     var confidenceRawValue: String
     var notes: String
@@ -207,6 +239,8 @@ final class MealEntry {
         id: UUID = UUID(),
         title: String,
         loggedAt: Date = .now,
+        mealType: MealType = .custom,
+        customMealTypeName: String = "",
         source: MealSource = .manual,
         confidence: EstimateConfidence = .medium,
         notes: String = "",
@@ -215,10 +249,30 @@ final class MealEntry {
         self.id = id
         self.title = title
         self.loggedAt = loggedAt
+        self.mealTypeRawValue = mealType.rawValue
+        self.customMealTypeName = customMealTypeName
         self.sourceRawValue = source.rawValue
         self.confidenceRawValue = confidence.rawValue
         self.notes = notes
         self.items = items
+    }
+
+    var mealType: MealType {
+        MealType(rawValue: mealTypeRawValue) ?? .custom
+    }
+
+    var displayTitle: String {
+        if mealType == .custom {
+            let trimmedCustomName = customMealTypeName.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmedCustomName.isEmpty {
+                return trimmedCustomName
+            }
+
+            let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmedTitle.isEmpty ? mealType.displayName : trimmedTitle
+        }
+
+        return mealType.displayName
     }
 
     var source: MealSource {
