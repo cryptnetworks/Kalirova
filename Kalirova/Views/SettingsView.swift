@@ -52,10 +52,11 @@ struct SettingsView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "person.crop.circle.fill")
                             .font(.system(size: 52))
-                            .foregroundStyle(.teal)
+                            .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Kalirova Profile")
-                                .font(.title2.bold())
+                                .font(.kalirovaSectionTitle)
+                                .foregroundStyle(KalirovaTheme.Colors.deepNavy)
                             Text(profileSummary)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -127,7 +128,7 @@ struct SettingsView: View {
                             Label("Save Key", systemImage: "key.fill")
                                 .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PrimaryKalirovaButton())
 
                         Button {
                             Task { await testOpenAIConnection() }

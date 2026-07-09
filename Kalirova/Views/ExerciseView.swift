@@ -28,7 +28,7 @@ struct ExerciseView: View {
                             Label("Import Last 90 Days", systemImage: "square.and.arrow.down")
                                 .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PrimaryKalirovaButton())
 
                         Button {
                             showingAddWorkout = true
@@ -59,11 +59,11 @@ struct ExerciseView: View {
                             Button("Import Last 90 Days") {
                                 Task { await importRecentWorkouts() }
                             }
-                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(PrimaryKalirovaButton())
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
                     } else {
                         LazyVStack(spacing: 14) {
                             ForEach(workouts) { workout in
@@ -82,7 +82,7 @@ struct ExerciseView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(KalirovaTheme.Colors.background)
             .navigationTitle("Activity")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -104,10 +104,11 @@ struct ExerciseView: View {
             HStack(spacing: 18) {
                 Image(systemName: "figure.run.circle.fill")
                     .font(.system(size: 46))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Move data, clearly.")
-                        .font(.title2.bold())
+                        .font(.kalirovaSectionTitle)
+                        .foregroundStyle(KalirovaTheme.Colors.deepNavy)
                     Text("Compare Apple Watch calories with Kalirova’s estimate, including heart rate, duration, and distance when available.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)

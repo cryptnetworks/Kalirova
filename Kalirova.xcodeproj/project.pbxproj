@@ -32,6 +32,14 @@
 		AA0000000000000000000123 /* KeychainServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000227 /* KeychainServiceTests.swift */; };
 		AA0000000000000000000124 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000228 /* PersistenceService.swift */; };
 		AA0000000000000000000125 /* ICloudBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000229 /* ICloudBackupService.swift */; };
+		AA0000000000000000000126 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000230 /* Theme.swift */; };
+		AA0000000000000000000127 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000231 /* Spacing.swift */; };
+		AA0000000000000000000128 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000232 /* Typography.swift */; };
+		AA0000000000000000000129 /* CardStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000233 /* CardStyles.swift */; };
+		AA0000000000000000000132 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000234 /* ButtonStyles.swift */; };
+		AA0000000000000000000133 /* Animations.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000235 /* Animations.swift */; };
+		AA0000000000000000000134 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000236 /* Icons.swift */; };
+		AA0000000000000000000135 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000237 /* Components.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +82,14 @@
 		AA0000000000000000000227 /* KeychainServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000228 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
 		AA0000000000000000000229 /* ICloudBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudBackupService.swift; sourceTree = "<group>"; };
+		AA0000000000000000000230 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		AA0000000000000000000231 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
+		AA0000000000000000000232 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		AA0000000000000000000233 /* CardStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStyles.swift; sourceTree = "<group>"; };
+		AA0000000000000000000234 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
+		AA0000000000000000000235 /* Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animations.swift; sourceTree = "<group>"; };
+		AA0000000000000000000236 /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
+		AA0000000000000000000237 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +125,7 @@
 			children = (
 				AA0000000000000000000201 /* KalirovaApp.swift */,
 				AA0000000000000000000503 /* Core */,
+				AA0000000000000000000511 /* DesignSystem */,
 				AA0000000000000000000504 /* Models */,
 				AA0000000000000000000505 /* Services */,
 				AA0000000000000000000506 /* ViewModels */,
@@ -190,6 +207,21 @@
 				AA0000000000000000000227 /* KeychainServiceTests.swift */,
 			);
 			path = KalirovaTests;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000511 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000230 /* Theme.swift */,
+				AA0000000000000000000231 /* Spacing.swift */,
+				AA0000000000000000000232 /* Typography.swift */,
+				AA0000000000000000000233 /* CardStyles.swift */,
+				AA0000000000000000000234 /* ButtonStyles.swift */,
+				AA0000000000000000000235 /* Animations.swift */,
+				AA0000000000000000000236 /* Icons.swift */,
+				AA0000000000000000000237 /* Components.swift */,
+			);
+			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		AA0000000000000000000510 /* Products */ = {
@@ -324,6 +356,14 @@
 				AA0000000000000000000110 /* PrivacyConsentService.swift in Sources */,
 				AA0000000000000000000124 /* PersistenceService.swift in Sources */,
 				AA0000000000000000000125 /* ICloudBackupService.swift in Sources */,
+				AA0000000000000000000126 /* Theme.swift in Sources */,
+				AA0000000000000000000127 /* Spacing.swift in Sources */,
+				AA0000000000000000000128 /* Typography.swift in Sources */,
+				AA0000000000000000000129 /* CardStyles.swift in Sources */,
+				AA0000000000000000000132 /* ButtonStyles.swift in Sources */,
+				AA0000000000000000000133 /* Animations.swift in Sources */,
+				AA0000000000000000000134 /* Icons.swift in Sources */,
+				AA0000000000000000000135 /* Components.swift in Sources */,
 				AA0000000000000000000111 /* AppViewModels.swift in Sources */,
 				AA0000000000000000000112 /* RootView.swift in Sources */,
 				AA0000000000000000000113 /* OnboardingView.swift in Sources */,

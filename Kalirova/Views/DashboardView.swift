@@ -58,10 +58,10 @@ struct DashboardView: View {
                     todaySummary
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
-                        MetricCard(title: "Nutrition", value: totals.caloriesIn.kcalText, systemImage: "fork.knife", tint: .teal)
-                        MetricCard(title: "Exercise", value: totals.appCaloriesOut.kcalText, systemImage: "flame.fill", tint: .orange)
-                        MetricCard(title: "Sleep", value: "\(totals.sleepHours.formatted(.number.precision(.fractionLength(1)))) hr", systemImage: "bed.double.fill", tint: .indigo)
-                        MetricCard(title: "Hydration", value: "\(totals.waterLiters.formatted(.number.precision(.fractionLength(1)))) L", systemImage: "drop.fill", tint: .blue)
+                        MetricCard(title: "Nutrition", value: totals.caloriesIn.kcalText, systemImage: "fork.knife", tint: KalirovaTheme.Colors.nutrition)
+                        MetricCard(title: "Exercise", value: totals.appCaloriesOut.kcalText, systemImage: "flame.fill", tint: KalirovaTheme.Colors.exercise)
+                        MetricCard(title: "Sleep", value: "\(totals.sleepHours.formatted(.number.precision(.fractionLength(1)))) hr", systemImage: "bed.double.fill", tint: KalirovaTheme.Colors.violet)
+                        MetricCard(title: "Hydration", value: "\(totals.waterLiters.formatted(.number.precision(.fractionLength(1)))) L", systemImage: "drop.fill", tint: KalirovaTheme.Colors.skyBlue)
                     }
 
                     MacroPanel(protein: totals.protein, carbohydrates: totals.carbohydrates, fat: totals.fat)
@@ -74,15 +74,23 @@ struct DashboardView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(KalirovaTheme.Colors.background)
             .navigationTitle("Home")
         }
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(greeting)
-                .font(.largeTitle.bold())
+            HStack(spacing: KalirovaSpacing.md) {
+                KalirovaBrandMark(size: 42)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(greeting)
+                        .kalirovaText(.navigation)
+                    Text("Track. Understand. Elevate.")
+                        .font(.kalirovaCaption)
+                        .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
+                }
+            }
             Text("Here’s today’s health snapshot.")
                 .font(.title3)
                 .foregroundStyle(.secondary)
@@ -94,7 +102,7 @@ struct DashboardView: View {
     private var todaySummary: some View {
         PremiumCard {
             HStack(alignment: .center, spacing: 20) {
-                ProgressRing(progress: min(max((calorieGoal - caloriesRemaining) / max(calorieGoal, 1), 0), 1), tint: .teal) {
+                ProgressRing(progress: min(max((calorieGoal - caloriesRemaining) / max(calorieGoal, 1), 0), 1), tint: KalirovaTheme.Colors.oceanGreen) {
                     VStack(spacing: 2) {
                         Text(abs(caloriesRemaining).formatted(.number.precision(.fractionLength(0))))
                             .font(.system(.title, design: .rounded).weight(.bold))
@@ -151,7 +159,7 @@ struct DashboardView: View {
                             x: .value("Date", metric.loggedAt, unit: .day),
                             y: .value("Weight", displayWeightValue(metric.value))
                         )
-                        .foregroundStyle(.teal.opacity(0.12))
+                        .foregroundStyle(KalirovaTheme.Colors.skyBlue.opacity(0.12))
                         PointMark(
                             x: .value("Date", metric.loggedAt, unit: .day),
                             y: .value("Weight", displayWeightValue(metric.value))
@@ -172,7 +180,7 @@ struct DashboardView: View {
                 ContentUnavailableView("No meals logged today", systemImage: "fork.knife", description: Text("Add your first meal from the Meals tab."))
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
             } else {
                 ForEach(groupedMeals.prefix(2)) { group in
                     PremiumCard {
@@ -197,7 +205,7 @@ struct DashboardView: View {
                 ContentUnavailableView("No workouts logged", systemImage: "figure.run", description: Text("Imported and manual workouts will appear here."))
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
             } else {
                 ForEach(workouts.prefix(3)) { workout in
                     WorkoutSummaryRow(workout: workout, unitSystem: unitSystem)
@@ -226,9 +234,14 @@ struct PremiumCard<Content: View>: View {
 
     var body: some View {
         content
-            .padding()
+            .padding(KalirovaSpacing.lg)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous)
+                    .stroke(.white.opacity(0.32), lineWidth: 0.5)
+            }
+            .shadow(color: KalirovaTheme.Shadow.card, radius: 16, x: 0, y: 8)
     }
 }
 
@@ -255,7 +268,7 @@ struct MetricCard: View {
     var title: String
     var value: String
     var systemImage: String
-    var tint: Color = .teal
+    var tint: Color = KalirovaTheme.Colors.oceanGreen
 
     var body: some View {
         PremiumCard {
@@ -265,11 +278,12 @@ struct MetricCard: View {
                     .foregroundStyle(tint)
                     .accessibilityHidden(true)
                 Text(value)
-                    .font(.title2.bold())
+                    .font(.kalirovaMetric)
+                    .foregroundStyle(KalirovaTheme.Colors.deepNavy)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                 Text(title)
-                    .font(.subheadline)
+                    .font(.kalirovaCardTitle)
                     .foregroundStyle(.secondary)
             }
         }
@@ -308,8 +322,8 @@ private struct MacroPanel: View {
         PremiumCard {
             VStack(alignment: .leading, spacing: 14) {
                 SectionHeader(title: "Nutrition")
-                MacroBar(label: "Protein", value: protein, total: total, tint: .green)
-                MacroBar(label: "Carbs", value: carbohydrates, total: total, tint: .blue)
+                MacroBar(label: "Protein", value: protein, total: total, tint: KalirovaTheme.Colors.oceanGreen)
+                MacroBar(label: "Carbs", value: carbohydrates, total: total, tint: KalirovaTheme.Colors.skyBlue)
                 MacroBar(label: "Fat", value: fat, total: total, tint: .orange)
             }
         }
@@ -342,7 +356,8 @@ struct SectionHeader: View {
 
     var body: some View {
         Text(title)
-            .font(.title3.weight(.semibold))
+            .font(.kalirovaSectionTitle)
+            .foregroundStyle(KalirovaTheme.Colors.deepNavy)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -405,7 +420,7 @@ struct WorkoutSummaryRow: View {
 
     private var confidenceColor: Color {
         switch workout.estimateConfidence {
-        case .high: .green
+        case .high: KalirovaTheme.Colors.oceanGreen
         case .medium: .orange
         case .low: .red
         }

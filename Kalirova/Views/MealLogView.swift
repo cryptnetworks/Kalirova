@@ -33,7 +33,7 @@ struct MealLogView: View {
             }
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
-            .background(Color(.systemGroupedBackground))
+            .background(KalirovaTheme.Colors.background)
             .overlay {
                 if meals.isEmpty {
                     ContentUnavailableView {
@@ -44,7 +44,7 @@ struct MealLogView: View {
                         Button("Add Your First Meal") {
                             showingAddMeal = true
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PrimaryKalirovaButton())
                     }
                 }
             }
@@ -232,7 +232,7 @@ private struct AddMealView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ProgressView(value: Double(step.index + 1), total: Double(MealEntryStep.allCases.count))
-                    .tint(.teal)
+                    .tint(KalirovaTheme.Colors.oceanGreen)
                     .padding(.horizontal)
 
                 TabView(selection: $step) {
@@ -266,7 +266,7 @@ private struct AddMealView: View {
                         Label(step == .review ? "Accept" : "Continue", systemImage: step == .review ? "checkmark" : "chevron.right")
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PrimaryKalirovaButton())
                     .disabled(step == .review && !canSave)
                 }
                 .controlSize(.large)
@@ -345,7 +345,7 @@ private struct AddMealView: View {
                         Label(isEstimatingWithAI ? "Estimating" : "AI Search", systemImage: "sparkles")
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PrimaryKalirovaButton())
                     .disabled(!canEstimateRestaurantMeal || isEstimatingWithAI)
                 } else {
                     TextField("Two scrambled eggs", text: $foodName)
@@ -633,7 +633,7 @@ private struct GuidedMealStep<Content: View>: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 Label(title, systemImage: symbol)
-                    .font(.largeTitle.bold())
+                    .kalirovaText(.navigation)
                     .labelStyle(.titleAndIcon)
                 Text(subtitle)
                     .font(.title3)
@@ -642,7 +642,7 @@ private struct GuidedMealStep<Content: View>: View {
             }
             .padding()
         }
-        .background(Color(.systemGroupedBackground))
+        .background(KalirovaTheme.Colors.background)
     }
 }
 
@@ -663,7 +663,7 @@ private struct SelectableMealTypeCard: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
             }
             .padding()
-            .background(isSelected ? AnyShapeStyle(Color.teal.gradient) : AnyShapeStyle(.thinMaterial), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .background(isSelected ? AnyShapeStyle(KalirovaTheme.Gradients.brand) : AnyShapeStyle(.thinMaterial), in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
             .foregroundStyle(isSelected ? .white : .primary)
         }
         .buttonStyle(.plain)
@@ -694,7 +694,8 @@ private struct NutritionReviewCard: View {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(name.isEmpty ? "Food item" : name)
-                        .font(.title2.bold())
+                        .font(.kalirovaMetric)
+                        .foregroundStyle(KalirovaTheme.Colors.deepNavy)
                     if !serving.isEmpty {
                         Text(serving)
                             .foregroundStyle(.secondary)

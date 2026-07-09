@@ -44,7 +44,7 @@ struct InsightsView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Insights")
-                            .font(.largeTitle.bold())
+                            .kalirovaText(.navigation)
                         Text("Trends, progress, and local summaries.")
                             .font(.title3)
                             .foregroundStyle(.secondary)
@@ -67,10 +67,10 @@ struct InsightsView: View {
                     trendCard
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
-                        MetricCard(title: "Avg Intake", value: summary.averageCaloriesIn.kcalText, systemImage: "fork.knife", tint: .teal)
+                        MetricCard(title: "Avg Intake", value: summary.averageCaloriesIn.kcalText, systemImage: "fork.knife", tint: KalirovaTheme.Colors.oceanGreen)
                         MetricCard(title: "Avg Burn", value: summary.averageCaloriesOut.kcalText, systemImage: "flame.fill", tint: .orange)
-                        MetricCard(title: "Avg Protein", value: "\(summary.averageProtein.formatted(.number.precision(.fractionLength(0)))) g", systemImage: "p.circle.fill", tint: .green)
-                        MetricCard(title: "Adherence", value: "\(Int((summary.adherenceScore * 100).rounded()))%", systemImage: "checkmark.seal.fill", tint: .blue)
+                        MetricCard(title: "Avg Protein", value: "\(summary.averageProtein.formatted(.number.precision(.fractionLength(0)))) g", systemImage: "p.circle.fill", tint: KalirovaTheme.Colors.oceanGreen)
+                        MetricCard(title: "Adherence", value: "\(Int((summary.adherenceScore * 100).rounded()))%", systemImage: "checkmark.seal.fill", tint: KalirovaTheme.Colors.skyBlue)
                     }
 
                     summaryCard
@@ -79,7 +79,7 @@ struct InsightsView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(KalirovaTheme.Colors.background)
             .navigationTitle("Insights")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -107,12 +107,12 @@ struct InsightsView: View {
                             y: .value(selectedMetric.unit, selectedMetric.value(for: snapshot))
                         )
                         .interpolationMethod(.catmullRom)
-                        .foregroundStyle(.teal)
+                        .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
                         AreaMark(
                             x: .value("Date", snapshot.date, unit: .day),
                             y: .value(selectedMetric.unit, selectedMetric.value(for: snapshot))
                         )
-                        .foregroundStyle(.teal.opacity(0.12))
+                        .foregroundStyle(KalirovaTheme.Colors.skyBlue.opacity(0.12))
                         PointMark(
                             x: .value("Date", snapshot.date, unit: .day),
                             y: .value(selectedMetric.unit, selectedMetric.value(for: snapshot))

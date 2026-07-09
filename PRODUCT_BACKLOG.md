@@ -213,6 +213,15 @@ Acceptance criteria:
 - App icon and brand assets from the Kalirova brand package are available in the Xcode asset catalog.
 - README, backlog, changelog, privacy docs, and architecture docs use the Kalirova product name.
 
+### Story S9.3: Apply Kalirova design system
+As a user, I want every screen to follow the supplied Kalirova design language while still behaving like a native Apple app.
+
+Acceptance criteria:
+- Design tokens from the supplied Kalirova design system are represented as semantic SwiftUI colors, typography, spacing, radii, card styles, button styles, and animation helpers.
+- The Xcode asset catalog includes supplied brand marks, app icon assets, icons, reference mockups, and namespaced color assets.
+- Home, Meals, Activity, Insights, Profile, and Onboarding use the shared design system instead of duplicated styling.
+- UI remains built with native SwiftUI controls, supports Dynamic Type and VoiceOver, and avoids custom controls that fight system behavior.
+
 ### Story S7.2: Generate optional AI weekly summary
 As a user, I want optional coaching-style insights based on a bounded weekly summary.
 

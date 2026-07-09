@@ -36,7 +36,7 @@ struct OnboardingView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ProgressView(value: Double(step.index + 1), total: Double(OnboardingStep.allCases.count))
-                    .tint(.teal)
+                    .tint(KalirovaTheme.Colors.oceanGreen)
                     .padding(.horizontal)
                     .accessibilityLabel("Onboarding progress")
 
@@ -115,7 +115,7 @@ struct OnboardingView: View {
                         .font(.system(.largeTitle, design: .rounded).weight(.bold))
                         .multilineTextAlignment(.center)
                         .padding()
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
                 } else {
                     Picker("Age", selection: $ageYears) {
                         ForEach(13...100, id: \.self) { age in
@@ -195,7 +195,7 @@ struct OnboardingView: View {
                         .font(.system(.largeTitle, design: .rounded).weight(.bold))
                         .multilineTextAlignment(.center)
                         .padding()
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
                 } else {
                     Picker("Weight", selection: wheelWeightBinding) {
                         ForEach(weightRange, id: \.self) { value in
@@ -275,7 +275,7 @@ struct OnboardingView: View {
                     Label("Request Health Access", systemImage: "heart.text.square")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(PrimaryKalirovaButton())
                 .controlSize(.large)
 
                 Text(healthKitService.authorizationStatusText)
@@ -325,7 +325,7 @@ struct OnboardingView: View {
                 Label(step == .complete ? "Start Kalirova" : "Continue", systemImage: step == .complete ? "checkmark" : "chevron.right")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(PrimaryKalirovaButton())
             .controlSize(.large)
         }
     }
@@ -589,12 +589,12 @@ private struct OnboardingQuestion<Content: View>: View {
             VStack(alignment: .leading, spacing: 24) {
                 Image(systemName: icon)
                     .font(.system(size: 44, weight: .semibold))
-                    .foregroundStyle(.teal)
+                    .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(title)
-                        .font(.largeTitle.bold())
+                    .kalirovaText(.navigation)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(subtitle)
                         .font(.title3)
@@ -623,7 +623,7 @@ private struct SelectableCard: View {
             HStack(spacing: 14) {
                 Image(systemName: systemImage)
                     .font(.title2)
-                    .foregroundStyle(isSelected ? .white : .teal)
+                    .foregroundStyle(isSelected ? .white : KalirovaTheme.Colors.oceanGreen)
                     .frame(width: 36, height: 36)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -639,8 +639,8 @@ private struct SelectableCard: View {
             }
             .padding()
             .background {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(isSelected ? AnyShapeStyle(Color.teal.gradient) : AnyShapeStyle(.thinMaterial))
+                RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous)
+                    .fill(isSelected ? AnyShapeStyle(KalirovaTheme.Gradients.brand) : AnyShapeStyle(.thinMaterial))
             }
             .foregroundStyle(isSelected ? .white : .primary)
         }
@@ -691,8 +691,8 @@ struct BMICard: View {
 
     private var statusColor: Color {
         guard let value = estimate?.value else { return .secondary }
-        if value < 18.5 { return .blue }
-        if value < 25 { return .green }
+        if value < 18.5 { return KalirovaTheme.Colors.skyBlue }
+        if value < 25 { return KalirovaTheme.Colors.oceanGreen }
         if value < 30 { return .orange }
         return .red
     }

@@ -6,7 +6,7 @@ Kalirova is a native SwiftUI iPhone app for private, on-device health tracking. 
 
 ## Current Sprint
 
-Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal grouping, optional restaurant meal estimation with ChatGPT, Apple-standard UI patterns, a five-tab card-based navigation experience, 90-day HealthKit workout import, and the Kalirova brand rename.
+Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal grouping, optional restaurant meal estimation with ChatGPT, Apple-standard UI patterns, a five-tab card-based navigation experience, 90-day HealthKit workout import, the Kalirova brand rename, and the supplied Kalirova design system.
 
 ## Repository Rules
 
@@ -42,14 +42,14 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
 ## Architecture
 
-- UI: SwiftUI with native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, and Apple Charts.
+- UI: SwiftUI with native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, Apple Charts, and reusable Kalirova design-system components.
 - Local persistence: SwiftData models, local-only by default.
 - Optional iCloud Backup: CloudKit-backed SwiftData can be enabled from Settings after explicit opt-in.
 - Apple Health integration: HealthKit service isolated behind async APIs.
 - Exercise calories: app-estimated calories are stored separately from device-reported calories.
 - Meals: foods are logged into local meal containers grouped by date and meal type.
 - AI: OpenAI integration is optional, isolated, and opt-in per request, including restaurant meal estimates that show the exact outbound meal fields before sending. OpenAI API keys remain in Keychain and are never included in iCloud backup.
-- Brand assets: Kalirova app icon, brand board, and named color assets live in the Xcode asset catalog.
+- Brand assets: Kalirova app icon, brand marks, icon assets, reference mockups, and namespaced semantic color assets live in the Xcode asset catalog.
 - Analytics: none.
 
 See `ARCHITECTURE.md` and `PRIVACY.md` for details.

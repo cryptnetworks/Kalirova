@@ -24,7 +24,14 @@ Screens:
 - Insights
 - Profile
 
-Views use native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, Apple Charts, and MVVM view models for formatting, derived state, and service orchestration.
+Views use native tab navigation, grouped forms/lists, card-based summaries, SF Symbols, materials, Apple Charts, reusable Kalirova design-system components, and MVVM view models for formatting, derived state, and service orchestration.
+
+### Design System
+
+The `Kalirova/DesignSystem` module centralizes the supplied visual language:
+- `Theme.swift` maps namespaced asset colors to semantic product roles such as primary, nutrition, exercise, AI, grouped background, and card background.
+- `Spacing.swift`, `Typography.swift`, `CardStyles.swift`, `ButtonStyles.swift`, and `Animations.swift` define reusable layout, type, surface, action, and motion tokens.
+- `Icons.swift` and `Components.swift` expose shared brand marks, dashboard tiles, insight cards, and search fields so screens do not duplicate styling.
 
 ### SwiftData Persistence
 
@@ -57,7 +64,7 @@ iCloud Backup includes meals, food items, body-mass and other metric entries, go
 
 ### Brand Assets
 
-The Xcode asset catalog contains the Kalirova app icon concept, brand board, and named color assets from the Kalirova brand package. The Swift module and target internals can remain stable while the app product presents as Kalirova.
+The Xcode asset catalog contains the Kalirova app icon concept, brand marks, icon assets, reference mockups, and namespaced color assets from the Kalirova design system. Asset groups are organized into Brand, Icons, Backgrounds, Charts, Components, AppIcon, and semantic color sets.
 
 ### Core Algorithms
 
