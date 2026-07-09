@@ -80,9 +80,12 @@ final class UserProfile {
     var id: UUID
     var ageYears: Int
     var sexRawValue: String
+    var dateOfBirth: Date?
     var heightCentimeters: Double
     var bodyMassKg: Double
+    var goalBodyMassKg: Double?
     var activityLevelRawValue: String
+    var preferredUnitSystemRawValue: String
     var goalSummary: String
     var createdAt: Date
     var updatedAt: Date
@@ -91,9 +94,12 @@ final class UserProfile {
         id: UUID = UUID(),
         ageYears: Int,
         sex: BiologicalSex,
+        dateOfBirth: Date? = nil,
         heightCentimeters: Double,
         bodyMassKg: Double,
+        goalBodyMassKg: Double? = nil,
         activityLevel: ActivityLevel,
+        preferredUnitSystem: UnitSystem = .metric,
         goalSummary: String,
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -101,9 +107,12 @@ final class UserProfile {
         self.id = id
         self.ageYears = ageYears
         self.sexRawValue = sex.rawValue
+        self.dateOfBirth = dateOfBirth
         self.heightCentimeters = heightCentimeters
         self.bodyMassKg = bodyMassKg
+        self.goalBodyMassKg = goalBodyMassKg
         self.activityLevelRawValue = activityLevel.rawValue
+        self.preferredUnitSystemRawValue = preferredUnitSystem.rawValue
         self.goalSummary = goalSummary
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -115,6 +124,10 @@ final class UserProfile {
 
     var activityLevel: ActivityLevel {
         ActivityLevel(rawValue: activityLevelRawValue) ?? .moderatelyActive
+    }
+
+    var preferredUnitSystem: UnitSystem {
+        UnitSystem(rawValue: preferredUnitSystemRawValue) ?? .metric
     }
 
     var snapshot: UserProfileSnapshot {
@@ -451,6 +464,7 @@ final class AppSettings {
     var showDeviceCalories: Bool
     var showAppEstimatedCalories: Bool
     var openAIModel: String
+    var unitSystemRawValue: String
     var createdAt: Date
     var updatedAt: Date
 
@@ -461,6 +475,7 @@ final class AppSettings {
         showDeviceCalories: Bool = true,
         showAppEstimatedCalories: Bool = true,
         openAIModel: String = "gpt-5.5",
+        unitSystem: UnitSystem = .metric,
         createdAt: Date = .now,
         updatedAt: Date = .now
     ) {
@@ -470,8 +485,12 @@ final class AppSettings {
         self.showDeviceCalories = showDeviceCalories
         self.showAppEstimatedCalories = showAppEstimatedCalories
         self.openAIModel = openAIModel
+        self.unitSystemRawValue = unitSystem.rawValue
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
-}
 
+    var unitSystem: UnitSystem {
+        UnitSystem(rawValue: unitSystemRawValue) ?? .metric
+    }
+}

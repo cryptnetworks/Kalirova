@@ -14,6 +14,83 @@ public enum ActivityLevel: String, Codable, CaseIterable, Sendable {
     case athlete
 }
 
+public enum UnitSystem: String, Codable, CaseIterable, Identifiable, Sendable {
+    case metric
+    case imperial
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .metric: "Metric"
+        case .imperial: "Imperial"
+        }
+    }
+}
+
+public enum UnitConverter {
+    public static func kilograms(fromPounds pounds: Double) -> Double {
+        pounds / 2.204_622_621_8
+    }
+
+    public static func pounds(fromKilograms kilograms: Double) -> Double {
+        kilograms * 2.204_622_621_8
+    }
+
+    public static func centimeters(fromFeet feet: Double, inches: Double) -> Double {
+        ((feet * 12) + inches) * 2.54
+    }
+
+    public static func totalInches(fromCentimeters centimeters: Double) -> Double {
+        centimeters / 2.54
+    }
+
+    public static func feetAndInches(fromCentimeters centimeters: Double) -> (feet: Int, inches: Double) {
+        let totalInches = totalInches(fromCentimeters: centimeters)
+        let feet = Int(totalInches / 12)
+        return (feet, totalInches - Double(feet * 12))
+    }
+
+    public static func kilometers(fromMiles miles: Double) -> Double {
+        miles * 1.609_344
+    }
+
+    public static func miles(fromKilometers kilometers: Double) -> Double {
+        kilometers / 1.609_344
+    }
+}
+
+public struct BMIEstimate: Codable, Equatable, Sendable {
+    public var value: Double
+    public var category: String
+
+    public init(value: Double, category: String) {
+        self.value = value
+        self.category = category
+    }
+
+    public static func calculate(heightCentimeters: Double, bodyMassKg: Double) -> BMIEstimate? {
+        guard heightCentimeters > 0, bodyMassKg > 0 else { return nil }
+        let meters = heightCentimeters / 100
+        let value = bodyMassKg / (meters * meters)
+        let roundedValue = value.rounded(toPlaces: 1)
+
+        let category: String
+        switch roundedValue {
+        case ..<18.5:
+            category = "Underweight"
+        case 18.5..<25:
+            category = "Healthy weight"
+        case 25..<30:
+            category = "Overweight"
+        default:
+            category = "Obesity"
+        }
+
+        return BMIEstimate(value: roundedValue, category: category)
+    }
+}
+
 public enum WorkoutKind: String, Codable, CaseIterable, Identifiable, Sendable {
     case walking
     case running
@@ -299,4 +376,3 @@ private extension Double {
         return (self * factor).rounded() / factor
     }
 }
-

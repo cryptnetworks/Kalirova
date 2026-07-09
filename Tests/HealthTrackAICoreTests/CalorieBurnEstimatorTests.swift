@@ -48,5 +48,17 @@ final class CalorieBurnEstimatorTests: XCTestCase {
         XCTAssertEqual(estimate.confidence, .low)
         XCTAssertEqual(estimate.method, "generic-met")
     }
-}
 
+    func testBMIAndUnitConversions() throws {
+        let bmi = try XCTUnwrap(BMIEstimate.calculate(heightCentimeters: 180, bodyMassKg: 81))
+        XCTAssertEqual(bmi.value, 25.0, accuracy: 0.1)
+        XCTAssertEqual(bmi.category, "Overweight")
+
+        XCTAssertEqual(UnitConverter.kilograms(fromPounds: 180), 81.65, accuracy: 0.01)
+        XCTAssertEqual(UnitConverter.centimeters(fromFeet: 5, inches: 10), 177.8, accuracy: 0.01)
+
+        let imperialHeight = UnitConverter.feetAndInches(fromCentimeters: 177.8)
+        XCTAssertEqual(imperialHeight.feet, 5)
+        XCTAssertEqual(imperialHeight.inches, 10, accuracy: 0.01)
+    }
+}

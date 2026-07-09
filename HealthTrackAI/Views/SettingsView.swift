@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var showDeviceCalories = true
     @State private var showAppEstimatedCalories = true
     @State private var openAIModel = "gpt-5.5"
+    @State private var unitSystem: UnitSystem = .metric
     @State private var apiKey = ""
     @State private var statusMessage: String?
     @State private var showingDeleteConfirmation = false
@@ -61,6 +62,15 @@ struct SettingsView: View {
                 Section("Calories") {
                     Toggle("Device Reported Calories", isOn: $showDeviceCalories)
                     Toggle("App Estimated Calories", isOn: $showAppEstimatedCalories)
+                }
+
+                Section("Units") {
+                    Picker("Unit Preference", selection: $unitSystem) {
+                        ForEach(UnitSystem.allCases) { unitSystem in
+                            Text(unitSystem.displayName).tag(unitSystem)
+                        }
+                    }
+                    .pickerStyle(.menu)
                 }
 
                 Section("ChatGPT") {
@@ -113,6 +123,7 @@ struct SettingsView: View {
             .onChange(of: showDeviceCalories) { _, _ in saveSettings() }
             .onChange(of: showAppEstimatedCalories) { _, _ in saveSettings() }
             .onChange(of: openAIModel) { _, _ in saveSettings() }
+            .onChange(of: unitSystem) { _, _ in saveSettings() }
             .alert("Delete all local data?", isPresented: $showingDeleteConfirmation) {
                 Button("Delete", role: .destructive, action: deleteAllLocalData)
                 Button("Cancel", role: .cancel) {}
@@ -129,6 +140,7 @@ struct SettingsView: View {
         showDeviceCalories = current?.showDeviceCalories ?? true
         showAppEstimatedCalories = current?.showAppEstimatedCalories ?? true
         openAIModel = current?.openAIModel ?? "gpt-5.5"
+        unitSystem = current?.unitSystem ?? profiles.first?.preferredUnitSystem ?? .metric
 
         if (try? KeychainService.shared.loadOpenAIAPIKey()) != nil {
             statusMessage = "OpenAI API key is stored in Keychain."
@@ -146,6 +158,7 @@ struct SettingsView: View {
         current.showDeviceCalories = showDeviceCalories
         current.showAppEstimatedCalories = showAppEstimatedCalories
         current.openAIModel = openAIModel
+        current.unitSystemRawValue = unitSystem.rawValue
         current.updatedAt = .now
         try? modelContext.save()
     }
@@ -208,7 +221,7 @@ private enum LocalDataExporter {
             exportedAt: .now,
             disclaimer: SummaryService.wellnessDisclaimer,
             profiles: profiles.map {
-                ExportProfile(ageYears: $0.ageYears, sex: $0.sexRawValue, heightCentimeters: $0.heightCentimeters, bodyMassKg: $0.bodyMassKg, activityLevel: $0.activityLevelRawValue, goalSummary: $0.goalSummary)
+                ExportProfile(ageYears: $0.ageYears, sex: $0.sexRawValue, dateOfBirth: $0.dateOfBirth, heightCentimeters: $0.heightCentimeters, bodyMassKg: $0.bodyMassKg, goalBodyMassKg: $0.goalBodyMassKg, activityLevel: $0.activityLevelRawValue, unitSystem: $0.preferredUnitSystemRawValue, goalSummary: $0.goalSummary)
             },
             meals: meals.map {
                 ExportMeal(title: $0.title, loggedAt: $0.loggedAt, calories: $0.totalCalories, proteinGrams: $0.totalProtein, source: $0.sourceRawValue)
@@ -256,9 +269,12 @@ private struct LocalExport: Codable {
 private struct ExportProfile: Codable {
     var ageYears: Int
     var sex: String
+    var dateOfBirth: Date?
     var heightCentimeters: Double
     var bodyMassKg: Double
+    var goalBodyMassKg: Double?
     var activityLevel: String
+    var unitSystem: String
     var goalSummary: String
 }
 
@@ -309,4 +325,3 @@ private struct ExportAISummary: Codable {
 #Preview {
     SettingsView()
 }
-
