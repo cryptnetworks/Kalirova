@@ -60,6 +60,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T8 | S0.3 | Add or update tests for unit conversion, BMI, meal grouping, AI request payloads, and HealthKit duplicate handling. | Todo |
 | S1-T9 | S0.3 | Run SwiftPM tests and Xcode simulator build. | Todo |
 | S1-T10 | S9.2 | Rebrand project, Xcode targets, Swift package target, scheme, repository references, bundle identifier, docs, and brand assets to Kalirova. | Done |
+| S1-T11 | S0.2 | Repair automatic signing and physical iPhone deployment for the Kalirova app target. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -79,3 +80,8 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T10: required grep for legacy names returned no results.
 - S1-T10: `xcodebuild -scheme Kalirova -configuration Debug build` reached signing and failed only because no physical-device provisioning profile exists for `com.michaeldesocio.kalirova`.
 - S1-T10: `xcodebuild -scheme Kalirova -configuration Debug -destination generic/platform=iOS\ Simulator build` passed.
+- S1-T11: `xcodebuild -list` showed project `Kalirova`, targets `Kalirova` and `KalirovaTests`, and scheme `Kalirova`.
+- S1-T11: `xcrun devicectl list devices` showed `Michael’s iPhone` connected.
+- S1-T11: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
+- S1-T11: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'id=00008150-00021C341AF2401C' -configuration Debug build` passed.
+- S1-T11: `xcrun devicectl device install app --device A9BC3D31-0520-5A69-AB2D-BBC29DBCCE18 .../Kalirova.app` installed `com.michaeldesocio.kalirova` on the connected iPhone.

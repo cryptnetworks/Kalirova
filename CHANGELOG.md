@@ -27,6 +27,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Created private GitHub repository `cryptnetworks/Kalirova` and pushed `main`.
 
 ### Fixed
+- Enabled physical iPhone build and deployment by repairing automatic signing metadata and generating the Kalirova iOS development provisioning profile.
 - Corrected weekly summary test optional unwrapping.
 - Added Swift 6 concurrency annotation for the Keychain service singleton.
 - Corrected OpenAI payload preview error propagation.

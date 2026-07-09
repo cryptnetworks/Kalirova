@@ -242,9 +242,18 @@
 				TargetAttributes = {
 					AA0000000000000000000302 = {
 						CreatedOnToolsVersion = 26.0;
+						DevelopmentTeam = 426M75XSX8;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.HealthKit = {
+								enabled = 1;
+							};
+						};
 					};
 					AA0000000000000000000303 = {
 						CreatedOnToolsVersion = 26.0;
+						DevelopmentTeam = 426M75XSX8;
+						ProvisioningStyle = Automatic;
 						TestTargetID = AA0000000000000000000302;
 					};
 				};
