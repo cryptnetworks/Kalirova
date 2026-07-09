@@ -154,6 +154,7 @@ private struct AddMealView: View {
     @State private var loggedAt = Date()
     @State private var mealType: MealType = .breakfast
     @State private var customMealTypeName = ""
+    @State private var restaurantName = ""
     @State private var foodName = ""
     @State private var servingDescription = ""
     @State private var mealText = ""
@@ -166,7 +167,13 @@ private struct AddMealView: View {
     @State private var manualSodium = 0.0
     @State private var localEstimate: MealNutritionEstimate?
     @State private var aiPayloadPreview: OpenAIRequestPreview?
+    @State private var aiPrivacyPayload = ""
+    @State private var aiEstimate: OpenAIMealAnalysis?
+    @State private var selectedSource: MealSource = .manual
+    @State private var selectedConfidence: EstimateConfidence = .medium
     @State private var errorMessage: String?
+    @State private var showingAIPrivacyConfirmation = false
+    @State private var isEstimatingWithAI = false
 
     private let nutritionService = NutritionService()
     private let openAIService = OpenAIService()
@@ -175,6 +182,12 @@ private struct AddMealView: View {
         let hasFoodName = !foodName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let hasCustomMealName = mealType != .custom || !customMealTypeName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         return hasFoodName && hasCustomMealName
+    }
+
+    private var canEstimateRestaurantMeal: Bool {
+        !restaurantName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !foodName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !servingDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
@@ -196,6 +209,7 @@ private struct AddMealView: View {
                 }
 
                 Section("Food") {
+                    TextField("Restaurant name", text: $restaurantName)
                     TextField("Food item", text: $foodName)
                     TextField("Portion or measurement", text: $servingDescription)
                     TextEditor(text: $mealText)
@@ -233,24 +247,29 @@ private struct AddMealView: View {
                     }
                 }
 
-                Section("ChatGPT Preview") {
-                    Button {
-                        createAIPreview()
-                    } label: {
-                        Label("Preview Payload", systemImage: "doc.text.magnifyingglass")
-                    }
-                    .disabled(localEstimateText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                Section("ChatGPT Restaurant Estimate") {
+                    Text("Restaurant nutrition estimates may vary by preparation and portion size. Review and edit the estimate before saving.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
 
-                    if let aiPayloadPreview {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(aiPayloadPreview.purpose)
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                            ScrollView(.horizontal) {
-                                Text(aiPayloadPreview.payload)
-                                    .font(.caption.monospaced())
-                                    .textSelection(.enabled)
-                            }
+                    Button {
+                        prepareAIPrivacyConfirmation()
+                    } label: {
+                        if isEstimatingWithAI {
+                            Label("Estimating", systemImage: "hourglass")
+                        } else {
+                            Label("Estimate With ChatGPT", systemImage: "sparkles")
+                        }
+                    }
+                    .disabled(!canEstimateRestaurantMeal || isEstimatingWithAI)
+
+                    if let aiEstimate {
+                        OpenAIRestaurantEstimateSummary(analysis: aiEstimate)
+
+                        Button {
+                            applyAIEstimate(aiEstimate)
+                        } label: {
+                            Label("Apply Estimate to Form", systemImage: "square.and.pencil")
                         }
                     }
 
@@ -262,6 +281,19 @@ private struct AddMealView: View {
                 }
             }
             .navigationTitle("Add Food")
+            .sheet(isPresented: $showingAIPrivacyConfirmation) {
+                OpenAIPrivacyConfirmationSheet(
+                    preview: aiPayloadPreview,
+                    mealInformationPayload: aiPrivacyPayload,
+                    onCancel: {
+                        showingAIPrivacyConfirmation = false
+                    },
+                    onConfirm: {
+                        showingAIPrivacyConfirmation = false
+                        Task { await estimateRestaurantMeal() }
+                    }
+                )
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -279,7 +311,7 @@ private struct AddMealView: View {
     }
 
     private var localEstimateText: String {
-        [foodName, servingDescription, mealText]
+        [restaurantName, foodName, servingDescription, mealText]
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
             .joined(separator: ", ")
@@ -312,13 +344,48 @@ private struct AddMealView: View {
         manualProtein = estimate.totals.proteinGrams
         manualCarbs = estimate.totals.carbohydrateGrams
         manualFat = estimate.totals.fatGrams
+        manualFiber = estimate.totals.fiberGrams
+        manualSugar = estimate.totals.sugarGrams
+        manualSodium = estimate.totals.sodiumMilligrams
+        selectedSource = .localParser
+        selectedConfidence = estimate.confidence
     }
 
-    private func createAIPreview() {
+    private var restaurantEstimateRequest: RestaurantMealEstimateRequest {
+        RestaurantMealEstimateRequest(
+            restaurantName: restaurantName.trimmingCharacters(in: .whitespacesAndNewlines),
+            itemName: foodName.trimmingCharacters(in: .whitespacesAndNewlines),
+            portionDescription: servingDescription.trimmingCharacters(in: .whitespacesAndNewlines),
+            notes: mealText.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+    }
+
+    private func prepareAIPrivacyConfirmation() {
         do {
-            aiPayloadPreview = try openAIService.previewMealAnalysisPayload(
-                mealText: localEstimateText,
+            let request = restaurantEstimateRequest
+            aiPrivacyPayload = try openAIService.previewRestaurantMealInformation(request)
+            aiPayloadPreview = try openAIService.previewRestaurantMealEstimatePayload(
+                request: request,
                 model: settings?.openAIModel ?? "gpt-5.5"
+            )
+            errorMessage = nil
+            showingAIPrivacyConfirmation = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func estimateRestaurantMeal() async {
+        isEstimatingWithAI = true
+        defer { isEstimatingWithAI = false }
+
+        do {
+            let apiKey = try KeychainService.shared.loadOpenAIAPIKey()
+            aiEstimate = try await openAIService.estimateRestaurantMeal(
+                request: restaurantEstimateRequest,
+                model: settings?.openAIModel ?? "gpt-5.5",
+                apiKey: apiKey
             )
             errorMessage = nil
         } catch {
@@ -326,10 +393,22 @@ private struct AddMealView: View {
         }
     }
 
+    private func applyAIEstimate(_ analysis: OpenAIMealAnalysis) {
+        manualCalories = analysis.totalCalories
+        manualProtein = analysis.totalProteinGrams
+        manualCarbs = analysis.totalCarbohydrateGrams
+        manualFat = analysis.totalFatGrams
+        manualFiber = analysis.totalFiberGrams
+        manualSugar = analysis.totalSugarGrams
+        manualSodium = analysis.totalSodiumMilligrams
+        selectedSource = .openAI
+        selectedConfidence = EstimateConfidence(rawValue: analysis.confidence) ?? .low
+    }
+
     private func saveFoodItem() {
         let item = FoodItem(
             name: foodName.trimmingCharacters(in: .whitespacesAndNewlines),
-            servingDescription: servingDescription.trimmingCharacters(in: .whitespacesAndNewlines),
+            servingDescription: savedServingDescription,
             calories: manualCalories,
             proteinGrams: manualProtein,
             carbohydrateGrams: manualCarbs,
@@ -341,8 +420,11 @@ private struct AddMealView: View {
 
         if let existingMeal = matchingMealContainer() {
             existingMeal.items.append(item)
-            if !mealText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                existingMeal.notes = [existingMeal.notes, mealText]
+            existingMeal.sourceRawValue = selectedSource.rawValue
+            existingMeal.confidenceRawValue = selectedConfidence.rawValue
+
+            if !savedNotes.isEmpty {
+                existingMeal.notes = [existingMeal.notes, savedNotes]
                     .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                     .filter { !$0.isEmpty }
                     .joined(separator: "\n")
@@ -357,9 +439,9 @@ private struct AddMealView: View {
             loggedAt: mealDate,
             mealType: mealType,
             customMealTypeName: mealType == .custom ? mealDisplayTitle : "",
-            source: localEstimate == nil ? .manual : .localParser,
-            confidence: localEstimate?.confidence ?? .medium,
-            notes: mealText,
+            source: selectedSource,
+            confidence: selectedConfidence,
+            notes: savedNotes,
             items: [item]
         )
 
@@ -383,6 +465,43 @@ private struct AddMealView: View {
             return meal.customMealTypeName.normalizedMealKey == normalizedCustomName
         }
     }
+
+    private var savedServingDescription: String {
+        [restaurantName, servingDescription]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " - ")
+    }
+
+    private var savedNotes: String {
+        var lines: [String] = []
+
+        let trimmedRestaurant = restaurantName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedRestaurant.isEmpty {
+            lines.append("Restaurant: \(trimmedRestaurant)")
+        }
+
+        let trimmedNotes = mealText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedNotes.isEmpty {
+            lines.append("Notes: \(trimmedNotes)")
+        }
+
+        if selectedSource == .openAI, let aiEstimate {
+            if !aiEstimate.assumptions.isEmpty {
+                lines.append("ChatGPT assumptions: \(aiEstimate.assumptions.joined(separator: "; "))")
+            }
+
+            if !aiEstimate.sourceNotes.isEmpty {
+                lines.append("ChatGPT source notes: \(aiEstimate.sourceNotes.joined(separator: "; "))")
+            }
+
+            if !aiEstimate.disclaimer.isEmpty {
+                lines.append("ChatGPT disclaimer: \(aiEstimate.disclaimer)")
+            }
+        }
+
+        return lines.joined(separator: "\n")
+    }
 }
 
 private struct NutritionEstimateSummary: View {
@@ -397,6 +516,91 @@ private struct NutritionEstimateSummary: View {
             Text("Confidence: \(estimate.confidence.rawValue.capitalized)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct OpenAIPrivacyConfirmationSheet: View {
+    var preview: OpenAIRequestPreview?
+    var mealInformationPayload: String
+    var onCancel: () -> Void
+    var onConfirm: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("What Will Be Sent") {
+                    Text("Only the meal information below will be sent to OpenAI for this request. HealthKit data, profile data, saved meals, and API keys are not included in the prompt.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    ScrollView(.horizontal) {
+                        Text(mealInformationPayload)
+                            .font(.caption.monospaced())
+                            .textSelection(.enabled)
+                    }
+                }
+
+                if let preview {
+                    Section("Request") {
+                        LabeledContent("Endpoint", value: preview.endpoint)
+                        LabeledContent("Model", value: preview.model)
+                        Text(preview.purpose)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Section("Before You Send") {
+                    Text("Restaurant nutrition estimates may vary by preparation and portion size. The estimate will not be saved automatically.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("ChatGPT Privacy")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Send", action: onConfirm)
+                }
+            }
+        }
+    }
+}
+
+private struct OpenAIRestaurantEstimateSummary: View {
+    var analysis: OpenAIMealAnalysis
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SummaryRow(label: "Calories", value: analysis.totalCalories.kcalText)
+            SummaryRow(label: "Protein", value: "\(analysis.totalProteinGrams.formatted(.number.precision(.fractionLength(1)))) g")
+            SummaryRow(label: "Carbs", value: "\(analysis.totalCarbohydrateGrams.formatted(.number.precision(.fractionLength(1)))) g")
+            SummaryRow(label: "Fat", value: "\(analysis.totalFatGrams.formatted(.number.precision(.fractionLength(1)))) g")
+            Text("Confidence: \(analysis.confidence.capitalized)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            if !analysis.assumptions.isEmpty {
+                Text("Assumptions: \(analysis.assumptions.joined(separator: "; "))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if !analysis.sourceNotes.isEmpty {
+                Text("Source notes: \(analysis.sourceNotes.joined(separator: "; "))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if !analysis.disclaimer.isEmpty {
+                Text(analysis.disclaimer)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }

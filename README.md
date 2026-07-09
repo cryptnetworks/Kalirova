@@ -46,7 +46,7 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 - Apple Health integration: HealthKit service isolated behind async APIs.
 - Exercise calories: app-estimated calories are stored separately from device-reported calories.
 - Meals: foods are logged into local meal containers grouped by date and meal type.
-- AI: OpenAI integration is optional, isolated, and opt-in per request.
+- AI: OpenAI integration is optional, isolated, and opt-in per request, including restaurant meal estimates that show the exact outbound meal fields before sending.
 - Brand assets: Kalirova app icon, brand board, and named color assets live in the Xcode asset catalog.
 - Analytics/cloud database: none.
 

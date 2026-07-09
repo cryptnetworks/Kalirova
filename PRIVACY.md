@@ -17,11 +17,12 @@ By default, the following stay on the user's device:
 
 Only when the user opts in for a specific interaction, the app may send:
 - Meal text entered by the user.
+- Restaurant meal estimate fields entered by the user: restaurant name, food item, portion or measurement, and notes or modifications.
 - Photo-derived meal descriptions if the user chooses to use that feature in the future.
 - Nutrition targets needed for the request.
 - Date-bounded summary statistics selected for a weekly summary.
 
-Before sending, the app must show the exact payload.
+Before sending, the app must show the exact payload. Restaurant meal estimates are not saved automatically; the user must review or edit the estimate before saving.
 
 ## What Must Not Be Sent By Default
 

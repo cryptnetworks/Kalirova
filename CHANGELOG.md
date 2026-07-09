@@ -12,6 +12,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Added typed onboarding inputs for profile measurements, unit selection, goal weight, and live BMI with adult BMI category guidance.
 - Added unit-aware dashboard, workout, and body-mass metric display/input while preserving normalized metric storage.
 - Added meal containers grouped by date and meal type, with multiple food items per container and dashboard grouping.
+- Added ChatGPT restaurant meal estimates with explicit privacy confirmation, structured nutrition output, source notes, assumptions, and editable review before saving.
 - Started Sprint 0 repository foundation.
 - Added SCRUM product backlog and sprint backlog.
 - Added privacy-first project documentation.
