@@ -11,7 +11,7 @@ struct KalirovaCardStyle: ViewModifier {
             .background(material, in: RoundedRectangle(cornerRadius: radius, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(.white.opacity(0.32), lineWidth: 0.5)
+                    .stroke(KalirovaTheme.Colors.cardStroke, lineWidth: 0.5)
             }
             .shadow(color: KalirovaTheme.Shadow.card, radius: 16, x: 0, y: 8)
     }

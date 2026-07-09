@@ -47,7 +47,7 @@ struct InsightsView: View {
                             .kalirovaText(.navigation)
                         Text("Trends, progress, and local summaries.")
                             .font(.title3)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     }
 
                     Picker("Range", selection: $period) {
@@ -67,10 +67,10 @@ struct InsightsView: View {
                     trendCard
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
-                        MetricCard(title: "Avg Intake", value: summary.averageCaloriesIn.kcalText, systemImage: "fork.knife", tint: KalirovaTheme.Colors.oceanGreen)
-                        MetricCard(title: "Avg Burn", value: summary.averageCaloriesOut.kcalText, systemImage: "flame.fill", tint: .orange)
-                        MetricCard(title: "Avg Protein", value: "\(summary.averageProtein.formatted(.number.precision(.fractionLength(0)))) g", systemImage: "p.circle.fill", tint: KalirovaTheme.Colors.oceanGreen)
-                        MetricCard(title: "Adherence", value: "\(Int((summary.adherenceScore * 100).rounded()))%", systemImage: "checkmark.seal.fill", tint: KalirovaTheme.Colors.skyBlue)
+                        MetricCard(title: "Avg Intake", value: summary.averageCaloriesIn.kcalText, systemImage: "fork.knife", tint: KalirovaTheme.Colors.accentPrimary)
+                        MetricCard(title: "Avg Burn", value: summary.averageCaloriesOut.kcalText, systemImage: "flame.fill", tint: KalirovaTheme.Colors.warning)
+                        MetricCard(title: "Avg Protein", value: "\(summary.averageProtein.formatted(.number.precision(.fractionLength(0)))) g", systemImage: "p.circle.fill", tint: KalirovaTheme.Colors.accentPrimary)
+                        MetricCard(title: "Adherence", value: "\(Int((summary.adherenceScore * 100).rounded()))%", systemImage: "checkmark.seal.fill", tint: KalirovaTheme.Colors.accentSecondary)
                     }
 
                     summaryCard
@@ -94,7 +94,7 @@ struct InsightsView: View {
                     Spacer()
                     Text(period.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
 
                 if snapshots.isEmpty {
@@ -107,12 +107,12 @@ struct InsightsView: View {
                             y: .value(selectedMetric.unit, selectedMetric.value(for: snapshot))
                         )
                         .interpolationMethod(.catmullRom)
-                        .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
+                        .foregroundStyle(KalirovaTheme.Colors.accentPrimary)
                         AreaMark(
                             x: .value("Date", snapshot.date, unit: .day),
                             y: .value(selectedMetric.unit, selectedMetric.value(for: snapshot))
                         )
-                        .foregroundStyle(KalirovaTheme.Colors.skyBlue.opacity(0.12))
+                        .foregroundStyle(KalirovaTheme.Colors.chartFill)
                         PointMark(
                             x: .value("Date", snapshot.date, unit: .day),
                             y: .value(selectedMetric.unit, selectedMetric.value(for: snapshot))
@@ -135,7 +135,7 @@ struct InsightsView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 Text(summary.disclaimer)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
         }
     }
@@ -146,7 +146,7 @@ struct InsightsView: View {
                 SectionHeader(title: "Privacy Preview")
                 Text("Preview the weekly AI payload before anything leaves the device.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 Button {
                     createAIPreview()
                 } label: {
@@ -158,7 +158,7 @@ struct InsightsView: View {
                 if let aiPreview {
                     Text(aiPreview.purpose)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     ScrollView(.horizontal) {
                         Text(aiPreview.payload)
                             .font(.caption.monospaced())
@@ -169,7 +169,7 @@ struct InsightsView: View {
                 if let previewError {
                     Text(previewError)
                         .font(.footnote)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(KalirovaTheme.Colors.error)
                 }
             }
         }

@@ -26,7 +26,7 @@ struct KalirovaDashboardTile: View {
                     .kalirovaText(.cardTitle)
                 Text(value)
                     .font(.kalirovaMetric)
-                    .foregroundStyle(KalirovaTheme.Colors.deepNavy)
+                    .foregroundStyle(KalirovaTheme.Colors.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                 Text(subtitle)
@@ -39,7 +39,7 @@ struct KalirovaDashboardTile: View {
                 .font(.title2)
                 .foregroundStyle(tint)
                 .frame(width: 34, height: 34)
-                .background(tint.opacity(0.12), in: Circle())
+                .background(tint.opacity(KalirovaTheme.Opacity.iconFill), in: Circle())
                 .accessibilityHidden(true)
         }
         .kalirovaCard()
@@ -56,7 +56,7 @@ struct KalirovaInsightCard: View {
             HStack {
                 Label(title, systemImage: "sparkles")
                     .font(.kalirovaSectionTitle)
-                    .foregroundStyle(KalirovaTheme.Colors.deepNavy)
+                    .foregroundStyle(KalirovaTheme.Colors.textPrimary)
                 Spacer()
                 KalirovaIcon.image(KalirovaIcon.ai)
                     .resizable()
@@ -65,11 +65,11 @@ struct KalirovaInsightCard: View {
             }
             Text(message)
                 .font(.kalirovaBody)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .kalirovaCard(material: .ultraThinMaterial)
-        .background(KalirovaTheme.Colors.lavender.opacity(0.22), in: RoundedRectangle(cornerRadius: KalirovaRadius.large, style: .continuous))
+        .background(KalirovaTheme.Colors.subtleBrandFill, in: RoundedRectangle(cornerRadius: KalirovaRadius.large, style: .continuous))
     }
 }
 
@@ -80,16 +80,17 @@ struct KalirovaSearchField: View {
     var body: some View {
         HStack(spacing: KalirovaSpacing.sm) {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(KalirovaTheme.Colors.slate)
+                .foregroundStyle(KalirovaTheme.Colors.textMuted)
             TextField(placeholder, text: $text)
                 .textInputAutocapitalization(.words)
+                .foregroundStyle(KalirovaTheme.Colors.inputText)
         }
         .padding(.horizontal, KalirovaSpacing.lg)
         .padding(.vertical, 13)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.large, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: KalirovaRadius.large, style: .continuous)
-                .stroke(KalirovaTheme.Colors.softGray, lineWidth: 1)
+                .stroke(KalirovaTheme.Colors.border, lineWidth: 1)
         }
     }
 }

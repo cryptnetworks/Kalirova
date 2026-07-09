@@ -68,6 +68,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T16 | S0.4 | Add CI, security scanning, Dependabot, repository templates, security policy, and wiki sync documentation. | Done |
 | S1-T17 | S10.2 | Remove iCloud capability from local development signing and guard CloudKit-backed persistence behind a paid-team build flag. | Done |
 | S1-T18 | S0.4 | Optimize GitHub Actions triggers, path-aware jobs, concurrency, caching, and CI efficiency documentation. | Done |
+| S1-T19 | S9.4 | Audit and unify the app-wide color system, fix low-contrast text states, and validate Light/Dark Mode readability. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -140,3 +141,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T18: `swift test` passed with 9 XCTest tests and 0 failures.
 - S1-T18: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
 - S1-T18: `xcodebuild test -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17'` passed with 7 tests and 0 failures.
+- S1-T19: Hardcoded color audit found one-off `.secondary`, `.red`, `.orange`, `.white`, white stroke, and background opacity usages across shared components and major screens; the follow-up scan returned no direct matches in app views.
+- S1-T19: Custom semantic accent/status contrast check showed Light Mode ratios from 5.50:1 to 6.70:1 on white and Dark Mode ratios from 8.38:1 to 11.94:1 on a dark system-background approximation.
+- S1-T19: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
+- S1-T19: `swift test` passed with 9 XCTest tests and 0 failures.

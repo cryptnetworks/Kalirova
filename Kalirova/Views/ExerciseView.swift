@@ -47,7 +47,7 @@ struct ExerciseView: View {
                     if let importError {
                         Text(importError)
                             .font(.footnote)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(KalirovaTheme.Colors.error)
                             .padding()
                             .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
@@ -55,7 +55,7 @@ struct ExerciseView: View {
                     if let importStatus {
                         Text(importStatus)
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                             .padding()
                             .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
@@ -120,14 +120,14 @@ struct ExerciseView: View {
             HStack(spacing: 18) {
                 Image(systemName: "figure.run.circle.fill")
                     .font(.system(size: 46))
-                    .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
+                    .foregroundStyle(KalirovaTheme.Colors.accentPrimary)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Move data, clearly.")
                         .font(.kalirovaSectionTitle)
-                        .foregroundStyle(KalirovaTheme.Colors.deepNavy)
+                        .foregroundStyle(KalirovaTheme.Colors.textPrimary)
                     Text("Compare Apple Watch calories with Kalirova’s estimate, including heart rate, duration, and distance when available.")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
             }
         }
@@ -316,7 +316,7 @@ private struct AddWorkoutView: View {
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                 Text(unit)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
         }
     }

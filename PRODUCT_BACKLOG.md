@@ -232,6 +232,17 @@ Acceptance criteria:
 - Home, Meals, Activity, Insights, Profile, and Onboarding use the shared design system instead of duplicated styling.
 - UI remains built with native SwiftUI controls, supports Dynamic Type and VoiceOver, and avoids custom controls that fight system behavior.
 
+### Story S9.4: Maintain accessible semantic colors
+As a user, I want Kalirova to remain readable in Light Mode, Dark Mode, and accessibility settings so every metric, control, and status message is usable.
+
+Acceptance criteria:
+- App-wide UI colors are chosen from centralized semantic theme tokens instead of one-off screen colors.
+- Text uses semantic roles for primary, secondary, muted, button, selected, input, success, warning, and error states.
+- Startup/onboarding, dashboard, meals, activity, insights, profile/settings, cards, buttons, empty states, charts, and badges use the same color system.
+- Normal text targets at least 4.5:1 contrast and large text or non-text controls target at least 3:1 contrast.
+- Dark Mode and Light Mode both use intentional backgrounds, surfaces, borders, and status colors.
+- Raw brand colors remain available for decorative brand moments but are not used as body text when contrast would be weak.
+
 ### Story S7.2: Generate optional AI weekly summary
 As a user, I want optional coaching-style insights based on a bounded weekly summary.
 

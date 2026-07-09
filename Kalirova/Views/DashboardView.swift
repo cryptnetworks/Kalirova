@@ -61,7 +61,7 @@ struct DashboardView: View {
                         MetricCard(title: "Nutrition", value: totals.caloriesIn.kcalText, systemImage: "fork.knife", tint: KalirovaTheme.Colors.nutrition)
                         MetricCard(title: "Exercise", value: totals.appCaloriesOut.kcalText, systemImage: "flame.fill", tint: KalirovaTheme.Colors.exercise)
                         MetricCard(title: "Sleep", value: "\(totals.sleepHours.formatted(.number.precision(.fractionLength(1)))) hr", systemImage: "bed.double.fill", tint: KalirovaTheme.Colors.violet)
-                        MetricCard(title: "Hydration", value: "\(totals.waterLiters.formatted(.number.precision(.fractionLength(1)))) L", systemImage: "drop.fill", tint: KalirovaTheme.Colors.skyBlue)
+                        MetricCard(title: "Hydration", value: "\(totals.waterLiters.formatted(.number.precision(.fractionLength(1)))) L", systemImage: "drop.fill", tint: KalirovaTheme.Colors.accentSecondary)
                     }
 
                     MacroPanel(protein: totals.protein, carbohydrates: totals.carbohydrates, fat: totals.fat)
@@ -88,12 +88,12 @@ struct DashboardView: View {
                         .kalirovaText(.navigation)
                     Text("Track. Understand. Elevate.")
                         .font(.kalirovaCaption)
-                        .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
+                        .foregroundStyle(KalirovaTheme.Colors.success)
                 }
             }
             Text("Here’s today’s health snapshot.")
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
@@ -102,14 +102,14 @@ struct DashboardView: View {
     private func todaySummary(totals: DashboardTotals, calorieGoal: Double, caloriesRemaining: Double) -> some View {
         PremiumCard {
             HStack(alignment: .center, spacing: 20) {
-                ProgressRing(progress: min(max((calorieGoal - caloriesRemaining) / max(calorieGoal, 1), 0), 1), tint: KalirovaTheme.Colors.oceanGreen) {
+                ProgressRing(progress: min(max((calorieGoal - caloriesRemaining) / max(calorieGoal, 1), 0), 1), tint: KalirovaTheme.Colors.accentPrimary) {
                     VStack(spacing: 2) {
                         Text(abs(caloriesRemaining).formatted(.number.precision(.fractionLength(0))))
                             .font(.system(.title, design: .rounded).weight(.bold))
                             .minimumScaleFactor(0.7)
                         Text(caloriesRemaining >= 0 ? "left" : "over")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     }
                 }
                 .frame(width: 116, height: 116)
@@ -119,7 +119,7 @@ struct DashboardView: View {
                         .font(.headline)
                     Text(caloriesRemaining >= 0 ? "You’re within today’s plan." : "You’re above today’s plan.")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     HStack {
                         SummaryPillMini(title: "In", value: totals.caloriesIn.kcalText)
                         SummaryPillMini(title: "Out", value: totals.appCaloriesOut.kcalText)
@@ -141,7 +141,7 @@ struct DashboardView: View {
                     if let latest = totals.weightKg {
                         Text(latest.formattedWeight(unitSystem: unitSystem))
                             .font(.headline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     }
                 }
 
@@ -159,7 +159,7 @@ struct DashboardView: View {
                             x: .value("Date", metric.loggedAt, unit: .day),
                             y: .value("Weight", displayWeightValue(metric.value))
                         )
-                        .foregroundStyle(KalirovaTheme.Colors.skyBlue.opacity(0.12))
+                        .foregroundStyle(KalirovaTheme.Colors.chartFill)
                         PointMark(
                             x: .value("Date", metric.loggedAt, unit: .day),
                             y: .value("Weight", displayWeightValue(metric.value))
@@ -187,7 +187,7 @@ struct DashboardView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(group.date.formatted(date: .abbreviated, time: .omitted))
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                             ForEach(group.meals) { meal in
                                 MealContainerRow(meal: meal, showsDate: false)
                             }
@@ -239,7 +239,7 @@ struct PremiumCard<Content: View>: View {
             .background(.thinMaterial, in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous)
-                    .stroke(.white.opacity(0.32), lineWidth: 0.5)
+                    .stroke(KalirovaTheme.Colors.cardStroke, lineWidth: 0.5)
             }
             .shadow(color: KalirovaTheme.Shadow.card, radius: 16, x: 0, y: 8)
     }
@@ -253,7 +253,7 @@ struct ProgressRing<Center: View>: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(.secondary.opacity(0.18), lineWidth: 12)
+                .stroke(KalirovaTheme.Colors.controlTrack, lineWidth: 12)
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(tint.gradient, style: StrokeStyle(lineWidth: 12, lineCap: .round))
@@ -268,7 +268,7 @@ struct MetricCard: View {
     var title: String
     var value: String
     var systemImage: String
-    var tint: Color = KalirovaTheme.Colors.oceanGreen
+    var tint: Color = KalirovaTheme.Colors.accentPrimary
 
     var body: some View {
         PremiumCard {
@@ -279,12 +279,12 @@ struct MetricCard: View {
                     .accessibilityHidden(true)
                 Text(value)
                     .font(.kalirovaMetric)
-                    .foregroundStyle(KalirovaTheme.Colors.deepNavy)
+                    .foregroundStyle(KalirovaTheme.Colors.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                 Text(title)
                     .font(.kalirovaCardTitle)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
         }
         .accessibilityElement(children: .combine)
@@ -299,13 +299,13 @@ private struct SummaryPillMini: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             Text(value)
                 .font(.subheadline.weight(.semibold))
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 10)
-        .background(.background.opacity(0.6), in: Capsule())
+        .background(KalirovaTheme.Colors.surfaceSubtle.opacity(KalirovaTheme.Opacity.capsuleFill), in: Capsule())
     }
 }
 
@@ -322,9 +322,9 @@ private struct MacroPanel: View {
         PremiumCard {
             VStack(alignment: .leading, spacing: 14) {
                 SectionHeader(title: "Nutrition")
-                MacroBar(label: "Protein", value: protein, total: total, tint: KalirovaTheme.Colors.oceanGreen)
-                MacroBar(label: "Carbs", value: carbohydrates, total: total, tint: KalirovaTheme.Colors.skyBlue)
-                MacroBar(label: "Fat", value: fat, total: total, tint: .orange)
+                MacroBar(label: "Protein", value: protein, total: total, tint: KalirovaTheme.Colors.accentPrimary)
+                MacroBar(label: "Carbs", value: carbohydrates, total: total, tint: KalirovaTheme.Colors.accentSecondary)
+                MacroBar(label: "Fat", value: fat, total: total, tint: KalirovaTheme.Colors.warning)
             }
         }
     }
@@ -342,7 +342,7 @@ private struct MacroBar: View {
                 Text(label)
                 Spacer()
                 Text("\(value.formatted(.number.precision(.fractionLength(0)))) g")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
             ProgressView(value: value, total: total)
                 .tint(tint)
@@ -357,7 +357,7 @@ struct SectionHeader: View {
     var body: some View {
         Text(title)
             .font(.kalirovaSectionTitle)
-            .foregroundStyle(KalirovaTheme.Colors.deepNavy)
+            .foregroundStyle(KalirovaTheme.Colors.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -393,7 +393,7 @@ struct WorkoutSummaryRow: View {
                         .font(.caption.weight(.semibold))
                         .padding(.vertical, 4)
                         .padding(.horizontal, 8)
-                        .background(confidenceColor.opacity(0.15), in: Capsule())
+                        .background(confidenceColor.opacity(KalirovaTheme.Opacity.confidenceFill), in: Capsule())
                         .foregroundStyle(confidenceColor)
                 }
 
@@ -420,9 +420,9 @@ struct WorkoutSummaryRow: View {
 
     private var confidenceColor: Color {
         switch workout.estimateConfidence {
-        case .high: KalirovaTheme.Colors.oceanGreen
-        case .medium: .orange
-        case .low: .red
+        case .high: KalirovaTheme.Colors.success
+        case .medium: KalirovaTheme.Colors.warning
+        case .low: KalirovaTheme.Colors.error
         }
     }
 }
@@ -435,7 +435,7 @@ private struct WorkoutValue: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             Text(value)
                 .font(.subheadline.weight(.semibold))
         }

@@ -29,9 +29,11 @@ Views use native tab navigation, grouped forms/lists, card-based summaries, SF S
 ### Design System
 
 The `Kalirova/DesignSystem` module centralizes the supplied visual language:
-- `Theme.swift` maps namespaced asset colors to semantic product roles such as primary, nutrition, exercise, AI, grouped background, and card background.
+- `Theme.swift` maps namespaced asset colors and adaptive system colors to semantic roles such as background, surface, text, accent, success, warning, error, borders, dividers, inputs, buttons, charts, nutrition, exercise, and AI.
 - `Spacing.swift`, `Typography.swift`, `CardStyles.swift`, `ButtonStyles.swift`, and `Animations.swift` define reusable layout, type, surface, action, and motion tokens.
 - `Icons.swift` and `Components.swift` expose shared brand marks, dashboard tiles, insight cards, and search fields so screens do not duplicate styling.
+
+Text and status colors should use semantic roles instead of raw brand colors. Raw palette colors remain available for brand art and decorative accents, while app text, selected states, errors, warnings, charts, and controls use adaptive tokens that remain readable in Light Mode and Dark Mode.
 
 ### SwiftData Persistence
 

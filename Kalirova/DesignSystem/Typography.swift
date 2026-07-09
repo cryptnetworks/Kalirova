@@ -30,23 +30,23 @@ struct KalirovaTextStyle: ViewModifier {
     func body(content: Content) -> some View {
         switch style {
         case .largeMetric:
-            content.font(.kalirovaLargeMetric).foregroundStyle(KalirovaTheme.Colors.deepNavy)
+            content.font(.kalirovaLargeMetric).foregroundStyle(KalirovaTheme.Colors.textPrimary)
         case .metric:
-            content.font(.kalirovaMetric).foregroundStyle(KalirovaTheme.Colors.deepNavy)
+            content.font(.kalirovaMetric).foregroundStyle(KalirovaTheme.Colors.textPrimary)
         case .sectionTitle:
-            content.font(.kalirovaSectionTitle).foregroundStyle(KalirovaTheme.Colors.deepNavy)
+            content.font(.kalirovaSectionTitle).foregroundStyle(KalirovaTheme.Colors.textPrimary)
         case .cardTitle:
-            content.font(.kalirovaCardTitle).foregroundStyle(.secondary)
+            content.font(.kalirovaCardTitle).foregroundStyle(KalirovaTheme.Colors.textSecondary)
         case .caption:
-            content.font(.kalirovaCaption).foregroundStyle(.secondary)
+            content.font(.kalirovaCaption).foregroundStyle(KalirovaTheme.Colors.textSecondary)
         case .body:
-            content.font(.kalirovaBody).foregroundStyle(.primary)
+            content.font(.kalirovaBody).foregroundStyle(KalirovaTheme.Colors.textPrimary)
         case .navigation:
-            content.font(.kalirovaNavigation).foregroundStyle(KalirovaTheme.Colors.deepNavy)
+            content.font(.kalirovaNavigation).foregroundStyle(KalirovaTheme.Colors.textPrimary)
         case .button:
             content.font(.kalirovaButton)
         case .chartLabel:
-            content.font(.kalirovaChartLabel).foregroundStyle(.secondary)
+            content.font(.kalirovaChartLabel).foregroundStyle(KalirovaTheme.Colors.textSecondary)
         }
     }
 }

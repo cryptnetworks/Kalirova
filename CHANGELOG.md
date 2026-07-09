@@ -33,6 +33,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Created private GitHub repository `cryptnetworks/Kalirova` and pushed `main`.
 
 ### Fixed
+- Unified app-wide colors behind semantic theme tokens, replaced low-contrast text/status colors, and aligned onboarding, dashboard, meals, activity, insights, profile, cards, buttons, charts, and empty states with Light/Dark Mode readable colors.
 - Optimized GitHub Actions to skip macOS iOS build/test jobs for docs-only changes, remove security scans from every push, cache Swift Package Manager state, and keep wiki sync scoped to wiki docs.
 - Optimized dashboard and insight aggregation to avoid repeated filtering/sorting during SwiftUI recomposition, added cancellable AI estimate and HealthKit import tasks, skipped duplicate imported workouts before insertion, and added privacy-safe diagnostics for lifecycle, persistence, HealthKit, and OpenAI request status.
 - Removed iCloud/CloudKit capability and entitlement keys from local development builds, preserving CloudKit-backed persistence behind `ENABLE_ICLOUD_BACKUP` for future paid Apple Developer account builds.

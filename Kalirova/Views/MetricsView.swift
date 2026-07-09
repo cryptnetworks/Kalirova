@@ -25,11 +25,11 @@ struct MetricsView: View {
                         }
                         Text(metric.loggedAt, format: .dateTime.month().day().hour().minute())
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                         if !metric.note.isEmpty {
                             Text(metric.note)
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                         }
                     }
                     .padding(.vertical, 4)

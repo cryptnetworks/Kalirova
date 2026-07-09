@@ -112,7 +112,7 @@ struct MealContainerRow: View {
                         if showsDate {
                             Text(meal.loggedAt, style: .date)
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                         }
                     }
 
@@ -125,7 +125,7 @@ struct MealContainerRow: View {
                 if meal.items.isEmpty {
                     Text("No food items")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 } else {
                     VStack(spacing: 10) {
                         ForEach(meal.items) { item in
@@ -140,7 +140,7 @@ struct MealContainerRow: View {
                     Label(meal.source.displayName, systemImage: "tag")
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
         }
         .accessibilityElement(children: .combine)
@@ -168,16 +168,16 @@ private struct FoodItemCard: View {
                 if !item.servingDescription.isEmpty {
                     Text(item.servingDescription)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
             }
             Spacer()
             Text(item.calories.kcalText)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
         }
         .padding(12)
-        .background(.background.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(KalirovaTheme.Colors.surfaceSubtle.opacity(KalirovaTheme.Opacity.elevatedFill), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
@@ -233,7 +233,7 @@ private struct AddMealView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ProgressView(value: Double(step.index + 1), total: Double(MealEntryStep.allCases.count))
-                    .tint(KalirovaTheme.Colors.oceanGreen)
+                    .tint(KalirovaTheme.Colors.accentPrimary)
                     .padding(.horizontal)
 
                 TabView(selection: $step) {
@@ -373,7 +373,7 @@ private struct AddMealView: View {
                 if let errorMessage {
                     Text(errorMessage)
                         .font(.footnote)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(KalirovaTheme.Colors.error)
                 }
             }
         }
@@ -445,7 +445,7 @@ private struct AddMealView: View {
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                 Text(unit)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
         }
         .padding(.vertical, 6)
@@ -652,9 +652,9 @@ private struct GuidedMealStep<Content: View>: View {
                 Label(title, systemImage: symbol)
                     .kalirovaText(.navigation)
                     .labelStyle(.titleAndIcon)
-                Text(subtitle)
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+            Text(subtitle)
+                .font(.title3)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 content
             }
             .padding()
@@ -681,7 +681,7 @@ private struct SelectableMealTypeCard: View {
             }
             .padding()
             .background(isSelected ? AnyShapeStyle(KalirovaTheme.Gradients.brand) : AnyShapeStyle(.thinMaterial), in: RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous))
-            .foregroundStyle(isSelected ? .white : .primary)
+            .foregroundStyle(isSelected ? KalirovaTheme.Colors.selectedText : KalirovaTheme.Colors.textPrimary)
         }
         .buttonStyle(.plain)
     }
@@ -712,10 +712,10 @@ private struct NutritionReviewCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(name.isEmpty ? "Food item" : name)
                         .font(.kalirovaMetric)
-                        .foregroundStyle(KalirovaTheme.Colors.deepNavy)
+                        .foregroundStyle(KalirovaTheme.Colors.textPrimary)
                     if !serving.isEmpty {
                         Text(serving)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     }
                 }
 
@@ -745,7 +745,7 @@ private struct OpenAIPrivacyConfirmationSheet: View {
                 Section("What Will Be Sent") {
                     Text("Only the meal information below will be sent to OpenAI for this request. HealthKit data, profile data, saved meals, and API keys are not included in the prompt.")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
 
                     ScrollView(.horizontal) {
                         Text(mealInformationPayload)
@@ -760,14 +760,14 @@ private struct OpenAIPrivacyConfirmationSheet: View {
                         LabeledContent("Model", value: preview.model)
                         Text(preview.purpose)
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     }
                 }
 
                 Section("Before You Send") {
                     Text("Restaurant nutrition estimates may vary by preparation and portion size. The estimate will not be saved automatically.")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
             }
             .navigationTitle("ChatGPT Privacy")
@@ -791,7 +791,7 @@ private struct OpenAIRestaurantEstimateSummary: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("AI Estimate")
                     .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 Text(analysis.totalCalories.kcalText)
                     .font(.system(.largeTitle, design: .rounded).weight(.bold))
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
@@ -803,17 +803,17 @@ private struct OpenAIRestaurantEstimateSummary: View {
                 if !analysis.assumptions.isEmpty {
                     Text("Assumptions: \(analysis.assumptions.joined(separator: "; "))")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
                 if !analysis.sourceNotes.isEmpty {
                     Text("Source notes: \(analysis.sourceNotes.joined(separator: "; "))")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
                 if !analysis.disclaimer.isEmpty {
                     Text(analysis.disclaimer)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
             }
         }
@@ -828,13 +828,13 @@ private struct SummaryPillMini: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             Text(value)
                 .font(.subheadline.weight(.semibold))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
-        .background(.background.opacity(0.55), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(KalirovaTheme.Colors.surfaceSubtle.opacity(KalirovaTheme.Opacity.elevatedFill), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 

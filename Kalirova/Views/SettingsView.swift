@@ -52,14 +52,14 @@ struct SettingsView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "person.crop.circle.fill")
                             .font(.system(size: 52))
-                            .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
+                            .foregroundStyle(KalirovaTheme.Colors.accentPrimary)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Kalirova Profile")
                                 .font(.kalirovaSectionTitle)
-                                .foregroundStyle(KalirovaTheme.Colors.deepNavy)
+                                .foregroundStyle(KalirovaTheme.Colors.textPrimary)
                             Text(profileSummary)
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                         }
                     }
                     .padding(.vertical, 8)
@@ -91,7 +91,7 @@ struct SettingsView: View {
 
                 Section("Notifications") {
                     Label("Notification preferences are not enabled yet.", systemImage: "bell")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
 
                 Section("HealthKit") {
@@ -103,7 +103,7 @@ struct SettingsView: View {
                     }
                     Text(healthKitService.authorizationStatusText)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
 
                 Section("AI") {
@@ -118,8 +118,8 @@ struct SettingsView: View {
                     if let maskedAPIKey {
                         Label("Saved key: \(maskedAPIKey)", systemImage: "checkmark.seal")
                             .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel("OpenAI API key is saved")
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
+                            .accessibilityLabel("OpenAI API key is saved")
                     }
                     VStack(spacing: 10) {
                         Button {
@@ -155,7 +155,7 @@ struct SettingsView: View {
                     Label("API keys stay in Keychain", systemImage: "key")
                     Text(SummaryService.wellnessDisclaimer)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
 
                 Section("iCloud") {
@@ -166,13 +166,13 @@ struct SettingsView: View {
                     .disabled(!PersistenceService.isICloudBackupCapabilityEnabled)
                     Text(iCloudBackupDescription)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     Label(iCloudBackupService.availabilityText, systemImage: iCloudBackupService.isAvailable ? "icloud" : "icloud.slash")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     Label("Last backup: \(iCloudBackupService.formattedLastBackup())", systemImage: "clock")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     Button {
                         backUpNow()
                     } label: {
@@ -181,12 +181,12 @@ struct SettingsView: View {
                     .disabled(!PersistenceService.isICloudBackupCapabilityEnabled || !iCloudBackupEnabled || !iCloudBackupService.isAvailable)
                     Text("OpenAI API keys, logs, caches, debug data, and OpenAI request data are not included in iCloud backup.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
 
                 Section("Appearance") {
                     Label("Uses system appearance, Dynamic Type, and high-contrast settings.", systemImage: "paintbrush")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 }
 
                 Section("Developer") {
@@ -205,7 +205,7 @@ struct SettingsView: View {
                     Section("Status") {
                         Text(statusMessage)
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     }
                 }
             }

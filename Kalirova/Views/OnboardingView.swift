@@ -36,7 +36,7 @@ struct OnboardingView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ProgressView(value: Double(step.index + 1), total: Double(OnboardingStep.allCases.count))
-                    .tint(KalirovaTheme.Colors.oceanGreen)
+                    .tint(KalirovaTheme.Colors.accentPrimary)
                     .padding(.horizontal)
                     .accessibilityLabel("Onboarding progress")
 
@@ -80,7 +80,7 @@ struct OnboardingView: View {
                 Label("You can change these choices later in Profile.", systemImage: "person.crop.circle")
             }
             .font(.body)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -178,7 +178,7 @@ struct OnboardingView: View {
 
                 Text(heightSummary)
                     .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
         }
     }
@@ -243,7 +243,7 @@ struct OnboardingView: View {
                 .frame(height: 180)
                 Text(goalWeightSummary)
                     .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
             }
         }
     }
@@ -256,7 +256,7 @@ struct OnboardingView: View {
                     .contentTransition(.numericText())
                 Text("calories per day")
                     .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                 Stepper("Adjust calories", value: $dailyCalories, in: 1_200...4_500, step: 50)
                     .labelsHidden()
                     .accessibilityLabel("Adjust daily calories")
@@ -280,12 +280,12 @@ struct OnboardingView: View {
 
                 Text(healthKitService.authorizationStatusText)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(KalirovaTheme.Colors.textSecondary)
 
                 if let healthKitError {
                     Text(healthKitError)
                         .font(.footnote)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(KalirovaTheme.Colors.error)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -589,7 +589,7 @@ private struct OnboardingQuestion<Content: View>: View {
             VStack(alignment: .leading, spacing: 24) {
                 Image(systemName: icon)
                     .font(.system(size: 44, weight: .semibold))
-                    .foregroundStyle(KalirovaTheme.Colors.oceanGreen)
+                    .foregroundStyle(KalirovaTheme.Colors.accentPrimary)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -598,7 +598,7 @@ private struct OnboardingQuestion<Content: View>: View {
                         .fixedSize(horizontal: false, vertical: true)
                     Text(subtitle)
                         .font(.title3)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -623,7 +623,7 @@ private struct SelectableCard: View {
             HStack(spacing: 14) {
                 Image(systemName: systemImage)
                     .font(.title2)
-                    .foregroundStyle(isSelected ? .white : KalirovaTheme.Colors.oceanGreen)
+                    .foregroundStyle(isSelected ? KalirovaTheme.Colors.selectedText : KalirovaTheme.Colors.accentPrimary)
                     .frame(width: 36, height: 36)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -631,18 +631,18 @@ private struct SelectableCard: View {
                         .font(.headline)
                     Text(subtitle)
                         .font(.subheadline)
-                        .foregroundStyle(isSelected ? .white.opacity(0.85) : .secondary)
+                        .foregroundStyle(isSelected ? KalirovaTheme.Colors.selectedText.opacity(KalirovaTheme.Opacity.selectedSecondaryText) : KalirovaTheme.Colors.textSecondary)
                 }
                 Spacer()
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? .white : .secondary)
+                    .foregroundStyle(isSelected ? KalirovaTheme.Colors.selectedText : KalirovaTheme.Colors.textSecondary)
             }
             .padding()
             .background {
                 RoundedRectangle(cornerRadius: KalirovaRadius.xlarge, style: .continuous)
                     .fill(isSelected ? AnyShapeStyle(KalirovaTheme.Gradients.brand) : AnyShapeStyle(.thinMaterial))
             }
-            .foregroundStyle(isSelected ? .white : .primary)
+            .foregroundStyle(isSelected ? KalirovaTheme.Colors.selectedText : KalirovaTheme.Colors.textPrimary)
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
@@ -659,7 +659,7 @@ struct BMICard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("BMI")
                         .font(.headline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     Text(estimate?.value.formatted(.number.precision(.fractionLength(1))) ?? "--")
                         .font(.system(size: 48, weight: .bold, design: .rounded))
                         .contentTransition(.numericText())
@@ -690,11 +690,11 @@ struct BMICard: View {
     }
 
     private var statusColor: Color {
-        guard let value = estimate?.value else { return .secondary }
-        if value < 18.5 { return KalirovaTheme.Colors.skyBlue }
-        if value < 25 { return KalirovaTheme.Colors.oceanGreen }
-        if value < 30 { return .orange }
-        return .red
+        guard let value = estimate?.value else { return KalirovaTheme.Colors.textSecondary }
+        if value < 18.5 { return KalirovaTheme.Colors.accentSecondary }
+        if value < 25 { return KalirovaTheme.Colors.success }
+        if value < 30 { return KalirovaTheme.Colors.warning }
+        return KalirovaTheme.Colors.error
     }
 }
 

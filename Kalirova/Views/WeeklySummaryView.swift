@@ -42,7 +42,7 @@ struct WeeklySummaryView: View {
                             .font(.body)
                         Text(summary.disclaimer)
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                     }
                     .padding()
                     .background(.thinMaterial)
@@ -66,7 +66,7 @@ struct WeeklySummaryView: View {
                         if let aiPreview {
                             Text(aiPreview.purpose)
                                 .font(.footnote)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(KalirovaTheme.Colors.textSecondary)
                             ScrollView(.horizontal) {
                                 Text(aiPreview.payload)
                                     .font(.caption.monospaced())
@@ -77,7 +77,7 @@ struct WeeklySummaryView: View {
                         if let previewError {
                             Text(previewError)
                                 .font(.footnote)
-                                .foregroundStyle(.red)
+                                .foregroundStyle(KalirovaTheme.Colors.error)
                         }
                     }
                     .padding()
@@ -110,4 +110,3 @@ struct WeeklySummaryView: View {
 #Preview {
     WeeklySummaryView()
 }
-

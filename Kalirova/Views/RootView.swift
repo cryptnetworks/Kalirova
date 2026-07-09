@@ -32,7 +32,7 @@ struct MainTabView: View {
             SettingsView()
                 .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
-        .tint(KalirovaTheme.Colors.oceanGreen)
+        .tint(KalirovaTheme.Colors.accentPrimary)
     }
 }
 
