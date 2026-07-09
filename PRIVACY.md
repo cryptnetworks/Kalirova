@@ -62,6 +62,8 @@ Kalirova does not sell health data or share health data with third-party analyti
 
 API keys must be stored in Keychain or provided by a production backend token proxy. API keys, tokens, local config, and secrets must never be committed.
 
+Error handling and diagnostics are sanitized. Kalirova logs high-level error titles, IDs, and source areas only; it does not log API keys, tokens, meal contents, HealthKit samples, weight values, or other personal health details.
+
 ## Disclaimer
 
 This app is for wellness tracking only and is not medical advice.

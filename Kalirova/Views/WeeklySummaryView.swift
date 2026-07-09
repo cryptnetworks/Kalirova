@@ -9,7 +9,7 @@ struct WeeklySummaryView: View {
     @Query private var settings: [AppSettings]
 
     @State private var aiPreview: OpenAIRequestPreview?
-    @State private var previewError: String?
+    @State private var previewError: AppError?
 
     private let summaryService = SummaryService()
     private let privacyConsentService = PrivacyConsentService()
@@ -75,9 +75,9 @@ struct WeeklySummaryView: View {
                         }
 
                         if let previewError {
-                            Text(previewError)
-                                .font(.footnote)
-                                .foregroundStyle(KalirovaTheme.Colors.error)
+                            AppErrorBanner(error: previewError) {
+                                self.previewError = nil
+                            }
                         }
                     }
                     .padding()
@@ -102,7 +102,13 @@ struct WeeklySummaryView: View {
             )
             previewError = nil
         } catch {
-            previewError = error.localizedDescription
+            let appError = ErrorMessageMapper.map(
+                error,
+                fallback: .decodingFailed(context: "Weekly AI payload preview"),
+                technicalContext: "Weekly summary AI payload preview"
+            )
+            AppErrorLogger.log(appError, source: "Weekly summary AI preview")
+            previewError = appError
         }
     }
 }

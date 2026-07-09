@@ -7,6 +7,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 ## [Unreleased]
 
 ### Added
+- Added shared accessible error handling with `AppError`, sanitized error mapping/logging, reusable banners, inline validation, alert helpers, and focused mapper tests.
 - Added CI efficiency documentation covering path-aware workflows, caching policy, manual runs, and Actions minute savings estimates.
 - Added performance documentation covering optimized code paths, local validation commands, and recommended Xcode Instruments passes.
 - Added GitHub Actions CI, security scanning, wiki sync, Dependabot configuration, repository issue/PR templates, `SECURITY.md`, `CONTRIBUTING.md`, and wiki-ready docs under `docs/wiki/`.
@@ -33,6 +34,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Created private GitHub repository `cryptnetworks/Kalirova` and pushed `main`.
 
 ### Fixed
+- Replaced silent save/delete failures and raw error strings across onboarding, settings, API key setup, AI Search, meals, workouts, weight/metrics, HealthKit import, analytics previews, export, iCloud backup, and destructive local-data deletion with clear user-facing recovery messages.
 - Hardened wiki sync so an unavailable GitHub Wiki remote exits with an actionable warning instead of creating or updating a fallback branch in the main repository.
 - Updated GitHub Actions dependencies to current stable versions, grouped future Dependabot action updates, and documented the validated Xcode/Swift toolchain.
 - Fixed Settings/Profile usability by adding keyboard dismissal for OpenAI API key entry and a validated username edit flow that persists to the local profile without resetting user data or Keychain secrets.

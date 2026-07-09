@@ -6,6 +6,7 @@ struct MetricsView: View {
     @Query(sort: \HealthMetricEntry.loggedAt, order: .reverse) private var metrics: [HealthMetricEntry]
     @Query private var settings: [AppSettings]
     @State private var showingAddMetric = false
+    @State private var activeError: AppError?
 
     private var unitSystem: UnitSystem {
         settings.first?.unitSystem ?? .metric
@@ -42,6 +43,7 @@ struct MetricsView: View {
                 }
             }
             .navigationTitle("Metrics")
+            .appErrorAlert(error: $activeError)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -59,7 +61,13 @@ struct MetricsView: View {
 
     private func deleteMetrics(at offsets: IndexSet) {
         offsets.map { metrics[$0] }.forEach(modelContext.delete)
-        try? modelContext.save()
+        do {
+            try modelContext.saveChanges(context: "Metric deletion")
+        } catch {
+            let appError = ErrorMessageMapper.map(error, fallback: .deleteFailed(context: "Metric"), technicalContext: "Delete metrics")
+            AppErrorLogger.log(appError, source: "Metrics delete")
+            activeError = appError
+        }
     }
 
     private func icon(for type: MetricType) -> String {
@@ -96,6 +104,7 @@ private struct AddMetricView: View {
     @State private var value = 0.0
     @State private var unit = "kg"
     @State private var note = ""
+    @State private var activeError: AppError?
 
     var body: some View {
         NavigationStack {
@@ -123,6 +132,14 @@ private struct AddMetricView: View {
                     TextField("Unit", text: $unit)
                     TextField("Note", text: $note, axis: .vertical)
                 }
+
+                if let activeError {
+                    Section("Needs Attention") {
+                        AppErrorBanner(error: activeError) {
+                            self.activeError = nil
+                        }
+                    }
+                }
             }
             .navigationTitle("Add Metric")
             .onAppear {
@@ -135,15 +152,22 @@ private struct AddMetricView: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        saveMetric()
-                        dismiss()
+                        do {
+                            try validateMetric()
+                            try saveMetric()
+                            dismiss()
+                        } catch {
+                            let appError = ErrorMessageMapper.map(error, fallback: .saveFailed(context: "Metric"), technicalContext: "Save metric")
+                            AppErrorLogger.log(appError, source: "Metrics save")
+                            activeError = appError
+                        }
                     }
                 }
             }
         }
     }
 
-    private func saveMetric() {
+    private func saveMetric() throws {
         let normalizedValue: Double
         let normalizedUnit: String
 
@@ -163,7 +187,24 @@ private struct AddMetricView: View {
             note: note
         )
         modelContext.insert(metric)
-        try? modelContext.save()
+        try modelContext.saveChanges(context: type == .bodyMass ? "Weight entry" : "Metric")
+    }
+
+    private func validateMetric() throws {
+        guard value >= 0 else {
+            throw AppError.validation("Metric value cannot be negative.", field: "Metric value", recoverySuggestion: "Use zero when a value is not available.")
+        }
+        guard type != .custom || !customName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw AppError.validation("Custom metrics need a name.", field: "Metric name", recoverySuggestion: "Enter a short name for this metric.")
+        }
+        guard type == .note || !unit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw AppError.validation("Unit cannot be empty.", field: "Metric unit", recoverySuggestion: "Enter a unit such as kg, lb, L, hr, or bpm.")
+        }
+        if type == .bodyMass {
+            guard value > 0 else {
+                throw AppError.validation("Weight must be greater than zero.", field: "Weight", recoverySuggestion: "Enter your current weight.")
+            }
+        }
     }
 
     private func defaultUnit(for type: MetricType) -> String {

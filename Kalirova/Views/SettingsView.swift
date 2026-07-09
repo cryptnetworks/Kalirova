@@ -29,6 +29,7 @@ struct SettingsView: View {
     @State private var maskedAPIKey: String?
     @State private var isTestingConnection = false
     @State private var statusMessage: String?
+    @State private var activeError: AppError?
     @State private var showingDeleteConfirmation = false
     @State private var showingICloudEnableWarning = false
     @State private var requestedICloudBackupState = false
@@ -39,15 +40,23 @@ struct SettingsView: View {
 
     private let openAIService = OpenAIService()
 
-    private var exportText: String {
-        LocalDataExporter.export(
-            profiles: profiles,
-            meals: meals,
-            workouts: workouts,
-            metrics: metrics,
-            goals: goals,
-            aiSummaries: aiSummaries
-        )
+    private var exportResult: Result<String, AppError> {
+        do {
+            return .success(try LocalDataExporter.export(
+                profiles: profiles,
+                meals: meals,
+                workouts: workouts,
+                metrics: metrics,
+                goals: goals,
+                aiSummaries: aiSummaries
+            ))
+        } catch {
+            return .failure(ErrorMessageMapper.map(
+                error,
+                fallback: .exportFailed(context: "Local data"),
+                technicalContext: "Local data JSON export"
+            ))
+        }
     }
 
     var body: some View {
@@ -208,8 +217,13 @@ struct SettingsView: View {
                 }
 
                 Section("Developer") {
-                    ShareLink(item: exportText) {
-                        Label("Export Local Data", systemImage: "square.and.arrow.up")
+                    switch exportResult {
+                    case .success(let exportText):
+                        ShareLink(item: exportText) {
+                            Label("Export Local Data", systemImage: "square.and.arrow.up")
+                        }
+                    case .failure(let exportError):
+                        AppErrorBanner(error: exportError)
                     }
 
                     Button(role: .destructive) {
@@ -224,6 +238,14 @@ struct SettingsView: View {
                         Text(statusMessage)
                             .font(.footnote)
                             .foregroundStyle(KalirovaTheme.Colors.textSecondary)
+                    }
+                }
+
+                if let activeError {
+                    Section("Needs Attention") {
+                        AppErrorBanner(error: activeError) {
+                            self.activeError = nil
+                        }
                     }
                 }
             }
@@ -311,13 +333,19 @@ struct SettingsView: View {
         profile.username = trimmedUsername
         profile.updatedAt = .now
         do {
-            try modelContext.save()
+            try modelContext.saveChanges(context: "Username")
             usernameDraft = trimmedUsername
             usernameValidationMessage = nil
             showingUsernameEditor = false
             statusMessage = "Username updated."
         } catch {
-            usernameValidationMessage = error.localizedDescription
+            let appError = ErrorMessageMapper.map(
+                error,
+                fallback: .saveFailed(context: "Username"),
+                technicalContext: "Save edited username"
+            )
+            AppErrorLogger.log(appError, source: "Settings username")
+            usernameValidationMessage = [appError.message, appError.recoverySuggestion].compactMap { $0 }.joined(separator: " ")
         }
     }
 
@@ -366,7 +394,7 @@ struct SettingsView: View {
             }
         } catch {
             maskedAPIKey = nil
-            statusMessage = error.localizedDescription
+            presentError(error, fallback: .loadFailed(context: "OpenAI API key"), source: "Settings load API key")
         }
     }
 
@@ -385,7 +413,11 @@ struct SettingsView: View {
         current.iCloudBackupEnabled = PersistenceService.isICloudBackupCapabilityEnabled && iCloudBackupEnabled
         current.lastICloudBackupAt = iCloudBackupService.lastBackupAt
         current.updatedAt = .now
-        try? modelContext.save()
+        do {
+            try modelContext.saveChanges(context: "Settings")
+        } catch {
+            presentError(error, fallback: .saveFailed(context: "Settings"), source: "Settings autosave")
+        }
     }
 
     private func updateICloudBackupPreference(_ isEnabled: Bool) {
@@ -425,7 +457,7 @@ struct SettingsView: View {
             iCloudBackupEnabled = isEnabled
             storedICloudBackupEnabled = isEnabled
             saveSettings()
-            try modelContext.save()
+            try modelContext.saveChanges(context: "iCloud Backup preference")
             try persistenceService.setICloudBackupEnabled(isEnabled)
             if isEnabled {
                 iCloudBackupService.recordSuccessfulBackup()
@@ -437,7 +469,7 @@ struct SettingsView: View {
             storedICloudBackupEnabled = previousState
             iCloudBackupEnabled = previousState
             saveSettings()
-            statusMessage = error.localizedDescription
+            presentError(error, fallback: .saveFailed(context: "iCloud Backup preference"), source: "Settings iCloud preference")
         }
     }
 
@@ -458,12 +490,12 @@ struct SettingsView: View {
         }
 
         do {
-            try modelContext.save()
+            try modelContext.saveChanges(context: "iCloud Backup state")
             iCloudBackupService.recordSuccessfulBackup()
             saveSettings()
             statusMessage = "Kalirova data was saved locally and queued for private iCloud sync."
         } catch {
-            statusMessage = error.localizedDescription
+            presentError(error, fallback: .saveFailed(context: "iCloud Backup"), source: "Settings backup now")
         }
     }
 
@@ -472,7 +504,7 @@ struct SettingsView: View {
         do {
             let trimmedAPIKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmedAPIKey.isEmpty else {
-                statusMessage = "Enter an OpenAI API key before saving."
+                activeError = .validation("Enter an OpenAI API key before saving.", field: "OpenAI API Key", recoverySuggestion: "Paste the key, then tap Save Key.")
                 return
             }
 
@@ -480,8 +512,9 @@ struct SettingsView: View {
             maskedAPIKey = KeychainService.maskedAPIKey(trimmedAPIKey)
             apiKey = ""
             statusMessage = "OpenAI API key saved to Keychain as \(maskedAPIKey ?? "a masked key")."
+            activeError = nil
         } catch {
-            statusMessage = error.localizedDescription
+            presentError(error, fallback: .saveFailed(context: "OpenAI API key"), source: "Settings save API key")
         }
     }
 
@@ -491,8 +524,9 @@ struct SettingsView: View {
             apiKey = ""
             maskedAPIKey = nil
             statusMessage = "OpenAI API key deleted from Keychain."
+            activeError = nil
         } catch {
-            statusMessage = error.localizedDescription
+            presentError(error, fallback: .deleteFailed(context: "OpenAI API key"), source: "Settings delete API key")
         }
     }
 
@@ -506,8 +540,9 @@ struct SettingsView: View {
             let keyToTest = pendingAPIKey.isEmpty ? try KeychainService.shared.loadOpenAIAPIKey() : pendingAPIKey
             try await openAIService.testConnection(apiKey: keyToTest)
             statusMessage = "OpenAI connection succeeded."
+            activeError = nil
         } catch {
-            statusMessage = error.localizedDescription
+            presentError(error, fallback: .unknown(context: "OpenAI connection test"), source: "Settings test OpenAI")
         }
     }
 
@@ -517,22 +552,33 @@ struct SettingsView: View {
             healthKitSyncEnabled = true
             saveSettings()
             statusMessage = "HealthKit authorization flow completed."
+            activeError = nil
         } catch {
-            statusMessage = error.localizedDescription
+            presentError(error, fallback: .permissionDenied(context: "Apple Health"), source: "Settings HealthKit authorization")
         }
     }
 
     private func deleteAllLocalData() {
-        profiles.forEach(modelContext.delete)
-        meals.forEach(modelContext.delete)
-        workouts.forEach(modelContext.delete)
-        metrics.forEach(modelContext.delete)
-        goals.forEach(modelContext.delete)
-        aiSummaries.forEach(modelContext.delete)
-        settings.forEach(modelContext.delete)
-        try? KeychainService.shared.deleteOpenAIAPIKey()
-        try? modelContext.save()
-        hasCompletedOnboarding = false
+        do {
+            profiles.forEach(modelContext.delete)
+            meals.forEach(modelContext.delete)
+            workouts.forEach(modelContext.delete)
+            metrics.forEach(modelContext.delete)
+            goals.forEach(modelContext.delete)
+            aiSummaries.forEach(modelContext.delete)
+            settings.forEach(modelContext.delete)
+            try KeychainService.shared.deleteOpenAIAPIKey()
+            try modelContext.saveChanges(context: "Local data deletion")
+            hasCompletedOnboarding = false
+        } catch {
+            presentError(error, fallback: .deleteFailed(context: "Local data"), source: "Settings delete all local data")
+        }
+    }
+
+    private func presentError(_ error: Error, fallback: AppError, source: String) {
+        let appError = ErrorMessageMapper.map(error, fallback: fallback, technicalContext: source)
+        AppErrorLogger.log(appError, source: source)
+        activeError = appError
     }
 }
 
@@ -706,7 +752,7 @@ private enum LocalDataExporter {
         metrics: [HealthMetricEntry],
         goals: [Goal],
         aiSummaries: [AISummary]
-    ) -> String {
+    ) throws -> String {
         let export = LocalExport(
             exportedAt: .now,
             disclaimer: SummaryService.wellnessDisclaimer,
@@ -734,14 +780,19 @@ private enum LocalDataExporter {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
 
-        guard
-            let data = try? encoder.encode(export),
-            let json = String(data: data, encoding: .utf8)
-        else {
-            return "{}"
+        do {
+            let data = try encoder.encode(export)
+            guard let json = String(data: data, encoding: .utf8) else {
+                throw AppError.exportFailed(context: "Local data")
+            }
+            return json
+        } catch {
+            throw ErrorMessageMapper.map(
+                error,
+                fallback: .exportFailed(context: "Local data"),
+                technicalContext: "Encode local export JSON"
+            )
         }
-
-        return json
     }
 }
 

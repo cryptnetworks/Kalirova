@@ -65,6 +65,7 @@ When enabled in a paid-team build, iCloud Backup includes meals, food items, bod
 - `ICloudBackupService`: iCloud availability and manual backup timestamp state, disabled unless the `ENABLE_ICLOUD_BACKUP` build flag is present.
 - `PrivacyConsentService`: per-interaction AI consent and payload review state.
 - `KeychainService`: secure local API key storage.
+- Shared error handling uses `AppError`, `ErrorMessageMapper`, `AppErrorLogger`, and reusable SwiftUI error components so failures are user-facing, recoverable, accessible, and sanitized.
 
 ### Brand Assets
 

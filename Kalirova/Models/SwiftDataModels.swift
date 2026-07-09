@@ -568,3 +568,17 @@ final class AppSettings {
         UnitSystem(rawValue: unitSystemRawValue) ?? .metric
     }
 }
+
+extension ModelContext {
+    func saveChanges(context: String) throws {
+        do {
+            try save()
+        } catch {
+            throw ErrorMessageMapper.map(
+                error,
+                fallback: .saveFailed(context: context),
+                technicalContext: "SwiftData save context: \(context)"
+            )
+        }
+    }
+}

@@ -71,6 +71,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T19 | S9.4 | Audit and unify the app-wide color system, fix low-contrast text states, and validate Light/Dark Mode readability. | Done |
 | S1-T20 | S1.1, S7.3 | Fix OpenAI API key keyboard dismissal and add validated profile username editing. | Done |
 | S1-T21 | S0.4 | Update stable workflow dependency versions, review Dependabot PRs, and document current validated toolchain requirements. | Done |
+| S1-T22 | S9.5 | Add shared accessible error handling, validation, sanitized logging, and recoverable failure UI across app flows. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -163,3 +164,11 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T21: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
 - S1-T21: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 9 tests and 0 failures.
 - S1-T21: Post-push workflow check found Wiki Sync failing when GitHub returned the wiki remote as unavailable; workflow now exits with an actionable warning unless a `WIKI_PUSH_TOKEN` is configured to initialize the wiki.
+- S1-T22: Error audit found silent `try?` persistence paths in onboarding, meals, workouts, metrics, settings, export, and destructive delete flows, plus raw error descriptions in AI, HealthKit, and analytics preview paths.
+- S1-T22: Added shared `AppError`, `ErrorMessageMapper`, `AppErrorLogger`, `AppErrorBanner`, `InlineValidationMessage`, `ErrorStateView`, alert helper, and SwiftData `saveChanges(context:)`.
+- S1-T22: Replaced silent save/delete failures with mapped user-facing errors in onboarding/profile setup, API key actions, settings saves, meal add/delete, HealthKit workout import, manual workouts, weight/metric entries, local data deletion, export, and weekly AI preview flows.
+- S1-T22: Added validation for invalid dates, empty required fields, invalid usernames, missing API keys, negative/zero nutrition and workout values, missing units, and unavailable iCloud/HealthKit states.
+- S1-T22: `rg` scan found no remaining `try?`, `try!`, forced casts, console prints, or direct `modelContext.save()` calls in app/test sources after the refactor.
+- S1-T22: `swift test` passed with 13 XCTest tests and 0 failures.
+- S1-T22: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS' -configuration Debug build` passed.
+- S1-T22: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 9 tests and 0 failures.

@@ -5,11 +5,30 @@ import SwiftUI
 
 enum PersistenceServiceError: LocalizedError {
     case iCloudCapabilityUnavailable
+    case localStoreUnavailable
 
     var errorDescription: String? {
         switch self {
         case .iCloudCapabilityUnavailable:
             "iCloud Backup is disabled for this local development build. Re-enable the iCloud capability and ENABLE_ICLOUD_BACKUP build flag with a paid Apple Developer account."
+        case .localStoreUnavailable:
+            "Local storage is temporarily unavailable. Kalirova started with temporary in-memory storage."
+        }
+    }
+}
+
+extension PersistenceServiceError: AppErrorConvertible {
+    var appError: AppError {
+        switch self {
+        case .iCloudCapabilityUnavailable:
+            .unavailable("iCloud Backup")
+        case .localStoreUnavailable:
+            AppError(
+                title: "Local storage unavailable",
+                message: "Kalirova could not open the local database and started with temporary storage.",
+                recoverySuggestion: "Do not enter important data until the app can save normally. Restart the app and check available device storage.",
+                id: "local-store-unavailable"
+            )
         }
     }
 }
@@ -27,6 +46,7 @@ final class PersistenceService: ObservableObject {
     }
 
     @Published private(set) var modelContainer: ModelContainer
+    @Published private(set) var startupError: AppError?
 
     private static let logger = Logger(subsystem: "com.kalirova.app", category: "persistence")
     private let userDefaults: UserDefaults
@@ -47,7 +67,22 @@ final class PersistenceService: ObservableObject {
         } catch {
             Self.logger.error("SwiftData model container initialization failed. Falling back to local-only storage")
             userDefaults.set(false, forKey: Self.iCloudBackupEnabledKey)
-            self.modelContainer = try! Self.makeModelContainer(iCloudBackupEnabled: false)
+            do {
+                self.modelContainer = try Self.makeModelContainer(iCloudBackupEnabled: false)
+                self.startupError = ErrorMessageMapper.map(
+                    error,
+                    fallback: .loadFailed(context: "iCloud-backed storage"),
+                    technicalContext: "SwiftData iCloud container initialization"
+                )
+            } catch {
+                Self.logger.error("SwiftData local-only model container initialization failed. Falling back to in-memory storage")
+                do {
+                    self.modelContainer = try Self.makeInMemoryModelContainer()
+                    self.startupError = PersistenceServiceError.localStoreUnavailable.appError
+                } catch {
+                    preconditionFailure("Kalirova could not initialize any SwiftData model container.")
+                }
+            }
         }
     }
 
@@ -76,6 +111,17 @@ final class PersistenceService: ObservableObject {
             cloudKitDatabase: cloudKitDatabase
         )
 
+        return try ModelContainer(for: schema, configurations: [configuration])
+    }
+
+    static func makeInMemoryModelContainer() throws -> ModelContainer {
+        let schema = appSchema
+        let configuration = ModelConfiguration(
+            "Kalirova",
+            schema: schema,
+            isStoredInMemoryOnly: true,
+            cloudKitDatabase: .none
+        )
         return try ModelContainer(for: schema, configurations: [configuration])
     }
 

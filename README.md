@@ -84,6 +84,7 @@ See `docs/ci-efficiency.md` for the full trigger and caching policy.
 - Exercise calories: app-estimated calories are stored separately from device-reported calories.
 - Meals: foods are logged into local meal containers grouped by date and meal type.
 - AI: OpenAI integration is optional, isolated, and opt-in per request, including restaurant meal estimates that show the exact outbound meal fields before sending. OpenAI API keys remain in Keychain and are never included in iCloud backup.
+- Errors: shared user-facing error mapping presents accessible banners, inline validation, alerts, and sanitized debug details without logging secrets or personal health values.
 - Brand assets: Kalirova app icon, brand marks, icon assets, reference mockups, and namespaced semantic color assets live in the Xcode asset catalog.
 - Analytics: none.
 

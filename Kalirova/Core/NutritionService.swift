@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(OSLog)
+import OSLog
+#endif
 
 public struct NutrientTotals: Codable, Equatable, Sendable {
     public var calories: Double
@@ -229,5 +232,278 @@ private extension Double {
     func rounded(toPlaces places: Int) -> Double {
         let factor = pow(10, Double(places))
         return (self * factor).rounded() / factor
+    }
+}
+
+public protocol AppErrorConvertible {
+    var appError: AppError { get }
+}
+
+public enum AppErrorSeverity: String, Codable, Equatable, Sendable {
+    case info
+    case warning
+    case error
+}
+
+public struct AppError: LocalizedError, Identifiable, Equatable, Sendable {
+    public var id: String
+    public var title: String
+    public var message: String
+    public var recoverySuggestion: String?
+    public var technicalDetails: String?
+    public var severity: AppErrorSeverity
+
+    public var errorDescription: String? { message }
+    public var failureReason: String? { title }
+
+    public init(
+        title: String,
+        message: String,
+        recoverySuggestion: String? = nil,
+        technicalDetails: String? = nil,
+        severity: AppErrorSeverity = .error,
+        id: String = UUID().uuidString
+    ) {
+        self.id = id
+        self.title = title
+        self.message = message
+        self.recoverySuggestion = recoverySuggestion
+        self.technicalDetails = technicalDetails
+        self.severity = severity
+    }
+
+    public static func validation(
+        _ message: String,
+        field: String,
+        recoverySuggestion: String? = nil
+    ) -> AppError {
+        AppError(
+            title: "\(field) needs attention",
+            message: message,
+            recoverySuggestion: recoverySuggestion,
+            severity: .warning,
+            id: "validation-\(field)-\(message)"
+        )
+    }
+
+    public static var missingAPIKey: AppError {
+        AppError(
+            title: "OpenAI API key missing",
+            message: "Add an OpenAI API key in Profile before using AI Search.",
+            recoverySuggestion: "Open Profile, save your API key in Keychain, then try again.",
+            id: "missing-api-key"
+        )
+    }
+
+    public static var invalidAPIKey: AppError {
+        AppError(
+            title: "OpenAI API key rejected",
+            message: "OpenAI rejected the saved API key.",
+            recoverySuggestion: "Check that the key is current, has access to the selected model, and was pasted without extra spaces.",
+            id: "invalid-api-key"
+        )
+    }
+
+    public static var networkUnavailable: AppError {
+        AppError(
+            title: "Network unavailable",
+            message: "Kalirova could not reach the network.",
+            recoverySuggestion: "Check Wi-Fi or cellular service, then try again.",
+            id: "network-unavailable"
+        )
+    }
+
+    public static var timeout: AppError {
+        AppError(
+            title: "Request timed out",
+            message: "The request took too long to complete.",
+            recoverySuggestion: "Try again in a moment.",
+            id: "request-timeout"
+        )
+    }
+
+    public static var rateLimited: AppError {
+        AppError(
+            title: "Too many requests",
+            message: "The service is temporarily rate limiting requests.",
+            recoverySuggestion: "Wait a minute, then try again.",
+            id: "rate-limited"
+        )
+    }
+
+    public static var serverUnavailable: AppError {
+        AppError(
+            title: "Service unavailable",
+            message: "The service is temporarily unavailable.",
+            recoverySuggestion: "Try again later.",
+            id: "server-unavailable"
+        )
+    }
+
+    public static func saveFailed(context: String) -> AppError {
+        AppError(
+            title: "Could not save",
+            message: "\(context) could not be saved on this device.",
+            recoverySuggestion: "Try again. If it keeps happening, restart the app and check available device storage.",
+            id: "save-failed-\(context)"
+        )
+    }
+
+    public static func loadFailed(context: String) -> AppError {
+        AppError(
+            title: "Could not load",
+            message: "\(context) could not be loaded.",
+            recoverySuggestion: "Try again. If it keeps happening, restart the app.",
+            id: "load-failed-\(context)"
+        )
+    }
+
+    public static func deleteFailed(context: String) -> AppError {
+        AppError(
+            title: "Could not delete",
+            message: "\(context) could not be deleted.",
+            recoverySuggestion: "Try again before making more changes.",
+            id: "delete-failed-\(context)"
+        )
+    }
+
+    public static func decodingFailed(context: String) -> AppError {
+        AppError(
+            title: "Could not read response",
+            message: "\(context) was returned in a format Kalirova could not read.",
+            recoverySuggestion: "Try again. If this repeats, use manual entry for now.",
+            id: "decoding-failed-\(context)"
+        )
+    }
+
+    public static func permissionDenied(context: String) -> AppError {
+        AppError(
+            title: "Permission needed",
+            message: "\(context) permission was not granted.",
+            recoverySuggestion: "Review permissions in Settings, then try again.",
+            id: "permission-denied-\(context)"
+        )
+    }
+
+    public static func exportFailed(context: String) -> AppError {
+        AppError(
+            title: "Export unavailable",
+            message: "\(context) could not be prepared for export.",
+            recoverySuggestion: "Try again after restarting the app.",
+            id: "export-failed-\(context)"
+        )
+    }
+
+    public static func unavailable(_ context: String) -> AppError {
+        AppError(
+            title: "Unavailable",
+            message: "\(context) is not available in this build or on this device.",
+            recoverySuggestion: "Check device support and app settings.",
+            id: "unavailable-\(context)"
+        )
+    }
+
+    public static func unknown(context: String = "This action") -> AppError {
+        AppError(
+            title: "Something went wrong",
+            message: "\(context) could not be completed.",
+            recoverySuggestion: "Try again. If the issue continues, restart the app.",
+            id: "unknown-\(context)"
+        )
+    }
+}
+
+public enum ErrorMessageMapper {
+    public static func map(
+        _ error: Error,
+        fallback: AppError = .unknown(),
+        technicalContext: String? = nil
+    ) -> AppError {
+        if let appError = error as? AppError {
+            return appError
+        }
+
+        if let convertible = error as? AppErrorConvertible {
+            return appErrorWithDetails(convertible.appError, error: error, technicalContext: technicalContext)
+        }
+
+        if let urlError = error as? URLError {
+            return appErrorWithDetails(map(urlError), error: error, technicalContext: technicalContext)
+        }
+
+        if error is DecodingError {
+            let decodingError = fallback.title == "Could not read response"
+                ? fallback
+                : AppError.decodingFailed(context: fallbackContext(from: fallback))
+            return appErrorWithDetails(decodingError, error: error, technicalContext: technicalContext)
+        }
+
+        let nsError = error as NSError
+        if nsError.domain == NSCocoaErrorDomain {
+            return appErrorWithDetails(fallback, error: error, technicalContext: technicalContext)
+        }
+
+        let lowercasedDescription = error.localizedDescription.lowercased()
+        if lowercasedDescription.contains("api key") && lowercasedDescription.contains("missing") {
+            return appErrorWithDetails(.missingAPIKey, error: error, technicalContext: technicalContext)
+        }
+        if lowercasedDescription.contains("rate limit") || lowercasedDescription.contains("too many requests") {
+            return appErrorWithDetails(.rateLimited, error: error, technicalContext: technicalContext)
+        }
+        if lowercasedDescription.contains("permission") || lowercasedDescription.contains("authorization denied") {
+            return appErrorWithDetails(.permissionDenied(context: fallbackContext(from: fallback)), error: error, technicalContext: technicalContext)
+        }
+
+        return appErrorWithDetails(fallback, error: error, technicalContext: technicalContext)
+    }
+
+    private static func map(_ error: URLError) -> AppError {
+        switch error.code {
+        case .notConnectedToInternet, .networkConnectionLost, .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
+            return .networkUnavailable
+        case .timedOut:
+            return .timeout
+        case .userAuthenticationRequired, .userCancelledAuthentication:
+            return .permissionDenied(context: "Network")
+        case .badServerResponse:
+            return .serverUnavailable
+        default:
+            return .unknown(context: "Network request")
+        }
+    }
+
+    private static func appErrorWithDetails(_ appError: AppError, error: Error, technicalContext: String?) -> AppError {
+        var updated = appError
+        let nsError = error as NSError
+        let details = [
+            technicalContext,
+            "Type: \(String(reflecting: type(of: error)))",
+            "Domain: \(nsError.domain)",
+            "Code: \(nsError.code)"
+        ]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n")
+        updated.technicalDetails = details.isEmpty ? appError.technicalDetails : details
+        return updated
+    }
+
+    private static func fallbackContext(from appError: AppError) -> String {
+        if appError.title == "Something went wrong" {
+            return "This action"
+        }
+        return appError.title
+    }
+}
+
+public enum AppErrorLogger {
+    public static func log(_ error: AppError, source: String) {
+        #if canImport(OSLog)
+        if #available(iOS 14.0, macOS 11.0, *) {
+            Logger(subsystem: "com.kalirova.app", category: "errors").error(
+                "User-facing error in \(source, privacy: .public): \(error.title, privacy: .public) [\(error.id, privacy: .public)]"
+            )
+        }
+        #endif
     }
 }

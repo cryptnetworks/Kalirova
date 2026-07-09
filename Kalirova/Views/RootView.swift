@@ -2,13 +2,22 @@ import SwiftUI
 
 struct RootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @EnvironmentObject private var persistenceService: PersistenceService
 
     var body: some View {
-        if hasCompletedOnboarding {
-            MainTabView()
-        } else {
-            OnboardingView {
-                hasCompletedOnboarding = true
+        ZStack(alignment: .top) {
+            if hasCompletedOnboarding {
+                MainTabView()
+            } else {
+                OnboardingView {
+                    hasCompletedOnboarding = true
+                }
+            }
+
+            if let startupError = persistenceService.startupError {
+                AppErrorBanner(error: startupError)
+                    .padding()
+                    .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
     }
@@ -38,4 +47,5 @@ struct MainTabView: View {
 
 #Preview {
     RootView()
+        .environmentObject(PersistenceService())
 }

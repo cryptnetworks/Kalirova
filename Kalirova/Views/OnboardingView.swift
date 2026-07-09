@@ -21,7 +21,8 @@ struct OnboardingView: View {
     @State private var activityLevel: ActivityLevel = .moderatelyActive
     @State private var goal: OnboardingGoal = .improveFitness
     @State private var dailyCalories = 2_100
-    @State private var healthKitError: String?
+    @State private var healthKitError: AppError?
+    @State private var activeError: AppError?
     @State private var showingBMIInfo = false
     @State private var manualAgeEntry = false
     @State private var manualWeightEntry = false
@@ -54,6 +55,14 @@ struct OnboardingView: View {
                     completeStep.tag(OnboardingStep.complete)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+
+                if let activeError {
+                    AppErrorBanner(error: activeError) {
+                        self.activeError = nil
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, KalirovaSpacing.sm)
+                }
 
                 controls
                     .padding()
@@ -283,9 +292,9 @@ struct OnboardingView: View {
                     .foregroundStyle(KalirovaTheme.Colors.textSecondary)
 
                 if let healthKitError {
-                    Text(healthKitError)
-                        .font(.footnote)
-                        .foregroundStyle(KalirovaTheme.Colors.error)
+                    AppErrorBanner(error: healthKitError) {
+                        self.healthKitError = nil
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -316,10 +325,20 @@ struct OnboardingView: View {
 
             Button {
                 if step == .complete {
-                    saveProfile()
-                    onComplete()
+                    do {
+                        try validateOnboarding()
+                        try saveProfile()
+                        onComplete()
+                    } catch {
+                        presentError(error, fallback: .saveFailed(context: "Profile setup"), source: "Onboarding completion")
+                    }
                 } else {
-                    moveForward()
+                    do {
+                        try validateStep(step)
+                        moveForward()
+                    } catch {
+                        presentError(error, fallback: .validation("Review this step before continuing.", field: step.title), source: "Onboarding validation")
+                    }
                 }
             } label: {
                 Label(step == .complete ? "Start Kalirova" : "Continue", systemImage: step == .complete ? "checkmark" : "chevron.right")
@@ -414,11 +433,17 @@ struct OnboardingView: View {
             try await healthKitService.requestAuthorization()
             healthKitError = nil
         } catch {
-            healthKitError = error.localizedDescription
+            let appError = ErrorMessageMapper.map(
+                error,
+                fallback: .permissionDenied(context: "Apple Health"),
+                technicalContext: "Onboarding HealthKit authorization"
+            )
+            AppErrorLogger.log(appError, source: "Onboarding HealthKit")
+            healthKitError = appError
         }
     }
 
-    private func saveProfile() {
+    private func saveProfile() throws {
         let profile = UserProfile(
             ageYears: ageYears,
             sex: sex,
@@ -441,7 +466,49 @@ struct OnboardingView: View {
             Goal(type: .sleep, targetValue: 7.5, unit: "hours", cadence: .daily)
         ].forEach(modelContext.insert)
 
-        try? modelContext.save()
+        try modelContext.saveChanges(context: "Profile setup")
+    }
+
+    private func validateOnboarding() throws {
+        for step in OnboardingStep.allCases where step != .welcome && step != .health && step != .complete {
+            try validateStep(step)
+        }
+    }
+
+    private func validateStep(_ step: OnboardingStep) throws {
+        switch step {
+        case .welcome, .goal, .sex, .activity, .health, .complete:
+            return
+        case .age:
+            guard (13...100).contains(ageYears) else {
+                throw AppError.validation("Age must be between 13 and 100.", field: "Age", recoverySuggestion: "Enter your age or adjust the date of birth.")
+            }
+            guard dateOfBirth <= Date() else {
+                throw AppError.validation("Date of birth cannot be in the future.", field: "Date of birth", recoverySuggestion: "Choose a past date.")
+            }
+        case .height:
+            guard (120...230).contains(heightCentimeters) else {
+                throw AppError.validation("Height must be between 120 cm and 230 cm.", field: "Height", recoverySuggestion: "Check the unit selection and enter your height again.")
+            }
+        case .weight:
+            guard bodyMassKg > 0 else {
+                throw AppError.validation("Weight must be greater than zero.", field: "Weight", recoverySuggestion: "Enter your current weight.")
+            }
+        case .targetWeight:
+            guard goalBodyMassKg > 0 else {
+                throw AppError.validation("Target weight must be greater than zero.", field: "Target weight", recoverySuggestion: "Enter the weight you want to work toward.")
+            }
+        case .calories:
+            guard (1_200...4_500).contains(dailyCalories) else {
+                throw AppError.validation("Daily calories must be between 1,200 and 4,500.", field: "Daily calorie goal", recoverySuggestion: "Adjust the calorie goal before continuing.")
+            }
+        }
+    }
+
+    private func presentError(_ error: Error, fallback: AppError, source: String) {
+        let appError = ErrorMessageMapper.map(error, fallback: fallback, technicalContext: source)
+        AppErrorLogger.log(appError, source: source)
+        activeError = appError
     }
 
     private func updateHeightFromImperial() {

@@ -6,6 +6,7 @@ struct MealLogView: View {
     @Query(sort: \MealEntry.loggedAt, order: .reverse) private var meals: [MealEntry]
     @Query private var settings: [AppSettings]
     @State private var showingAddMeal = false
+    @State private var activeError: AppError?
 
     private var groupedMeals: [MealDayGroup] {
         MealDayGroup.group(meals)
@@ -49,6 +50,7 @@ struct MealLogView: View {
                 }
             }
             .navigationTitle("Meals")
+            .appErrorAlert(error: $activeError)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -67,7 +69,17 @@ struct MealLogView: View {
 
     private func deleteMeals(at offsets: IndexSet, in group: MealDayGroup) {
         offsets.map { group.meals[$0] }.forEach(modelContext.delete)
-        try? modelContext.save()
+        do {
+            try modelContext.saveChanges(context: "Meal deletion")
+        } catch {
+            presentError(error, fallback: .deleteFailed(context: "Meal"), source: "Meal list delete")
+        }
+    }
+
+    private func presentError(_ error: Error, fallback: AppError, source: String) {
+        let appError = ErrorMessageMapper.map(error, fallback: fallback, technicalContext: source)
+        AppErrorLogger.log(appError, source: source)
+        activeError = appError
     }
 }
 
@@ -210,7 +222,7 @@ private struct AddMealView: View {
     @State private var aiEstimate: OpenAIMealAnalysis?
     @State private var selectedSource: MealSource = .manual
     @State private var selectedConfidence: EstimateConfidence = .medium
-    @State private var errorMessage: String?
+    @State private var activeError: AppError?
     @State private var showingAIPrivacyConfirmation = false
     @State private var isEstimatingWithAI = false
     @State private var aiEstimateTask: Task<Void, Never>?
@@ -258,10 +270,20 @@ private struct AddMealView: View {
 
                     Button {
                         if step == .review {
-                            saveFoodItem()
-                            dismiss()
+                            do {
+                                try validateStep(.review)
+                                try saveFoodItem()
+                                dismiss()
+                            } catch {
+                                presentError(error, fallback: .saveFailed(context: "Food item"), source: "Add meal save")
+                            }
                         } else if let next = step.next {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.86)) { step = next }
+                            do {
+                                try validateStep(step)
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.86)) { step = next }
+                            } catch {
+                                presentError(error, fallback: .validation("Review this meal step before continuing.", field: step.title), source: "Add meal validation")
+                            }
                         }
                     } label: {
                         Label(step == .review ? "Accept" : "Continue", systemImage: step == .review ? "checkmark" : "chevron.right")
@@ -370,10 +392,13 @@ private struct AddMealView: View {
                     .disabled(localEstimateText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
 
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(.footnote)
-                        .foregroundStyle(KalirovaTheme.Colors.error)
+                if let activeError {
+                    AppErrorBanner(
+                        error: activeError,
+                        onDismiss: { self.activeError = nil },
+                        retryTitle: entryMode == .ai ? "Try AI Search Again" : nil,
+                        onRetry: entryMode == .ai ? { prepareAIPrivacyConfirmation() } : nil
+                    )
                 }
             }
         }
@@ -454,6 +479,14 @@ private struct AddMealView: View {
     private func applyLocalEstimate() {
         let estimate = nutritionService.parseLocalMealDescription(localEstimateText)
         localEstimate = estimate
+        guard estimate.totals.calories > 0 else {
+            activeError = .validation(
+                "Kalirova could not estimate calories from that description.",
+                field: "Food",
+                recoverySuggestion: "Add calories manually or use AI Search with a specific portion."
+            )
+            return
+        }
         manualCalories = estimate.totals.calories
         manualProtein = estimate.totals.proteinGrams
         manualCarbs = estimate.totals.carbohydrateGrams
@@ -483,10 +516,10 @@ private struct AddMealView: View {
                 request: request,
                 model: settings?.openAIModel ?? "gpt-5.5"
             )
-            errorMessage = nil
+            activeError = nil
             showingAIPrivacyConfirmation = true
         } catch {
-            errorMessage = error.localizedDescription
+            presentError(error, fallback: .unknown(context: "AI privacy preview"), source: "Meal AI preview")
         }
     }
 
@@ -514,12 +547,12 @@ private struct AddMealView: View {
                 applyAIEstimate(aiEstimate)
             }
             selectedSource = .openAI
-            errorMessage = nil
+            activeError = nil
             step = .review
         } catch is CancellationError {
-            errorMessage = nil
+            activeError = nil
         } catch {
-            errorMessage = error.localizedDescription
+            presentError(error, fallback: .unknown(context: "AI meal estimate"), source: "Meal AI estimate")
         }
     }
 
@@ -535,7 +568,7 @@ private struct AddMealView: View {
         selectedConfidence = EstimateConfidence(rawValue: analysis.confidence) ?? .low
     }
 
-    private func saveFoodItem() {
+    private func saveFoodItem() throws {
         let item = FoodItem(
             name: foodName.trimmingCharacters(in: .whitespacesAndNewlines),
             servingDescription: savedServingDescription,
@@ -558,7 +591,7 @@ private struct AddMealView: View {
                     .filter { !$0.isEmpty }
                     .joined(separator: "\n")
             }
-            try? modelContext.save()
+            try modelContext.saveChanges(context: "Food item")
             return
         }
 
@@ -575,7 +608,51 @@ private struct AddMealView: View {
         )
 
         modelContext.insert(meal)
-        try? modelContext.save()
+        try modelContext.saveChanges(context: "Meal")
+    }
+
+    private func validateStep(_ step: MealEntryStep) throws {
+        switch step {
+        case .day:
+            guard loggedAt <= Date() else {
+                throw AppError.validation("Meal date cannot be in the future.", field: "Meal date", recoverySuggestion: "Choose today or an earlier date.")
+            }
+        case .meal:
+            guard mealType != .custom || !customMealTypeName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                throw AppError.validation("Enter a custom meal name.", field: "Meal type", recoverySuggestion: "Name the meal or choose Breakfast, Lunch, Dinner, or Snack.")
+            }
+        case .food:
+            guard !foodName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                throw AppError.validation("Enter a food item.", field: "Food", recoverySuggestion: "Use a specific item such as “16 oz ribeye” or “two scrambled eggs.”")
+            }
+            if entryMode == .ai {
+                guard !servingDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    throw AppError.validation("Enter a portion or measurement before using AI Search.", field: "Portion", recoverySuggestion: "Examples: 16 oz, 1 bowl, 2 pieces.")
+                }
+            } else {
+                try validateNutritionNumbers()
+            }
+        case .review:
+            guard canSave else {
+                throw AppError.validation("Add a food name and calories before saving.", field: "Meal review", recoverySuggestion: "Edit nutrition or run an estimate, then try saving again.")
+            }
+            try validateNutritionNumbers()
+        }
+    }
+
+    private func validateNutritionNumbers() throws {
+        guard manualCalories >= 0, manualProtein >= 0, manualCarbs >= 0, manualFat >= 0, manualFiber >= 0, manualSugar >= 0, manualSodium >= 0 else {
+            throw AppError.validation("Nutrition values cannot be negative.", field: "Nutrition", recoverySuggestion: "Use zero when a value is not available.")
+        }
+        guard manualCalories > 0 || aiEstimate != nil || localEstimate != nil else {
+            throw AppError.validation("Calories are required before saving.", field: "Calories", recoverySuggestion: "Enter calories manually or run an estimate.")
+        }
+    }
+
+    private func presentError(_ error: Error, fallback: AppError, source: String) {
+        let appError = ErrorMessageMapper.map(error, fallback: fallback, technicalContext: source)
+        AppErrorLogger.log(appError, source: source)
+        activeError = appError
     }
 
     private func matchingMealContainer() -> MealEntry? {
@@ -620,6 +697,14 @@ private enum MealEntryStep: String, CaseIterable, Identifiable {
     case review
 
     var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .day: "Meal date"
+        case .meal: "Meal type"
+        case .food: "Food"
+        case .review: "Meal review"
+        }
+    }
     var index: Int { Self.allCases.firstIndex(of: self) ?? 0 }
     var next: Self? {
         let nextIndex = index + 1

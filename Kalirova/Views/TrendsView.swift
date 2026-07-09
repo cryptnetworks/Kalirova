@@ -11,7 +11,7 @@ struct InsightsView: View {
     @State private var period: DashboardPeriod = .week
     @State private var selectedMetric: TrendMetric = .calories
     @State private var aiPreview: OpenAIRequestPreview?
-    @State private var previewError: String?
+    @State private var previewError: AppError?
 
     private let summaryService = SummaryService()
     private let privacyConsentService = PrivacyConsentService()
@@ -167,9 +167,9 @@ struct InsightsView: View {
                 }
 
                 if let previewError {
-                    Text(previewError)
-                        .font(.footnote)
-                        .foregroundStyle(KalirovaTheme.Colors.error)
+                    AppErrorBanner(error: previewError) {
+                        self.previewError = nil
+                    }
                 }
             }
         }
@@ -187,7 +187,13 @@ struct InsightsView: View {
             )
             previewError = nil
         } catch {
-            previewError = error.localizedDescription
+            let appError = ErrorMessageMapper.map(
+                error,
+                fallback: .decodingFailed(context: "Weekly AI payload preview"),
+                technicalContext: "Insights weekly AI payload preview"
+            )
+            AppErrorLogger.log(appError, source: "Insights AI preview")
+            previewError = appError
         }
     }
 }

@@ -245,6 +245,17 @@ Acceptance criteria:
 - Dark Mode and Light Mode both use intentional backgrounds, surfaces, borders, and status colors.
 - Raw brand colors remain available for decorative brand moments but are not used as body text when contrast would be weak.
 
+### Story S9.5: Present failures clearly and safely
+As a user, I want every failed action to explain what happened and how to recover so I can keep my data safe and understand what to do next.
+
+Acceptance criteria:
+- App failures use shared user-facing error titles, messages, recovery suggestions, and sanitized technical details in debug builds.
+- Startup, onboarding, settings, API key setup, AI Search, profile editing, meal logging, workout import, manual workout entry, weight/metric entry, analytics previews, local export, iCloud backup, and destructive actions avoid silent failures.
+- Forms show inline validation for required fields, invalid numbers, invalid dates, missing API keys, invalid usernames, and missing required nutrition/workout values.
+- Recoverable screen-level errors use accessible banners or error states with retry where useful.
+- Blocking or destructive failures use alerts or visible form errors before dismissing.
+- Error logs avoid API keys, tokens, HealthKit data, weight values, meal contents, and other personal health data.
+
 ### Story S7.2: Generate optional AI weekly summary
 As a user, I want optional coaching-style insights based on a bounded weekly summary.
 

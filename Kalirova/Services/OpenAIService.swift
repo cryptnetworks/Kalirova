@@ -54,14 +54,41 @@ struct OpenAIFoodItem: Codable, Equatable, Sendable {
 
 enum OpenAIServiceError: LocalizedError {
     case missingAPIKey
+    case invalidAPIKey
+    case rateLimited
+    case serverUnavailable
+    case requestFailed(statusCode: Int)
     case invalidResponse
     case noOutputText
 
     var errorDescription: String? {
         switch self {
         case .missingAPIKey: "Add an OpenAI API key in Settings before sending."
+        case .invalidAPIKey: "OpenAI rejected the saved API key."
+        case .rateLimited: "OpenAI is rate limiting requests right now."
+        case .serverUnavailable: "OpenAI is temporarily unavailable."
+        case .requestFailed(let statusCode): "OpenAI request failed with HTTP status \(statusCode)."
         case .invalidResponse: "The OpenAI response could not be decoded."
         case .noOutputText: "The OpenAI response did not include output text."
+        }
+    }
+}
+
+extension OpenAIServiceError: AppErrorConvertible {
+    var appError: AppError {
+        switch self {
+        case .missingAPIKey:
+            .missingAPIKey
+        case .invalidAPIKey:
+            .invalidAPIKey
+        case .rateLimited:
+            .rateLimited
+        case .serverUnavailable:
+            .serverUnavailable
+        case .requestFailed:
+            .serverUnavailable
+        case .invalidResponse, .noOutputText:
+            .decodingFailed(context: "OpenAI response")
         }
     }
 }
@@ -168,7 +195,16 @@ final class OpenAIService: @unchecked Sendable {
 
         guard (200..<300).contains(httpResponse.statusCode) else {
             logger.error("OpenAI request failed with status \(httpResponse.statusCode, privacy: .public)")
-            throw OpenAIServiceError.invalidResponse
+            switch httpResponse.statusCode {
+            case 401, 403:
+                throw OpenAIServiceError.invalidAPIKey
+            case 429:
+                throw OpenAIServiceError.rateLimited
+            case 500..<600:
+                throw OpenAIServiceError.serverUnavailable
+            default:
+                throw OpenAIServiceError.requestFailed(statusCode: httpResponse.statusCode)
+            }
         }
 
         logger.debug("OpenAI request completed with status \(httpResponse.statusCode, privacy: .public)")
@@ -176,7 +212,16 @@ final class OpenAIService: @unchecked Sendable {
     }
 
     private func decodeMealAnalysis(from data: Data) throws -> OpenAIMealAnalysis {
-        let decoded = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+        let decoded: OpenAIResponse
+        do {
+            decoded = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+        } catch {
+            throw ErrorMessageMapper.map(
+                error,
+                fallback: .decodingFailed(context: "OpenAI response"),
+                technicalContext: "Decode OpenAI responses envelope"
+            )
+        }
         guard let outputText = decoded.outputText else {
             throw OpenAIServiceError.noOutputText
         }
@@ -185,7 +230,15 @@ final class OpenAIService: @unchecked Sendable {
             throw OpenAIServiceError.invalidResponse
         }
 
-        return try JSONDecoder().decode(OpenAIMealAnalysis.self, from: jsonData)
+        do {
+            return try JSONDecoder().decode(OpenAIMealAnalysis.self, from: jsonData)
+        } catch {
+            throw ErrorMessageMapper.map(
+                error,
+                fallback: .decodingFailed(context: "OpenAI nutrition estimate"),
+                technicalContext: "Decode OpenAI meal analysis schema"
+            )
+        }
     }
 
     private func mealAnalysisPayload(mealText: String, model: String) throws -> [String: Any] {

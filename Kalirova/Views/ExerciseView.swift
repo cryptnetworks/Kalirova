@@ -9,7 +9,7 @@ struct ExerciseView: View {
     @StateObject private var viewModel = ExerciseViewModel()
     @StateObject private var healthKitService = HealthKitService()
     @State private var showingAddWorkout = false
-    @State private var importError: String?
+    @State private var importError: AppError?
     @State private var importStatus: String?
     @State private var isImportingWorkouts = false
     @State private var importTask: Task<Void, Never>?
@@ -45,11 +45,12 @@ struct ExerciseView: View {
                     .controlSize(.large)
 
                     if let importError {
-                        Text(importError)
-                            .font(.footnote)
-                            .foregroundStyle(KalirovaTheme.Colors.error)
-                            .padding()
-                            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        AppErrorBanner(
+                            error: importError,
+                            onDismiss: { self.importError = nil },
+                            retryTitle: "Import Again",
+                            onRetry: startRecentWorkoutImport
+                        )
                     }
 
                     if let importStatus {
@@ -83,8 +84,7 @@ struct ExerciseView: View {
                                 WorkoutSummaryRow(workout: workout, unitSystem: unitSystem)
                                     .contextMenu {
                                         Button(role: .destructive) {
-                                            modelContext.delete(workout)
-                                            try? modelContext.save()
+                                            deleteWorkout(workout)
                                         } label: {
                                             Label("Delete", systemImage: "trash")
                                         }
@@ -196,21 +196,49 @@ struct ExerciseView: View {
             }
 
             if importedCount > 0 {
-                try modelContext.save()
+                try modelContext.saveChanges(context: "HealthKit workout import")
             }
             importError = nil
             importStatus = "Imported \(importedCount) workouts. Skipped \(duplicateCount) duplicates."
         } catch is CancellationError {
             importError = nil
         } catch {
-            importError = error.localizedDescription
+            importError = ErrorMessageMapper.map(
+                error,
+                fallback: .permissionDenied(context: "Apple Health workout import"),
+                technicalContext: "HealthKit 90-day workout import"
+            )
+            if let importError {
+                AppErrorLogger.log(importError, source: "Exercise import")
+            }
             importStatus = nil
+        }
+    }
+
+    private func deleteWorkout(_ workout: WorkoutEntry) {
+        modelContext.delete(workout)
+        do {
+            try modelContext.saveChanges(context: "Workout deletion")
+            importError = nil
+        } catch {
+            importError = ErrorMessageMapper.map(
+                error,
+                fallback: .deleteFailed(context: "Workout"),
+                technicalContext: "Delete workout"
+            )
+            if let importError {
+                AppErrorLogger.log(importError, source: "Exercise delete")
+            }
         }
     }
 
     private func deleteWorkouts(at offsets: IndexSet) {
         offsets.map { workouts[$0] }.forEach(modelContext.delete)
-        try? modelContext.save()
+        do {
+            try modelContext.saveChanges(context: "Workout deletion")
+        } catch {
+            importError = ErrorMessageMapper.map(error, fallback: .deleteFailed(context: "Workout"), technicalContext: "Delete workouts")
+        }
     }
 }
 
@@ -233,6 +261,7 @@ private struct AddWorkoutView: View {
     @State private var deviceCalories = 0.0
     @State private var perceivedEffort: PerceivedEffort = .moderate
     @State private var estimate: CalorieEstimate?
+    @State private var activeError: AppError?
 
     var body: some View {
         NavigationStack {
@@ -287,6 +316,14 @@ private struct AddWorkoutView: View {
                         SummaryRow(label: "Algorithm", value: estimate.algorithmVersion)
                     }
                 }
+
+                if let activeError {
+                    Section("Needs Attention") {
+                        AppErrorBanner(error: activeError) {
+                            self.activeError = nil
+                        }
+                    }
+                }
             }
             .navigationTitle("Add Workout")
             .onAppear {
@@ -301,8 +338,13 @@ private struct AddWorkoutView: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        saveWorkout()
-                        dismiss()
+                        do {
+                            try validateWorkout()
+                            try saveWorkout()
+                            dismiss()
+                        } catch {
+                            presentError(error, fallback: .saveFailed(context: "Workout"), source: "Manual workout save")
+                        }
                     }
                 }
             }
@@ -333,7 +375,7 @@ private struct AddWorkoutView: View {
         )
     }
 
-    private func saveWorkout() {
+    private func saveWorkout() throws {
         let finalEstimate = estimate ?? calculateEstimate()
         let workout = WorkoutEntry(
             title: title.isEmpty ? kind.displayName : title,
@@ -351,7 +393,29 @@ private struct AddWorkoutView: View {
         )
 
         modelContext.insert(workout)
-        try? modelContext.save()
+        try modelContext.saveChanges(context: "Workout")
+    }
+
+    private func validateWorkout() throws {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty else {
+            throw AppError.validation("Workout title cannot be empty.", field: "Workout title", recoverySuggestion: "Enter a short name or use the workout type.")
+        }
+        guard durationMinutes > 0 else {
+            throw AppError.validation("Duration must be greater than zero.", field: "Duration", recoverySuggestion: "Enter the number of minutes you exercised.")
+        }
+        guard bodyMassKg > 0 else {
+            throw AppError.validation("Body mass must be greater than zero.", field: "Body mass", recoverySuggestion: "Enter your current weight or update your profile.")
+        }
+        guard distanceMeters >= 0, deviceCalories >= 0 else {
+            throw AppError.validation("Distance and calories cannot be negative.", field: "Workout values", recoverySuggestion: "Use zero when a value is not available.")
+        }
+    }
+
+    private func presentError(_ error: Error, fallback: AppError, source: String) {
+        let appError = ErrorMessageMapper.map(error, fallback: fallback, technicalContext: source)
+        AppErrorLogger.log(appError, source: source)
+        activeError = appError
     }
 }
 
