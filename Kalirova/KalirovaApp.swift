@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct HealthTrackAIApp: App {
+struct KalirovaApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             UserProfile.self,

@@ -2,23 +2,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "HealthTrackAI",
+    name: "Kalirova",
     platforms: [
         .iOS(.v17),
         .macOS(.v14)
     ],
     products: [
-        .library(name: "HealthTrackAICore", targets: ["HealthTrackAICore"])
+        .library(name: "KalirovaCore", targets: ["KalirovaCore"])
     ],
     targets: [
         .target(
-            name: "HealthTrackAICore",
-            path: "HealthTrackAI/Core"
+            name: "KalirovaCore",
+            path: "Kalirova/Core"
         ),
         .testTarget(
-            name: "HealthTrackAICoreTests",
-            dependencies: ["HealthTrackAICore"],
-            path: "Tests/HealthTrackAICoreTests"
+            name: "KalirovaCoreTests",
+            dependencies: ["KalirovaCore"],
+            path: "Tests/KalirovaCoreTests"
         )
     ]
 )

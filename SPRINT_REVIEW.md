@@ -13,7 +13,7 @@ Completed:
 - Deterministic core services and unit tests for calorie estimates, meal parsing, HealthKit mapping, and summary generation.
 
 Demo Notes:
-- Open `HealthTrackAI.xcodeproj` in Xcode.
+- Open `Kalirova.xcodeproj` in Xcode.
 - Core package tests pass through `swift test`.
 - The app target builds for a generic iOS Simulator destination.
 

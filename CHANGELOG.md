@@ -8,7 +8,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 
 ### Added
 - Planned Sprint 1 work for profile/unit improvements, BMI guidance, restaurant AI meal estimation, meal grouping, Apple-standard UI refinements, and HealthKit 90-day import.
-- Renamed the visible app brand to Kalirova, updated the app bundle identifier, and added Kalirova app icon, brand board, and color assets.
+- Rebranded the full project to Kalirova, including Xcode project, app/test targets, Swift package/core target, scheme, bundle identifier, source folders, repository references, and Kalirova brand assets.
 - Added typed onboarding inputs for profile measurements, unit selection, goal weight, and live BMI with adult BMI category guidance.
 - Added unit-aware dashboard, workout, and body-mass metric display/input while preserving normalized metric storage.
 - Added meal containers grouped by date and meal type, with multiple food items per container and dashboard grouping.
@@ -24,7 +24,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 - Added deterministic calorie burn estimator, nutrition parser, HealthKit mapping, and summary service.
 - Added SwiftPM core test target and Xcode unit-test target.
 - Initialized local git repository on `main` and created initial commit `8b03fc0`.
-- Created private GitHub repository `cryptnetworks/HealthTrackAI` and pushed `main`.
+- Created private GitHub repository `cryptnetworks/Kalirova` and pushed `main`.
 
 ### Fixed
 - Corrected weekly summary test optional unwrapping.

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA0000000000000000000101 /* HealthTrackAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000201 /* HealthTrackAIApp.swift */; };
+		AA0000000000000000000101 /* KalirovaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000201 /* KalirovaApp.swift */; };
 		AA0000000000000000000102 /* CalorieBurnEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000202 /* CalorieBurnEstimator.swift */; };
 		AA0000000000000000000103 /* NutritionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000203 /* NutritionService.swift */; };
 		AA0000000000000000000104 /* HealthKitMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000204 /* HealthKitMapping.swift */; };
@@ -37,12 +37,12 @@
 			containerPortal = AA0000000000000000000301 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AA0000000000000000000302;
-			remoteInfo = HealthTrackAI;
+			remoteInfo = Kalirova;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AA0000000000000000000201 /* HealthTrackAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthTrackAIApp.swift; sourceTree = "<group>"; };
+		AA0000000000000000000201 /* KalirovaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KalirovaApp.swift; sourceTree = "<group>"; };
 		AA0000000000000000000202 /* CalorieBurnEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieBurnEstimator.swift; sourceTree = "<group>"; };
 		AA0000000000000000000203 /* NutritionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionService.swift; sourceTree = "<group>"; };
 		AA0000000000000000000204 /* HealthKitMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitMapping.swift; sourceTree = "<group>"; };
@@ -63,11 +63,11 @@
 		AA0000000000000000000219 /* WeeklySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryView.swift; sourceTree = "<group>"; };
 		AA0000000000000000000220 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AA0000000000000000000221 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AA0000000000000000000222 /* HealthTrackAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HealthTrackAI.entitlements; sourceTree = "<group>"; };
+		AA0000000000000000000222 /* Kalirova.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kalirova.entitlements; sourceTree = "<group>"; };
 		AA0000000000000000000223 /* CalorieBurnEstimatorXcodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieBurnEstimatorXcodeTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000224 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		AA0000000000000000000225 /* Kalirova.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kalirova.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA0000000000000000000226 /* HealthTrackAITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTrackAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000226 /* KalirovaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KalirovaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,26 +91,26 @@
 		AA0000000000000000000501 = {
 			isa = PBXGroup;
 			children = (
-				AA0000000000000000000502 /* HealthTrackAI */,
-				AA0000000000000000000509 /* HealthTrackAITests */,
+				AA0000000000000000000502 /* Kalirova */,
+				AA0000000000000000000509 /* KalirovaTests */,
 				AA0000000000000000000224 /* Package.swift */,
 				AA0000000000000000000510 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		AA0000000000000000000502 /* HealthTrackAI */ = {
+		AA0000000000000000000502 /* Kalirova */ = {
 			isa = PBXGroup;
 			children = (
-				AA0000000000000000000201 /* HealthTrackAIApp.swift */,
+				AA0000000000000000000201 /* KalirovaApp.swift */,
 				AA0000000000000000000503 /* Core */,
 				AA0000000000000000000504 /* Models */,
 				AA0000000000000000000505 /* Services */,
 				AA0000000000000000000506 /* ViewModels */,
 				AA0000000000000000000507 /* Views */,
 				AA0000000000000000000508 /* Resources */,
-				AA0000000000000000000222 /* HealthTrackAI.entitlements */,
+				AA0000000000000000000222 /* Kalirova.entitlements */,
 			);
-			path = HealthTrackAI;
+			path = Kalirova;
 			sourceTree = "<group>";
 		};
 		AA0000000000000000000503 /* Core */ = {
@@ -175,19 +175,19 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		AA0000000000000000000509 /* HealthTrackAITests */ = {
+		AA0000000000000000000509 /* KalirovaTests */ = {
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000223 /* CalorieBurnEstimatorXcodeTests.swift */,
 			);
-			path = HealthTrackAITests;
+			path = KalirovaTests;
 			sourceTree = "<group>";
 		};
 		AA0000000000000000000510 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000225 /* Kalirova.app */,
-				AA0000000000000000000226 /* HealthTrackAITests.xctest */,
+				AA0000000000000000000226 /* KalirovaTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -195,9 +195,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AA0000000000000000000302 /* HealthTrackAI */ = {
+		AA0000000000000000000302 /* Kalirova */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA0000000000000000000702 /* Build configuration list for PBXNativeTarget "HealthTrackAI" */;
+			buildConfigurationList = AA0000000000000000000702 /* Build configuration list for PBXNativeTarget "Kalirova" */;
 			buildPhases = (
 				AA0000000000000000000601 /* Sources */,
 				AA0000000000000000000401 /* Frameworks */,
@@ -207,14 +207,14 @@
 			);
 			dependencies = (
 			);
-			name = HealthTrackAI;
-			productName = HealthTrackAI;
+			name = Kalirova;
+			productName = Kalirova;
 			productReference = AA0000000000000000000225 /* Kalirova.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AA0000000000000000000303 /* HealthTrackAITests */ = {
+		AA0000000000000000000303 /* KalirovaTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA0000000000000000000703 /* Build configuration list for PBXNativeTarget "HealthTrackAITests" */;
+			buildConfigurationList = AA0000000000000000000703 /* Build configuration list for PBXNativeTarget "KalirovaTests" */;
 			buildPhases = (
 				AA0000000000000000000603 /* Sources */,
 				AA0000000000000000000402 /* Frameworks */,
@@ -225,9 +225,9 @@
 			dependencies = (
 				AA0000000000000000000131 /* PBXTargetDependency */,
 			);
-			name = HealthTrackAITests;
-			productName = HealthTrackAITests;
-			productReference = AA0000000000000000000226 /* HealthTrackAITests.xctest */;
+			name = KalirovaTests;
+			productName = KalirovaTests;
+			productReference = AA0000000000000000000226 /* KalirovaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -249,7 +249,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AA0000000000000000000701 /* Build configuration list for PBXProject "HealthTrackAI" */;
+			buildConfigurationList = AA0000000000000000000701 /* Build configuration list for PBXProject "Kalirova" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -262,8 +262,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA0000000000000000000302 /* HealthTrackAI */,
-				AA0000000000000000000303 /* HealthTrackAITests */,
+				AA0000000000000000000302 /* Kalirova */,
+				AA0000000000000000000303 /* KalirovaTests */,
 			);
 		};
 /* End PBXProject section */
@@ -291,7 +291,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA0000000000000000000101 /* HealthTrackAIApp.swift in Sources */,
+				AA0000000000000000000101 /* KalirovaApp.swift in Sources */,
 				AA0000000000000000000102 /* CalorieBurnEstimator.swift in Sources */,
 				AA0000000000000000000103 /* NutritionService.swift in Sources */,
 				AA0000000000000000000104 /* HealthKitMapping.swift in Sources */,
@@ -327,7 +327,7 @@
 /* Begin PBXTargetDependency section */
 		AA0000000000000000000131 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AA0000000000000000000302 /* HealthTrackAI */;
+			target = AA0000000000000000000302 /* Kalirova */;
 			targetProxy = AA0000000000000000000130 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -457,10 +457,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = HealthTrackAI/HealthTrackAI.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Kalirova/Kalirova.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"HealthTrackAI/Resources\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Kalirova/Resources\"";
 				DEVELOPMENT_TEAM = 426M75XSX8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -478,7 +478,7 @@
 				);
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.michaeldesocio.kalirova;
-				PRODUCT_MODULE_NAME = HealthTrackAI;
+				PRODUCT_MODULE_NAME = Kalirova;
 				PRODUCT_NAME = Kalirova;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -493,10 +493,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = HealthTrackAI/HealthTrackAI.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Kalirova/Kalirova.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"HealthTrackAI/Resources\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Kalirova/Resources\"";
 				DEVELOPMENT_TEAM = 426M75XSX8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Kalirova;
@@ -513,7 +513,7 @@
 				);
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.michaeldesocio.kalirova;
-				PRODUCT_MODULE_NAME = HealthTrackAI;
+				PRODUCT_MODULE_NAME = Kalirova;
 				PRODUCT_NAME = Kalirova;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -576,7 +576,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AA0000000000000000000701 /* Build configuration list for PBXProject "HealthTrackAI" */ = {
+		AA0000000000000000000701 /* Build configuration list for PBXProject "Kalirova" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000801 /* Debug */,
@@ -585,7 +585,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA0000000000000000000702 /* Build configuration list for PBXNativeTarget "HealthTrackAI" */ = {
+		AA0000000000000000000702 /* Build configuration list for PBXNativeTarget "Kalirova" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000803 /* Debug */,
@@ -594,7 +594,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA0000000000000000000703 /* Build configuration list for PBXNativeTarget "HealthTrackAITests" */ = {
+		AA0000000000000000000703 /* Build configuration list for PBXNativeTarget "KalirovaTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000805 /* Debug */,

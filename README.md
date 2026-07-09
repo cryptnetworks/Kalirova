@@ -19,7 +19,7 @@ Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal
 
 ## Local Setup
 
-1. Open `HealthTrackAI.xcodeproj` in Xcode. The app product and display name build as Kalirova.
+1. Open `Kalirova.xcodeproj` in Xcode. The app product and display name build as Kalirova.
 2. Select a development team for signing.
 3. Enable the HealthKit capability on the app target.
 4. Run on a physical iPhone for HealthKit functionality. Simulator previews use mock data.

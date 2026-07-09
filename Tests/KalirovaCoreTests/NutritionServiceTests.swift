@@ -1,5 +1,5 @@
 import XCTest
-@testable import HealthTrackAICore
+@testable import KalirovaCore
 
 final class NutritionServiceTests: XCTestCase {
     func testLocalMealParserReturnsStructuredNutrition() {

@@ -21,16 +21,16 @@ Goal: Create the repository, SCRUM documentation, SwiftUI app scaffold, local-fi
 
 ## Verification Log
 
-- `plutil -lint HealthTrackAI.xcodeproj/project.pbxproj`: passed.
-- `plutil -lint HealthTrackAI/HealthTrackAI.entitlements`: passed.
+- `plutil -lint Kalirova.xcodeproj/project.pbxproj`: passed.
+- `plutil -lint Kalirova/Kalirova.entitlements`: passed.
 - Asset catalog JSON parsed with Ruby `JSON.parse`: passed.
 - Generated artifact scan for `.DS_Store`, `.xcuserstate`, `.sqlite`, and `.env`: passed after cleanup.
 - `swift test`: passed with 8 XCTest tests and 0 failures.
-- `xcodebuild -list -project HealthTrackAI.xcodeproj`: passed.
-- `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build`: passed.
+- `xcodebuild -list -project Kalirova.xcodeproj`: passed.
+- `xcodebuild -scheme Kalirova -destination generic/platform=iOS\ Simulator build`: passed.
 - `git init -b main`: passed after escalation.
-- `git commit -m "feat: scaffold HealthTrack AI app"`: passed with commit `8b03fc0`.
-- `gh repo create HealthTrackAI --private --source=. --remote=origin --push`: passed; `main` tracks `origin/main`.
+- `git commit -m "feat: scaffold Kalirova app"`: passed with commit `8b03fc0`.
+- `gh repo create Kalirova --private --source=. --remote=origin --push`: passed; `main` tracks `origin/main`.
 
 ## Working Agreement
 
@@ -59,20 +59,23 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T7 | S9.1 | Refine screens with native SwiftUI forms/lists, accessibility labels, Dynamic Type support, and Liquid Glass availability fallbacks. | Todo |
 | S1-T8 | S0.3 | Add or update tests for unit conversion, BMI, meal grouping, AI request payloads, and HealthKit duplicate handling. | Todo |
 | S1-T9 | S0.3 | Run SwiftPM tests and Xcode simulator build. | Todo |
-| S1-T10 | S9.2 | Rename visible app brand to Kalirova, update bundle identifiers and docs, and import Kalirova brand assets. | Done |
+| S1-T10 | S9.2 | Rebrand project, Xcode targets, Swift package target, scheme, repository references, bundle identifier, docs, and brand assets to Kalirova. | Done |
 
 ## Sprint 1 Verification Log
 
 - S1-T2: `swift test` passed with 9 XCTest tests and 0 failures.
-- S1-T2: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.
+- S1-T2: `xcodebuild -scheme Kalirova -destination generic/platform=iOS\ Simulator build` passed.
 - S1-T3: `swift test` passed with 9 XCTest tests and 0 failures.
-- S1-T3: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.
+- S1-T3: `xcodebuild -scheme Kalirova -destination generic/platform=iOS\ Simulator build` passed.
 - S1-T4: `swift test` passed with 9 XCTest tests and 0 failures.
-- S1-T4: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.
+- S1-T4: `xcodebuild -scheme Kalirova -destination generic/platform=iOS\ Simulator build` passed.
 - S1-T5: `swift test` passed with 9 XCTest tests and 0 failures.
-- S1-T5: `plutil -lint HealthTrackAI.xcodeproj/project.pbxproj HealthTrackAI/HealthTrackAI.entitlements` passed.
+- S1-T5: `plutil -lint Kalirova.xcodeproj/project.pbxproj Kalirova/Kalirova.entitlements` passed.
 - S1-T5: `xcodebuild -scheme Kalirova -destination generic/platform=iOS\ Simulator build` passed.
-- S1-T10: `plutil -lint HealthTrackAI.xcodeproj/project.pbxproj` passed.
+- S1-T10: `plutil -lint Kalirova.xcodeproj/project.pbxproj` passed.
 - S1-T10: Kalirova asset catalog `Contents.json` files parsed with Ruby `JSON.parse`.
 - S1-T10: `swift test` passed with 9 XCTest tests and 0 failures.
-- S1-T10: `xcodebuild -scheme Kalirova -destination generic/platform=iOS\ Simulator build` passed.
+- S1-T10: `xcodebuild -list` showed project `Kalirova`, targets `Kalirova` and `KalirovaTests`, and scheme `Kalirova`.
+- S1-T10: required grep for legacy names returned no results.
+- S1-T10: `xcodebuild -scheme Kalirova -configuration Debug build` reached signing and failed only because no physical-device provisioning profile exists for `com.michaeldesocio.kalirova`.
+- S1-T10: `xcodebuild -scheme Kalirova -configuration Debug -destination generic/platform=iOS\ Simulator build` passed.

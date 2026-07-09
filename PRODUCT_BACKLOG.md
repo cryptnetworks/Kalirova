@@ -15,7 +15,7 @@ Acceptance criteria:
 As a user, I want a native SwiftUI iPhone app shell so the product can grow feature by feature.
 
 Acceptance criteria:
-- Xcode project opens and builds the Kalirova app product.
+- Xcode project opens as `Kalirova.xcodeproj` and builds the Kalirova app product.
 - App uses SwiftUI entry point.
 - App has navigable screens for onboarding, dashboard, meals, exercise, metrics, trends, weekly summary, and settings.
 - App includes mock data for previews and simulator flows.
@@ -201,6 +201,7 @@ As a user, I want the app to present consistently as Kalirova so the product fee
 Acceptance criteria:
 - Visible app display name is Kalirova.
 - App bundle identifier is unique and uses the Kalirova brand.
+- Xcode project, app target, test target, scheme, Swift package target, source folders, and repository references use Kalirova naming.
 - HealthKit purpose strings mention Kalirova without changing HealthKit entitlements.
 - App icon and brand assets from the Kalirova brand package are available in the Xcode asset catalog.
 - README, backlog, changelog, privacy docs, and architecture docs use the Kalirova product name.

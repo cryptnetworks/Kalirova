@@ -1,5 +1,5 @@
 import XCTest
-@testable import HealthTrackAI
+@testable import Kalirova
 
 final class CalorieBurnEstimatorXcodeTests: XCTestCase {
     func testAppEstimateKeepsAlgorithmMetadata() {

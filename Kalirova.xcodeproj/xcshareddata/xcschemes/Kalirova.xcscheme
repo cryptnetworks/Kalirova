@@ -17,8 +17,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AA0000000000000000000302"
                BuildableName = "Kalirova.app"
-               BlueprintName = "HealthTrackAI"
-               ReferencedContainer = "container:HealthTrackAI.xcodeproj">
+               BlueprintName = "Kalirova"
+               ReferencedContainer = "container:Kalirova.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,9 +35,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AA0000000000000000000303"
-               BuildableName = "HealthTrackAITests.xctest"
-               BlueprintName = "HealthTrackAITests"
-               ReferencedContainer = "container:HealthTrackAI.xcodeproj">
+               BuildableName = "KalirovaTests.xctest"
+               BlueprintName = "KalirovaTests"
+               ReferencedContainer = "container:Kalirova.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,8 +58,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AA0000000000000000000302"
             BuildableName = "Kalirova.app"
-            BlueprintName = "HealthTrackAI"
-            ReferencedContainer = "container:HealthTrackAI.xcodeproj">
+            BlueprintName = "Kalirova"
+            ReferencedContainer = "container:Kalirova.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -75,8 +75,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AA0000000000000000000302"
             BuildableName = "Kalirova.app"
-            BlueprintName = "HealthTrackAI"
-            ReferencedContainer = "container:HealthTrackAI.xcodeproj">
+            BlueprintName = "Kalirova"
+            ReferencedContainer = "container:Kalirova.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
