@@ -1,6 +1,6 @@
 # Architecture
 
-HealthTrack AI is a local-first SwiftUI iPhone app built around explicit privacy boundaries and deterministic health calculations.
+Kalirova is a local-first SwiftUI iPhone app built around explicit privacy boundaries and deterministic health calculations.
 
 ## Principles
 
@@ -10,6 +10,7 @@ HealthTrack AI is a local-first SwiftUI iPhone app built around explicit privacy
 - Optional ChatGPT calls are opt-in per interaction.
 - The app shows the exact outbound AI payload before sending.
 - Device-reported workout calories are stored separately from app-estimated calories.
+- The app product, display name, bundle identifier, and HealthKit purpose strings use the Kalirova brand.
 
 ## App Layers
 
@@ -53,6 +54,10 @@ SwiftData is used for local persistence. User data exports, local stores, and ge
 - `PrivacyConsentService`: per-interaction AI consent and payload review state.
 - `KeychainService`: secure local API key storage.
 
+### Brand Assets
+
+The Xcode asset catalog contains the Kalirova app icon concept, brand board, and named color assets from the Kalirova brand package. The Swift module and target internals can remain stable while the app product presents as Kalirova.
+
 ### Core Algorithms
 
 When heart-rate data is available, the estimator uses user profile, workout type, duration, body mass, and intensity zones. When heart-rate data is unavailable, it uses:
@@ -80,4 +85,3 @@ OpenAI integration is optional. The app works without an API key. Requests must 
 - Date-bounded summary statistics.
 
 The app must not send full HealthKit history unless the user explicitly chooses to.
-

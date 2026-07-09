@@ -66,7 +66,7 @@
 		AA0000000000000000000222 /* HealthTrackAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HealthTrackAI.entitlements; sourceTree = "<group>"; };
 		AA0000000000000000000223 /* CalorieBurnEstimatorXcodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieBurnEstimatorXcodeTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000224 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		AA0000000000000000000225 /* HealthTrackAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthTrackAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000225 /* Kalirova.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kalirova.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000226 /* HealthTrackAITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTrackAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -186,7 +186,7 @@
 		AA0000000000000000000510 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA0000000000000000000225 /* HealthTrackAI.app */,
+				AA0000000000000000000225 /* Kalirova.app */,
 				AA0000000000000000000226 /* HealthTrackAITests.xctest */,
 			);
 			name = Products;
@@ -209,7 +209,7 @@
 			);
 			name = HealthTrackAI;
 			productName = HealthTrackAI;
-			productReference = AA0000000000000000000225 /* HealthTrackAI.app */;
+			productReference = AA0000000000000000000225 /* Kalirova.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AA0000000000000000000303 /* HealthTrackAITests */ = {
@@ -460,9 +460,9 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "HealthTrack AI";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "HealthTrack AI reads selected Apple Health data to show private dashboards, imports, trends, and calorie comparisons on this device.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HealthTrack AI may write user-confirmed wellness entries to Apple Health if enabled in a future setting.";
+				INFOPLIST_KEY_CFBundleDisplayName = Kalirova;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Kalirova reads selected Apple Health data to show private dashboards, imports, trends, and calorie comparisons on this device.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Kalirova may write user-confirmed wellness entries to Apple Health if enabled in a future setting.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -473,9 +473,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.healthtrackai.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeldesocio.kalirova;
 				PRODUCT_MODULE_NAME = HealthTrackAI;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Kalirova;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -495,9 +495,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"HealthTrackAI/Resources\"";
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "HealthTrack AI";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "HealthTrack AI reads selected Apple Health data to show private dashboards, imports, trends, and calorie comparisons on this device.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "HealthTrack AI may write user-confirmed wellness entries to Apple Health if enabled in a future setting.";
+				INFOPLIST_KEY_CFBundleDisplayName = Kalirova;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Kalirova reads selected Apple Health data to show private dashboards, imports, trends, and calorie comparisons on this device.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Kalirova may write user-confirmed wellness entries to Apple Health if enabled in a future setting.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -508,9 +508,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.healthtrackai.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeldesocio.kalirova;
 				PRODUCT_MODULE_NAME = HealthTrackAI;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Kalirova;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -534,13 +534,13 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.healthtrackai.app.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeldesocio.kalirova.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HealthTrackAI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HealthTrackAI";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kalirova.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kalirova";
 			};
 			name = Debug;
 		};
@@ -559,13 +559,13 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.healthtrackai.app.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.michaeldesocio.kalirova.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HealthTrackAI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HealthTrackAI";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kalirova.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kalirova";
 			};
 			name = Release;
 		};

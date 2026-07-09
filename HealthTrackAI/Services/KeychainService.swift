@@ -16,7 +16,7 @@ enum KeychainServiceError: LocalizedError {
 final class KeychainService: @unchecked Sendable {
     static let shared = KeychainService()
 
-    private let service = "com.healthtrackai.app"
+    private let service = "com.michaeldesocio.kalirova"
     private let openAIAccount = "openai-api-key"
 
     private init() {}

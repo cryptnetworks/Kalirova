@@ -1,12 +1,12 @@
-# HealthTrack AI
+# Kalirova
 
-HealthTrack AI is a native SwiftUI iPhone app for private, on-device health tracking. It keeps health data local by default, imports Apple Health data through HealthKit, estimates exercise calories independently from device-reported values, and offers optional per-interaction ChatGPT assistance only after showing the exact data that will be sent.
+Kalirova is a native SwiftUI iPhone app for private, on-device health tracking. It keeps health data local by default, imports Apple Health data through HealthKit, estimates exercise calories independently from device-reported values, and offers optional per-interaction ChatGPT assistance only after showing the exact data that will be sent.
 
 > Wellness disclaimer: this app is for wellness tracking only and is not medical advice.
 
 ## Current Sprint
 
-Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal grouping, optional restaurant meal estimation with ChatGPT, Apple-standard UI patterns, and 90-day HealthKit workout import.
+Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal grouping, optional restaurant meal estimation with ChatGPT, Apple-standard UI patterns, 90-day HealthKit workout import, and the Kalirova brand rename.
 
 ## Repository Rules
 
@@ -19,7 +19,7 @@ Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal
 
 ## Local Setup
 
-1. Open `HealthTrackAI.xcodeproj` in Xcode.
+1. Open `HealthTrackAI.xcodeproj` in Xcode. The app product and display name build as Kalirova.
 2. Select a development team for signing.
 3. Enable the HealthKit capability on the app target.
 4. Run on a physical iPhone for HealthKit functionality. Simulator previews use mock data.
@@ -47,6 +47,7 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 - Exercise calories: app-estimated calories are stored separately from device-reported calories.
 - Meals: foods are logged into local meal containers grouped by date and meal type.
 - AI: OpenAI integration is optional, isolated, and opt-in per request.
+- Brand assets: Kalirova app icon, brand board, and named color assets live in the Xcode asset catalog.
 - Analytics/cloud database: none.
 
 See `ARCHITECTURE.md` and `PRIVACY.md` for details.

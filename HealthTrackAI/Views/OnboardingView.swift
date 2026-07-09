@@ -170,7 +170,7 @@ struct OnboardingView: View {
                     }
                 }
             }
-            .navigationTitle("HealthTrack AI")
+            .navigationTitle("Kalirova")
             .sheet(isPresented: $showingBMIInfo) {
                 BMIInfoView()
             }

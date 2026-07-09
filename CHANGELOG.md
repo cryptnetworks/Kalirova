@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to HealthTrack AI will be documented here.
+All notable changes to Kalirova will be documented here.
 
 The format follows Keep a Changelog style, and commits use Conventional Commits.
 
@@ -8,6 +8,7 @@ The format follows Keep a Changelog style, and commits use Conventional Commits.
 
 ### Added
 - Planned Sprint 1 work for profile/unit improvements, BMI guidance, restaurant AI meal estimation, meal grouping, Apple-standard UI refinements, and HealthKit 90-day import.
+- Renamed the visible app brand to Kalirova, updated the app bundle identifier, and added Kalirova app icon, brand board, and color assets.
 - Added typed onboarding inputs for profile measurements, unit selection, goal weight, and live BMI with adult BMI category guidance.
 - Added unit-aware dashboard, workout, and body-mass metric display/input while preserving normalized metric storage.
 - Added meal containers grouped by date and meal type, with multiple food items per container and dashboard grouping.

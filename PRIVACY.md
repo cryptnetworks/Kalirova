@@ -1,6 +1,6 @@
 # Privacy
 
-HealthTrack AI is designed for private, on-device wellness tracking.
+Kalirova is designed for private, on-device wellness tracking.
 
 ## What Stays Local
 
@@ -32,7 +32,7 @@ Before sending, the app must show the exact payload.
 
 ## Data Sharing
 
-HealthTrack AI does not sell health data, share health data with third-party analytics, or use a cloud database.
+Kalirova does not sell health data, share health data with third-party analytics, or use a cloud database.
 
 ## API Keys
 
@@ -41,4 +41,3 @@ API keys must be stored in Keychain or provided by a production backend token pr
 ## Disclaimer
 
 This app is for wellness tracking only and is not medical advice.
-

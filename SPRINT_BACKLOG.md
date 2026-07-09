@@ -44,7 +44,7 @@ Goal: Create the repository, SCRUM documentation, SwiftUI app scaffold, local-fi
 
 Dates: 2026-07-08 to 2026-07-22
 
-Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, redesign meal logging around meal containers, add optional restaurant meal AI estimation with explicit privacy confirmation, import 90 days of HealthKit workouts, and refine UI with native Apple patterns.
+Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, redesign meal logging around meal containers, add optional restaurant meal AI estimation with explicit privacy confirmation, import 90 days of HealthKit workouts, refine UI with native Apple patterns, and apply the Kalirova brand rename.
 
 ## Sprint Tasks
 
@@ -59,6 +59,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T7 | S9.1 | Refine screens with native SwiftUI forms/lists, accessibility labels, Dynamic Type support, and Liquid Glass availability fallbacks. | Todo |
 | S1-T8 | S0.3 | Add or update tests for unit conversion, BMI, meal grouping, AI request payloads, and HealthKit duplicate handling. | Todo |
 | S1-T9 | S0.3 | Run SwiftPM tests and Xcode simulator build. | Todo |
+| S1-T10 | S9.2 | Rename visible app brand to Kalirova, update bundle identifiers and docs, and import Kalirova brand assets. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -68,3 +69,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T3: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.
 - S1-T4: `swift test` passed with 9 XCTest tests and 0 failures.
 - S1-T4: `xcodebuild -scheme HealthTrackAI -destination generic/platform=iOS\ Simulator build` passed.
+- S1-T10: `plutil -lint HealthTrackAI.xcodeproj/project.pbxproj` passed.
+- S1-T10: Kalirova asset catalog `Contents.json` files parsed with Ruby `JSON.parse`.
+- S1-T10: `swift test` passed with 9 XCTest tests and 0 failures.
+- S1-T10: `xcodebuild -scheme Kalirova -destination generic/platform=iOS\ Simulator build` passed.

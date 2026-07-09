@@ -15,7 +15,7 @@ Acceptance criteria:
 As a user, I want a native SwiftUI iPhone app shell so the product can grow feature by feature.
 
 Acceptance criteria:
-- Xcode project opens as `HealthTrackAI`.
+- Xcode project opens and builds the Kalirova app product.
 - App uses SwiftUI entry point.
 - App has navigable screens for onboarding, dashboard, meals, exercise, metrics, trends, weekly summary, and settings.
 - App includes mock data for previews and simulator flows.
@@ -188,12 +188,22 @@ Acceptance criteria:
 ## Epic E9: Apple Platform Experience
 
 ### Story S9.1: Align UI with Apple Human Interface Guidelines
-As a user, I want HealthTrack AI to feel like a native iOS app with accessible system behavior.
+As a user, I want Kalirova to feel like a native iOS app with accessible system behavior.
 
 Acceptance criteria:
 - Core flows use native SwiftUI `NavigationStack`, `Form`, `List`, `Section`, `Picker`, `DatePicker`, `Sheet`, `ConfirmationDialog`, `ToolbarItem`, and SF Symbols where appropriate.
 - Spacing, hierarchy, typography, accessibility labels, Dynamic Type, and contrast are improved.
 - Liquid Glass visual treatment is used where available on iOS 26 with availability checks and graceful fallbacks.
+
+### Story S9.2: Apply Kalirova brand identity
+As a user, I want the app to present consistently as Kalirova so the product feels cohesive and recognizable.
+
+Acceptance criteria:
+- Visible app display name is Kalirova.
+- App bundle identifier is unique and uses the Kalirova brand.
+- HealthKit purpose strings mention Kalirova without changing HealthKit entitlements.
+- App icon and brand assets from the Kalirova brand package are available in the Xcode asset catalog.
+- README, backlog, changelog, privacy docs, and architecture docs use the Kalirova product name.
 
 ### Story S7.2: Generate optional AI weekly summary
 As a user, I want optional coaching-style insights based on a bounded weekly summary.
