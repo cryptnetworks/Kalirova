@@ -19,7 +19,18 @@ Sprint 1 improves onboarding/profile input, unit preferences, BMI guidance, meal
 
 ## Local Setup
 
-1. Open `Kalirova.xcodeproj` in Xcode. The app product and display name build as Kalirova.
+Requirements:
+
+- macOS with full Xcode installed.
+- iOS 17 SDK or newer.
+- Swift 6 toolchain.
+- A physical iPhone for HealthKit functionality.
+- Apple Developer signing team for physical-device builds and CloudKit/iCloud capability provisioning.
+
+Install and run:
+
+1. Clone the repository.
+2. Open `Kalirova.xcodeproj` in Xcode. The app product and display name build as Kalirova.
 2. Select a development team for signing.
 3. Enable the HealthKit capability on the app target.
 4. Run on a physical iPhone for HealthKit functionality. Simulator previews use mock data.
@@ -38,6 +49,18 @@ If `xcodebuild` reports that Command Line Tools are selected, switch to full Xco
 
 ```sh
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+```
+
+Build the iOS app from the command line:
+
+```sh
+xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build
+```
+
+Run Xcode tests on an available simulator:
+
+```sh
+xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test
 ```
 
 ## Architecture
@@ -70,3 +93,22 @@ HealthKit requires:
 - `SPRINT_REVIEW.md`
 - `SPRINT_RETROSPECTIVE.md`
 - `CHANGELOG.md`
+
+## Security
+
+Security automation lives in `.github/workflows/security.yml` and `.github/dependabot.yml`.
+
+- Dependabot monitors GitHub Actions and Swift Package Manager.
+- Dependency Review runs on pull requests.
+- CodeQL analyzes Swift.
+- Conditional audit steps run for CocoaPods, npm, and Bundler if those lockfiles are later added.
+
+See `SECURITY.md` for vulnerability reporting and secret-handling rules.
+
+## Contributing
+
+See `CONTRIBUTING.md`. Keep changes small, use conventional commits, update affected SCRUM/docs artifacts, and never commit secrets or personal health data.
+
+## License
+
+No license file is currently present. Until a license is added, all rights are reserved by the repository owner.

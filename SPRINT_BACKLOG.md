@@ -65,6 +65,7 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 | S1-T13 | S10.1 | Add opt-in iCloud Backup settings, CloudKit-backed SwiftData container selection, iCloud availability state, and privacy documentation. | Done |
 | S1-T14 | S0.1, S0.2 | Remove personal identifiers from bundle IDs, Keychain service names, CloudKit container IDs, entitlements, and documentation. | Done |
 | S1-T15 | S9.3 | Import Kalirova design system assets, create reusable SwiftUI theme/components, and normalize major screens to the supplied visual language. | Done |
+| S1-T16 | S0.4 | Add CI, security scanning, Dependabot, repository templates, security policy, and wiki sync documentation. | Done |
 
 ## Sprint 1 Verification Log
 
@@ -109,3 +110,11 @@ Goal: Improve onboarding/profile input, add unit preferences and BMI guidance, r
 - S1-T15: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build` passed.
 - S1-T15: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
 - S1-T15: Final simulator build warning scan showed only Xcode's benign AppIntents metadata warning for an app with no AppIntents dependency.
+- S1-T16: Repository audit found native SwiftUI/Xcode app, Swift Package Manager package, no CocoaPods, no npm, no Ruby/Bundler, and GitHub Actions CI/CD.
+- S1-T16: Workflow, Dependabot, and issue template YAML parsed successfully with Ruby `YAML.load_file`.
+- S1-T16: `swift package show-dependencies` reported no external dependencies.
+- S1-T16: `swift test` passed with 9 XCTest tests and 0 failures.
+- S1-T16: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'generic/platform=iOS Simulator' -configuration Debug build` passed.
+- S1-T16: `xcodebuild -project Kalirova.xcodeproj -scheme Kalirova -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -configuration Debug test` passed with 5 tests and 0 failures.
+- S1-T16: `gh repo edit --visibility public --accept-visibility-change-consequences` completed; repository was already public.
+- S1-T16: `gh repo edit --enable-wiki --enable-secret-scanning --enable-secret-scanning-push-protection` completed.

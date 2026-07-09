@@ -30,6 +30,16 @@ Acceptance criteria:
 - HealthKit mapping logic has unit tests using mock DTOs.
 - Summary generation has unit tests.
 
+### Story S0.4: Maintain repository security and automation
+As a maintainer, I want CI, dependency monitoring, security scanning, contribution templates, and wiki documentation so repository changes stay reviewable and safe.
+
+Acceptance criteria:
+- GitHub Actions runs app build and tests on pushes to `main` and pull requests.
+- Security workflow runs Dependency Review, CodeQL for Swift, SwiftPM dependency inventory, and detected ecosystem audit commands.
+- Dependabot monitors GitHub Actions and Swift Package Manager updates.
+- Repository includes `SECURITY.md`, `CONTRIBUTING.md`, pull request template, issue templates, and wiki-ready docs under `docs/wiki/`.
+- Documentation explains secret-handling rules and vulnerability reporting without requiring hardcoded credentials.
+
 ## Epic E1: Privacy-First Onboarding
 
 ### Story S1.1: Capture user profile locally
